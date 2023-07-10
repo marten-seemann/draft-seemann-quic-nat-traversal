@@ -93,7 +93,8 @@ A (proxied) QUIC connection (e.g. using CONNECT-UDP ({{!RFC9298}})) can be used
 as the signaling channel required by the ICE protocol (see section 1 of
 {{!RFC8445}}). ICE messages are sent on this QUIC connection using the ICE frame
 defined in this document. This mode requires the ICE extension defined in this
-document to be negotiated ({{negotiating-extension-use}}).
+document to be negotiated ({{negotiating-extension-use}}). Implementions MAY use
+Trickle ICE ({{!RFC8838}}) to speed up the exchange of address candidates.
 
 Once ICE has successfully nominated a candidate pair, this path can be used as a
 direct connection between the two endpoints. The client SHOULD initiate a QUIC
