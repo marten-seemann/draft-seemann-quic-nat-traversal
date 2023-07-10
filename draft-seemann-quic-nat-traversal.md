@@ -126,7 +126,7 @@ a timely manner.
 
 # Negotiating Extension Use
 
-Endpoints advertise their support of the extension described for mode 2 by
+Endpoints advertise their support of the extension needed for mode 2 and 3 by
 sending the ice (0x3d7e9f0bca12fea6) transport parameter (section 7.4 of
 {{!RFC9000}}) with an empty value. An implementation that understands this
 transport parameter MUST treat the receipt of a non-empty value as a connection
