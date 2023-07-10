@@ -138,13 +138,13 @@ the server MUST not disable this extension on the resumed connection.
 
 # ICE Frame
 
-```
+~~~
 ICE Frame {
     Type (i) = 0x1ce,
     Length (i),
     Data (...),
 }
-```
+~~~
 
 The ICE frame contains the following fields:
 
