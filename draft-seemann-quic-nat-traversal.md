@@ -1,7 +1,6 @@
 ---
 title: "Using QUIC to traverse NATs"
 abbrev: "QUIC NAT Traversal"
-category: info
 category: std
 
 docname: draft-seemann-quic-nat-traversal-latest
@@ -29,15 +28,129 @@ informative:
 
 --- abstract
 
-TODO Abstract
-
+QUIC ({{!RFC9000}}) lends itself  to various NAT traversal techniques. As it
+runs on top of UDP, and because the QUIC header was designed to be demultipexed
+from other protocols, STUN ({{!RFC5389}}) can be used on the same UDP socket.
+This makes it possible to use ICE ({{!RFC8445}}) in conjunction with QUIC.
+Furthermore, QUIC’s path validation mechanism can be used to test the viability
+of an address candidate pair, allowing the immediate use of a new path.
 
 --- middle
 
 # Introduction
 
-TODO Introduction
+This document defines three distinct modes to traverse NATs using QUIC:
 
+1. Using ICE with an external signaling channel to select a pair of (UDP)
+   addresses. Once candidate selection has completed, a new QUIC connection
+   between the two endpoints can be established.
+2. Using a proxied QUIC connection as the signaling channel for ICE. Once ICE
+   has nominated a candidate pair (i.e. selected a useable path), the proxied
+   connection is migrated using QUIC’s connection migration.
+3. Using a proxied QUIC connection as the signaling channel for ICE. Instead of
+   using ICE's connectivity checks, QUIC's path validation logic is used to
+   determine possible paths.
+
+The first mode doesn't require any changes to existing QUIC and ICE stacks. The
+only requirement is that it is possible to send (non-QUIC) packets on the UDP
+socket that a QUIC server is listening on. However, it requires running a
+separate signaling channel for the signaling between the two ICE agents.
+
+The second mode requires a small modification of the QUIC stacks involved, as
+they now need to be able to exchange ICE messages on top of the proxied QUIC
+connection. This is achieved by defining an ICE frame to carry these messages.
+
+The third mode requires changes to both the QUIC and the ICE stacks. The ICE
+delegates responsibility for performing connectivity checks to the QUIC stack.
+The QUIC stack uses QUIC's path validation logic to perform the connectivity
+check. In addition to the path validation mechanism described in {{!RFC9000}},
+the QUIC server needs to be able to initiation path validation, which in
+{{!RFC9000}} is only done by the client.
+
+# Modes
+
+## 1. External Signaling Channel
+
+When an external signaling channel is used, the QUIC connection is established
+after the two ICE agents have agreed on a candidate pair. This mode doesn't
+require any modification to an existing QUIC stack. In particular, it does not
+require the ICE extension defined in this document to be negotiated.
+
+When the time has come to establish the QUIC connection, the client does exactly
+what RFC 9000 describes to initiate the handshake. The server needs to send a
+UDP packet to the client’s peer reflexive address. This creates the NAT binding
+that allow’s the ClientHello to make it through.
+
+## 2. Using a QUIC Connection as a Signaling Channel, using ICE for Connectivity Checks
+
+A (proxied) QUIC connection (e.g. using CONNECT-UDP ({{!RFC9298}})) can be used
+as the signaling channel described in section 1 of {{!RFC8445}}. ICE messages
+are sent using the ICE frame defined in this document. This mode requires the
+ICE extension defined in this document to be negotiated
+({{negotiating-extension-use}}).
+
+Once ICE has successfully nominated a candidate pair, this path can be used as a
+direct connection between the two endpoints. The client SHOULD initiate a QUIC
+connection migration (section 9 of {{!RFC9000}}) in a timely manner. The ICE
+connectivity check should have created all the NAT bindings needed for the QUIC
+path validation to complete successfully, however, these NAT bindings are
+usually only valid for a limited amount of time.
+
+## 3. Using a QUIC Connection as a Signaling Channel, using QUIC for Connectivity Checks
+
+Similar to mode 2, in this mode a (proxied) QUIC connection is used as the ICE
+signaling channel. Instead of performing them itself, the ICE stacks delegates
+connectivity checks (section 7 of {{!RFC8445}}) to the QUIC stack.
+
+The QUIC client MUST ensure that it ends up as the controlling agent (see
+section 2.3 of {{!RFC8445}}). This can be achieved by sending the maximum
+allowed value for the tiebreaker value (see section 7.3.1. of {{!RFC8445}}).
+
+When asked by the ICE stack to perform a connectivity check for a address
+candidate pair, each QUIC endpoint probes the path by sending a probing packet
+containing a PATH_CHALLENGE frames, as described in section 8 of {{!RFC9000}}.
+Note that this is slightly different from {{!RFC9000}}, where only the client
+sends a probing packet. In order to create the required NAT bindings, it is
+necessary that both endpoints send packets.
+
+Once path validation completes, the QUIC stack passes the result (successful or
+failed) back to the ICE stack. The ICE stack then nominates an address pair,
+allowing the client to migrate the connection to that path.
+
+# Negotiating Extension Use
+
+Endpoints advertise their support of the extension described for mode 2 by
+sending the ice (0x3d7e9f0bca12fea6 ) transport parameter (section 7.4 of
+{{!RFC9000}}) with an empty value. An implementation that understands this
+transport parameter MUST treat the receipt of a non-empty value as a connection
+error of type TRANSPORT_PARAMETER_ERROR.
+
+In order to the use of this extension in 0-RTT packets, the client MUST remember
+the value of this transport parameter. If 0-RTT data is accepted by the server,
+the server MUST not disable this extension on the resumed connection.
+
+# ICE Frame
+
+```
+ICE Frame {
+    Type (i) = 0x1ce,
+    Length (i),
+    Data (...),
+}
+```
+
+The ICE frame contains the following fields:
+
+Length: A variable-length integer encoding the length of the following Data field.
+
+Data: The ICE message.
+
+If the Length is larger than the remaining payload of the QUIC packet, the
+receiver MUST close the connection with a connection error of type
+FRAME_ENCODING_ERROR.
+
+ICE frames are ack-eliciting. When lost, they MUST NOT be retransmitted, as the
+ICE layer is handling retransmission of messages.
 
 # Conventions and Definitions
 
