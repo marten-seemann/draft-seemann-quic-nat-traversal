@@ -28,60 +28,61 @@ informative:
 
 --- abstract
 
-QUIC ({{!RFC9000}}) lends itself  to various NAT traversal techniques. As it
-runs on top of UDP, and because the QUIC header was designed to be demultipexed
+QUIC ({{!RFC9000}}) is well-suited to various NAT traversal techniques. As it
+operates over UDP, and because the QUIC header was designed to be demultipexed
 from other protocols, STUN ({{!RFC5389}}) can be used on the same UDP socket.
-This makes it possible to use ICE ({{!RFC8445}}) in conjunction with QUIC.
-Furthermore, QUIC’s path validation mechanism can be used to test the viability
-of an address candidate pair, allowing the immediate use of a new path.
+This allows for using ICE ({{!RFC8445}}) with QUIC. Furthermore, QUIC’s path
+validation mechanism can be used to test the viability of an address candidate
+pair, allowing the immediate use of a new path.
 
 --- middle
 
 # Introduction
 
-This document defines three distinct modes to traverse NATs using QUIC:
+This document defines three distinct modes for traversing NATs using QUIC:
 
-1. Using ICE with an external signaling channel to select a pair of (UDP)
-   addresses. Once candidate selection has completed, a new QUIC connection
+1. Using ICE with an external signaling channel to select a pair of UDP
+   addresses. Once candidate selection is completed, a new QUIC connection
    between the two endpoints can be established.
 2. Using a proxied QUIC connection as the signaling channel for ICE. Once ICE
-   has nominated a candidate pair (i.e. selected a useable path), the proxied
+   has nominated a candidate pair (i.e., selected a usable path), the proxied
    connection is migrated using QUIC’s connection migration.
 3. Using a proxied QUIC connection as the signaling channel for ICE. Instead of
    using ICE's connectivity checks, QUIC's path validation logic is used to
    determine possible paths.
 
 The first mode doesn't require any changes to existing QUIC and ICE stacks. The
-only requirement is that it is possible to send (non-QUIC) packets on the UDP
-socket that a QUIC server is listening on. However, it requires running a
-separate signaling channel for the signaling between the two ICE agents.
+only requirement is the ability to send non-QUIC packets on the UDP socket that
+a QUIC server is listening on. However, it necessitates running a separate
+signaling channel for the communication between the two ICE agents.
 
-The second mode requires a small modification of the QUIC stacks involved, as
-they now need to be able to exchange ICE messages on top of the proxied QUIC
-connection. This is achieved by defining an ICE frame to carry these messages.
+The second mode requires a minor modification of the QUIC stacks involved, as
+they now need to be capable of exchanging ICE messages on top of the proxied
+QUIC connection. This is achieved by defining an ICE frame to carry these
+messages.
 
-The third mode requires changes to both the QUIC and the ICE stacks. The ICE
+The third mode necessitates changes to both the QUIC and ICE stacks. The ICE
 delegates responsibility for performing connectivity checks to the QUIC stack.
-The QUIC stack uses QUIC's path validation logic to perform the connectivity
-check. In addition to the path validation mechanism described in {{!RFC9000}},
-the QUIC server needs to be able to initiation path validation, which in
-{{!RFC9000}} is only done by the client.
+The QUIC stack utilizes QUIC's path validation logic to perform the connectivity
+check. In addition to the path validation mechanism described in RFC9000, the
+QUIC server needs the capability to initiate path validation, which, as per
+RFC9000, is solely executed by the client.
 
 # Modes
 
-## 1. External Signaling Channel
+## Using an External Signaling Channel
 
 When an external signaling channel is used, the QUIC connection is established
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
-require any modification to an existing QUIC stack. In particular, it does not
-require the ICE extension defined in this document to be negotiated.
+require any modification to an existing QUIC stack, particularly, it does not
+necessitate the negotiation of the ICE extension defined in this document.
 
-When the time has come to establish the QUIC connection, the client does exactly
-what RFC 9000 describes to initiate the handshake. The server needs to send a
-UDP packet to the client’s peer reflexive address. This creates the NAT binding
-that allow’s the ClientHello to make it through.
+Once ICE has completed, the time has come to establish the QUIC connection. The
+client initiates a normal QUIC handshake using the server's address from the
+nominated address pair. The ICE connectivity checks have created the necessary
+NAT bindings for this packet to reach the server.
 
-## 2. Using a QUIC Connection as a Signaling Channel, using ICE for Connectivity Checks
+## Using a QUIC Connection as a Signaling Channel, using ICE for Connectivity Checks
 
 A (proxied) QUIC connection (e.g. using CONNECT-UDP ({{!RFC9298}})) can be used
 as the signaling channel described in section 1 of {{!RFC8445}}. ICE messages
@@ -96,7 +97,7 @@ connectivity check should have created all the NAT bindings needed for the QUIC
 path validation to complete successfully, however, these NAT bindings are
 usually only valid for a limited amount of time.
 
-## 3. Using a QUIC Connection as a Signaling Channel, using QUIC for Connectivity Checks
+## Using a QUIC Connection as a Signaling Channel, using QUIC for Connectivity Checks
 
 Similar to mode 2, in this mode a (proxied) QUIC connection is used as the ICE
 signaling channel. Instead of performing them itself, the ICE stacks delegates
@@ -106,21 +107,21 @@ The QUIC client MUST ensure that it ends up as the controlling agent (see
 section 2.3 of {{!RFC8445}}). This can be achieved by sending the maximum
 allowed value for the tiebreaker value (see section 7.3.1. of {{!RFC8445}}).
 
-When asked by the ICE stack to perform a connectivity check for a address
+When the ICE stack requests to perform a connectivity check for an address
 candidate pair, each QUIC endpoint probes the path by sending a probing packet
 containing a PATH_CHALLENGE frames, as described in section 8 of {{!RFC9000}}.
-Note that this is slightly different from {{!RFC9000}}, where only the client
-sends a probing packet. In order to create the required NAT bindings, it is
-necessary that both endpoints send packets.
+Note that this differs slightly from {{!RFC9000}}, where only the client sends a
+probing packet.To create the required NAT bindings, it's necessary for both
+endpoints to send packets.
 
-Once path validation completes, the QUIC stack passes the result (successful or
-failed) back to the ICE stack. The ICE stack then nominates an address pair,
+Once path validation is complete, the QUIC stack passes the result (successful
+or failed) back to the ICE stack. The ICE stack then nominates an address pair,
 allowing the client to migrate the connection to that path.
 
 # Negotiating Extension Use
 
 Endpoints advertise their support of the extension described for mode 2 by
-sending the ice (0x3d7e9f0bca12fea6 ) transport parameter (section 7.4 of
+sending the ice (0x3d7e9f0bca12fea6) transport parameter (section 7.4 of
 {{!RFC9000}}) with an empty value. An implementation that understands this
 transport parameter MUST treat the receipt of a non-empty value as a connection
 error of type TRANSPORT_PARAMETER_ERROR.
