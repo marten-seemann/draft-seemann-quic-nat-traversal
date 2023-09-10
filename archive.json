@@ -1,0 +1,205 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2023-09-10T03:20:36.313230+00:00",
+  "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOJ5p67M5rLg3F",
+      "title": "How much of ICE do we want to specify?",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/1",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "ICE is a rather complex protocol, but the underlying ideas are simple:\r\n\r\n- Assume an established channel over which the peer can coordinate\r\n- Endpoints are behind NAT. If they send a packet towards a destination IP and port, they often cannot predict the exact source IP and port.\r\n       - But with the help of STUN servers and possibly UPNP or NAT-PMP, try to predict the IP+port at which they can be reachable through the local set of NATs\r\n       - Of course this is guesswork.\r\n- Each endpoint communicates the set of plausible IP + port numbers pairs to the peer over the signalling channel\r\n- Each of the endpoints send a set of probes to these guessed port numbers\r\n     - Many of these probes will not make it, because of firewall rules such as only accepting incoming traffic on an IP and port if there was some outgoing traffic in the same direction, \r\n     - but the hope is that there will be that out of the set of packets sent by each endpoint, there will be at least one in which the guessing worked.\r\n- If one of the probe made it through, confirm that to the peer. There is now a workable peer-to-peer path.\r\n- In no probe arrives, then fall back to a proxy of some kind, for example using TURN.\r\n\r\nThere are additional complexities:\r\n\r\n- sending probes has side effects. For example, sending too many probes forces the local NAT to create as many mapping context, and some of these NAT only support a small set of simultaneous mapping. Thus, the strategy of sending 256 packets from each side and relying on the birthday paradox may not be the best.\r\n\r\n- sending list of IP addresses has privacy issues, especially when disclosing addresses behind the NAT, so consider using some substitute, e.g, a randomized Bonjour name.\r\n\r\n- tricking a peer to send a bunch of messages to random addresses can obviously be used in DOS attacks\r\n\r\nWhich means we do not have just one message, but rather 3 or 5:\r\n\r\n- An address message, \"here is my list of addresses\", sent over the signalling channel, which in our case could be a proxied QUIC connection. \r\n- A probe message, sent to one of the candidate peer address+port, which could be very similar to a PATH_CHALLENGE\r\n- A probe response, which could be very similar to a PATH_RESPONSE\r\n- Maybe an address response, as in \"I see your packet as coming from IP=A, Port=P\", by which the endpoint could learn how its own address is seen by the peer.\r\n- Maybe some synchronization message, as in \"try me now\", because the port opening only works well if both endpoints send their packets within a short interval.\r\n\r\nWe can debate whether the probing should use existing frames (e.g. PATH_CHALLENGE) or a new ICE frame,  but we would have to explain that these ICE frames are sent on the probed paths, just like path challenge.\r\n\r\nSince this is a rather complex issue, it might be simpler to start with the scenario in which there is an existing proxied connection between the two endpoints, and we are merely trying to migrate the traffic to a direct path.\r\n\r\n\r\n",
+      "createdAt": "2023-07-11T06:10:41Z",
+      "updatedAt": "2023-07-12T05:27:12Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "NAT rebinding can happen at either end, and will break the \"peer-to-peer\" path. It might make sense to start from Multipath QUIC, with one path through the proxy and another for the peer-to-peer shortcut.\r\n\r\nMultipath is currently limited to establishment of new paths by the client. If peer-to-peer defines an Address Advertisement frame, the multipath-enabled server could use it to tell the client to establish another \"preferred\" path.",
+          "createdAt": "2023-07-11T06:15:59Z",
+          "updatedAt": "2023-07-11T06:15:59Z"
+        },
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "@huitema Are you suggesting to drop ICE entirely? I agree that ICE is quite complex, and I've spent a fair amount of time reading the RFCs, and I'm not sure I've fully understood it...\r\nHowever, I also don't want to reinvent the wheel. It seems like ICE already solves all the points you list in the first two lists of your post. Where do you see the simplification coming from when dropping ICE for our own home-grown protocol?\r\n\r\n---\r\n\r\n>  It might make sense to start from Multipath QUIC, with one path through the proxy and another for the peer-to-peer shortcut.\r\n\r\nThis definitely should work well with Multipath QUIC (that actually should be a design goal of this protocol), but I'd prefer to not make it a requirement, if we can avoid it. RFC 9000 allows keeping several paths alive, and endpoints could keep the proxied connection alive (by regularly sending probing packets) after they've migrated to a direct path. On the other hand, this is probably not what the proxy wants: It wants to free up resources as quickly as possible. How does ICE handle this?\r\n\r\n> NAT rebinding can happen at either end, and will break the \"peer-to-peer\" path. \r\n\r\nDo we have any numbers on how often NAT rebindings actually happen, and if they can be avoided by more aggressive keep-alives? Given the trouble endpoints have gone through to establish a hole-punched connections, it might be justified to invest more into keeping the NAT binding alive (e.g. send a PING frame at least every 5s or so). It would be nice if we could base this kind of recommendation on data though.",
+          "createdAt": "2023-07-11T18:27:48Z",
+          "updatedAt": "2023-07-11T18:27:48Z"
+        },
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "I think supporting both RFC9000 and Multipath is more complex than just doing multipath alone. I also think that starting from multipath allows for incremental development, such as, after having a multipath capable proxy connection. Maybe for example, test local discovery first, then traversal of IPv6 stateful firewall, then add discovery of NATed addresses.",
+          "createdAt": "2023-07-12T05:27:12Z",
+          "updatedAt": "2023-07-12T05:27:12Z"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOJ5p67M5r8Xxq",
+      "title": "Citations in abstracts",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/2",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "As a general rule (and due to the style guide), citations in abstracts are discouraged.  That is, you might say \"RFC 9000\", but not use \"[RFC9000]\".",
+      "createdAt": "2023-07-19T01:45:27Z",
+      "updatedAt": "2023-07-19T01:45:27Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOJ5p67M5sUIRl",
+      "title": "think carefully about NAT rebindings on the server side",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/3",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Since the server is now also (potentially) a p2p node, it might be behind a NAT, and therefore might experience NAT rebindings. We need to define how a client should react to that.",
+      "createdAt": "2023-07-23T17:35:39Z",
+      "updatedAt": "2023-07-23T17:35:39Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOJ5p67M5sUIaa",
+      "title": "mention QUIC Multipath",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/4",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Not mentioning QUIC Multipath was an oversight and has led to a fair bit of discussion.\r\n\r\nCopy-pasting from an email I sent to the list:\r\n\r\nI'd like this extension to work well with QUIC Multipath, and I don't see anything that would prevent that. However, I don't think it needs anything multipath-specific, and can run on top of a RFC 9000 stack just as well.\r\n\r\nIn specific:\r\n1. RFC 9000 already allows a client to simultaneously probe an arbitrary number of paths, and to keep them alive (by sending probing packets). The only thing that multipath adds here is the capability to send / receive on multiple paths at the same time, but a NAT won't even be able to distinguish between these scenarios.\r\n1. Multipath doesn't allow the server to initiate a new path: as in RFC 9000, path initiation is solely the client's responsibility. A NAT traversal solution will need to define a way for the server to send a hole punching packet either way.\r\n\r\nRelated: #1.",
+      "createdAt": "2023-07-23T17:37:42Z",
+      "updatedAt": "2023-07-23T17:37:42Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOJ5p67M5sUIk0",
+      "title": "put the QUIC layer in control of selecting the path (mode 3)",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/5",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently the draft says:\r\n> Upon the completion of path validation, the QUIC stack passes the result (successful or failed) back to the ICE stack. The ICE stack then nominates an address pair. The client SHOULD then migrate the QUIC connection to this path in a timely manner.\r\n\r\nAs pointed out by @martinthomson on the list, we should put the QUIC layer in charge of selecting a path when using mode 3. A QUIC stack (multipath or not) will necessarily have some path selection / scheduling logic. We don't need to hand off the decision to ICE.",
+      "createdAt": "2023-07-23T17:40:02Z",
+      "updatedAt": "2023-07-23T17:40:02Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOJ5p67M5sjgVT",
+      "title": "consider removing mode 2",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/6",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Mode 2 has been helpful to think about how to go from 1 to 3, but there might be limited value in defining it.",
+      "createdAt": "2023-07-25T22:16:01Z",
+      "updatedAt": "2023-07-25T22:16:01Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 7,
+      "id": "I_kwDOJ5p67M5s6sG9",
+      "title": "consider moving ICE address matching / time ordering logic into this draft",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/7",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Then we wouldn't need a dependency on ICE.\r\n\r\nApparently ICE was designed with the assumption that the application might have several connections to the same endpoint at the same time, e.g. to demultiplex audio and video. Obviously, this isn't needed when using a multiplexed transport, and might lead to some simplifications.",
+      "createdAt": "2023-07-29T05:17:36Z",
+      "updatedAt": "2023-07-29T05:17:36Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 8,
+      "id": "I_kwDOJ5p67M5s6uBX",
+      "title": "evaluate bandwidth requirements for probing multiple paths",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/8",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "When presenting this proposal in AVTCore at IETF 117, some concern was voiced that probing using RFC 9000's path probing mechanism consumes more bandwidth than probing using STUN packets. While that's true, it's not clear if that poses a problem in 2023. We should evaluate and at the very least add these considerations to the draft.",
+      "createdAt": "2023-07-29T05:44:39Z",
+      "updatedAt": "2023-07-29T05:44:39Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": []
+}
