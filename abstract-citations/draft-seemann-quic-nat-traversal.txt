@@ -4,8 +4,8 @@
 
 QUIC                                                          M. Seemann
 Internet-Draft                                             Protocol Labs
-Intended status: Standards Track                            10 July 2023
-Expires: 11 January 2024
+Intended status: Standards Track                         10 October 2023
+Expires: 12 April 2024
 
 
                       Using QUIC to traverse NATs
@@ -13,13 +13,12 @@ Expires: 11 January 2024
 
 Abstract
 
-   QUIC ([RFC9000]) is well-suited to various NAT traversal techniques.
-   As it operates over UDP, and because the QUIC header was designed to
-   be demultipexed from other protocols, STUN ([RFC5389]) can be used on
-   the same UDP socket.  This allows for using ICE ([RFC8445]) with
-   QUIC.  Furthermore, QUIC’s path validation mechanism can be used to
-   test the viability of an address candidate pair, allowing the
-   immediate use of a new path.
+   QUIC is well-suited to various NAT traversal techniques.  As it
+   operates over UDP, and because the QUIC header was designed to be
+   demultipexed from other protocols, STUN can be used on the same UDP
+   socket.  This allows for using ICE with QUIC.  Furthermore, QUIC’s
+   path validation mechanism can be used to test the viability of an
+   address candidate pair, allowing the immediate use of a new path.
 
 Discussion Venues
 
@@ -47,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 January 2024.
+   This Internet-Draft will expire on 12 April 2024.
 
 Copyright Notice
 
@@ -73,7 +72,9 @@ Table of Contents
      2.3.  Using a QUIC Connection as a Signaling Channel, using QUIC
            for Connectivity Checks
    3.  Negotiating Extension Use
-   4.  ICE Frame
+   4.  Frames
+     4.1.  ADD_ADDRESS Frame
+     4.2.  REMOVE_ADDRESS Frame
    5.  Conventions and Definitions
    6.  Security Considerations
    7.  IANA Considerations
@@ -84,15 +85,16 @@ Table of Contents
 1.  Introduction
 
    This document defines three distinct modes for traversing NATs using
-   QUIC:
+   QUIC ([RFC9000]):
 
-   1.  Using ICE with an external signaling channel to select a pair of
-       UDP addresses.  Once candidate nomination is completed, a new
-       QUIC connection between the two endpoints can be established.
+   1.  Using ICE ([RFC8445]) with an external signaling channel to
+       select a pair of UDP addresses.  Once candidate nomination is
+       completed, a new QUIC connection between the two endpoints can be
+       established.
 
    2.  Using a (proxied) QUIC connection as the signaling channel for
        ICE.  Once ICE has nominated a candidate pair (i.e., selected a
-       usable path), the proxied connection is migrated using QUIC's
+       usable path), the proxied connection is migrated using QUIC’s
        connection migration.
 
    3.  Using a (proxied) QUIC connection as the signaling channel for
@@ -100,10 +102,10 @@ Table of Contents
        validation logic is used to determine possible paths.
 
    The first mode doesn't require any changes to existing QUIC and ICE
-   stacks.  The only requirement is the ability to send non-QUIC (STUN)
-   packets on the UDP socket that a QUIC server is listening on.
-   However, it necessitates running a separate signaling channel for the
-   communication between the two ICE agents.
+   stacks.  The only requirement is the ability to send non-QUIC (STUN
+   ([RFC5389])) packets on the UDP socket that a QUIC server is
+   listening on.  However, it necessitates running a separate signaling
+   channel for the communication between the two ICE agents.
 
    The second mode requires a minor modification of the QUIC stacks
    involved, as they now need to be capable of exchanging ICE messages
@@ -198,28 +200,43 @@ Table of Contents
    is accepted by the server, the server MUST not disable this extension
    on the resumed connection.
 
-4.  ICE Frame
+4.  Frames
 
-   ICE Frame {
-       Type (i) = 0x1ce,
-       Length (i),
-       Data (...),
+4.1.  ADD_ADDRESS Frame
+
+   ADD_ADDRESS Frame {
+       Type (i) = 0x3d7e90..0x3d7e91,
+       Sequence Number (i),
+       [ IPv4 (32) ],
+       [ IPv6 (128) ],
+       Port (16),
    }
 
-   The ICE frame contains the following fields:
+   The ADD_ADDRESS frame contains the following fields:
 
-   Length: A variable-length integer encoding the length of the
-   following Data field.
+   Sequence Number: A variable-length integer encoding the sequence
+   number of this address advertisement.
 
-   Data: The ICE message.
+   IPv4: The IPv4 address.  Only present if the least significant bit of
+   the frame type is 0.
 
-   If the Length is larger than the remaining payload of the QUIC
-   packet, the receiver MUST close the connection with a connection
-   error of type FRAME_ENCODING_ERROR.
+   IPv6: The IPv6 address.  Only present if the least significant bit of
+   the frame type is 1.
 
-   ICE frames are ack-eliciting.  When lost, they MUST NOT be
-   retransmitted, as the ICE layer is handling retransmission of
-   messages.
+   Port: The port number.
+
+   ADD_ADDRESS frames are ack-eliciting.  When lost, they SHOULD be
+   retransmitted, unless the address is not active anymore.
+
+4.2.  REMOVE_ADDRESS Frame
+
+   REMOVE_ADDRESS_ADDRESS Frame {
+       Type (i) = 0x3d7e92,
+       Sequence Number (i),
+   }
+
+   REMOTE_ADDRESS frames are ack-eliciting.  When lost, they SHOULD be
+   retransmitted.
 
 5.  Conventions and Definitions
 
