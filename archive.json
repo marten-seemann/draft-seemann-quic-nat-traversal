@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-10-10T03:29:26.873831+00:00",
+  "timestamp": "2023-10-12T03:28:57.870284+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -201,5 +201,32 @@
       "comments": []
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 9,
+      "id": "PR_kwDOJ5p67M5cXMY2",
+      "title": "don't use citations in the abstract",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/9",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #2.",
+      "createdAt": "2023-10-10T10:04:14Z",
+      "updatedAt": "2023-10-10T11:05:09Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "22b04d127e4a19d293604ddd6487e7a41bdc2c64",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "abstract-citations",
+      "headRefOid": "379a926b72a10da7a42a0075d8090ec58f0757a4",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
