@@ -1238,11 +1238,14 @@ and once at the QUIC layer), leading to a faster connection migration.<a href="#
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
 require any modification to existing QUIC stacks, particularly, it does not
 necessitate the negotiation of the ICE extension defined in this document.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1-2">Once ICE has completed, the client immediately initiates a normal QUIC handshake
+<p id="section-2.1-2">For address discovery to work, QUIC and ICE need to use the same UDP socket
+Since this requires demultiplexing of QUIC and STUN packets, the QUIC bit cannot
+be greased as described in <span>[<a href="#RFC9287" class="cite xref">RFC9287</a>]</span>.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">Once ICE has completed, the client immediately initiates a normal QUIC handshake
 using the server's address from the nominated address pair. The ICE connectivity
 checks should have created the necessary NAT bindings for the client's first
 flight to reach the server, and for the server's first flight to reach the
-client.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+client.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="using-a-quic-connection-as-a-signaling-channel-using-ice-for-connectivity-checks">
@@ -1384,6 +1387,10 @@ appear in all capitals, as shown here.<a href="#section-5-1" class="pilcrow">¶<
 <dt id="RFC9000">[RFC9000]</dt>
       <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9287">[RFC9287]</dt>
+      <dd>
+<span class="refAuthor">Thomson, M.</span>, <span class="refTitle">"Greasing the QUIC Bit"</span>, <span class="seriesInfo">RFC 9287</span>, <span class="seriesInfo">DOI 10.17487/RFC9287</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9287">https://www.rfc-editor.org/rfc/rfc9287</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9298">[RFC9298]</dt>
     <dd>

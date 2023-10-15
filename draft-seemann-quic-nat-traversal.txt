@@ -133,6 +133,10 @@ Table of Contents
    particularly, it does not necessitate the negotiation of the ICE
    extension defined in this document.
 
+   For address discovery to work, QUIC and ICE need to use the same UDP
+   socket Since this requires demultiplexing of QUIC and STUN packets,
+   the QUIC bit cannot be greased as described in [RFC9287].
+
    Once ICE has completed, the client immediately initiates a normal
    QUIC handshake using the server's address from the nominated address
    pair.  The ICE connectivity checks should have created the necessary
@@ -269,6 +273,10 @@ Table of Contents
               Multiplexed and Secure Transport", RFC 9000,
               DOI 10.17487/RFC9000, May 2021,
               <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [RFC9287]  Thomson, M., "Greasing the QUIC Bit", RFC 9287,
+              DOI 10.17487/RFC9287, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9287>.
 
    [RFC9298]  Schinazi, D., "Proxying UDP in HTTP", RFC 9298,
               DOI 10.17487/RFC9298, August 2022,
