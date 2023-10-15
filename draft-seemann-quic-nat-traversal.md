@@ -39,18 +39,13 @@ path.
 
 # Introduction
 
-This document defines three distinct modes for traversing NATs using QUIC
-({{!RFC9000}}):
+This document describes two ways to use QUIC ({{!RFC9000}}) to traverse NATs:
 
 1. Using ICE ({{!RFC8445}}) with an external signaling channel to select a pair
    of UDP addresses. Once candidate nomination is completed, a new QUIC
    connection between the two endpoints can be established.
-2. Using a (proxied) QUIC connection as the signaling channel for ICE. Once ICE
-   has nominated a candidate pair (i.e., selected a usable path), the proxied
-   connection is migrated using QUIC’s connection migration.
-3. Using a (proxied) QUIC connection as the signaling channel for ICE. Instead
-   of using ICE's connectivity checks, QUIC's path validation logic is used to
-   determine possible paths.
+2. Using a (proxied) QUIC connection as the signaling channel.  QUIC's path
+   validation logic is used to test connectivity of possible paths.
 
 The first mode doesn't require any changes to existing QUIC and ICE stacks. The
 only requirement is the ability to send non-QUIC (STUN ({{!RFC5389}})) packets
@@ -58,30 +53,23 @@ on the UDP socket that a QUIC server is listening on. However, it necessitates
 running a separate signaling channel for the communication between the two ICE
 agents.
 
-The second mode requires a minor modification of the QUIC stacks involved, as
-they now need to be capable of exchanging ICE messages on top of the proxied
-QUIC connection. This is achieved by defining an ICE frame to carry these
-messages. This mode makes it possible to start exchanging application data (via
-QUIC streams) on the proxied connection. The migration event is transparent to
-the application.
+The second mode doesn't use ICE at all, although it makes use of some of the
+address matching logic described in {{!RFC8445}}. It is assumed that the nodes
+are connected via a proxied QUIC connection. Using the logic described in this
+documents, the nodes coordinate QUIC path validations to achieve NAT traversal.
+In addition to the path validation mechanism described in {{!RFC9000}}, the QUIC
+server needs the capability to initiate path validation, which, as per
+{{!RFC9000}}, is solely executed by the client. This mode allows the nodes to
+begin exchanging application data via the proxied connection, and switch to the
+direct connection if and once it has been established and deemed suitable for
+the application's needs.
 
-The third mode necessitates changes to both the QUIC and ICE stacks. The ICE
-delegates responsibility for performing connectivity checks to the QUIC stack.
-The QUIC stack utilizes QUIC's path validation logic to perform the connectivity
-check. In addition to the path validation mechanism described in {{!RFC9000}},
-the QUIC server needs the capability to initiate path validation, which, as per
-{{!RFC9000}}, is solely executed by the client. Compared to the second mode,
-this mode elimitates the need to effectively probe a path twice (once at the ICE
-and once at the QUIC layer), leading to a faster connection migration.
-
-# Modes
-
-## Using an External Signaling Channel
+# Mode 1: NAT Traveersal Using an External Signaling Channel
 
 When an external signaling channel is used, the QUIC connection is established
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
-require any modification to existing QUIC stacks, particularly, it does not
-necessitate the negotiation of the ICE extension defined in this document.
+require any modification to existing QUIC stacks. In particular, it does not
+necessitate the negotiation of the extension defined in this document.
 
 For address discovery to work, QUIC and ICE need to use the same UDP socket
 Since this requires demultiplexing of QUIC and STUN packets, the QUIC bit cannot
@@ -93,78 +81,176 @@ checks should have created the necessary NAT bindings for the client's first
 flight to reach the server, and for the server's first flight to reach the
 client.
 
-## Using a QUIC Connection as a Signaling Channel, using ICE for Connectivity Checks
+# Mode 2: QUIC NAT Traversal
 
-A (proxied) QUIC connection (e.g. using CONNECT-UDP ({{!RFC9298}})) can be used
-as the signaling channel required by the ICE protocol (see section 1 of
-{{!RFC8445}}). ICE messages are sent on this QUIC connection using the ICE frame
-defined in this document. This mode requires the ICE extension defined in this
-document to be negotiated ({{negotiating-extension-use}}). Implementions MAY use
-Trickle ICE ({{!RFC8838}}) to speed up the exchange of address candidates.
+ICE is not directly used in this mode. However, the logic run on the client
+makes use of ICE's candidate pairing logic (see especially section 6.1.2.2 of
+({{!RFC8445}})). Implementations are free to implement different algorithms as
+they see fit.
 
-Once ICE has successfully nominated a candidate pair, this path can be used as a
-direct connection between the two endpoints. The client SHOULD initiate a QUIC
-connection migration (section 9 of {{!RFC9000}}) in a timely manner. The ICE
-connectivity check should have created all the NAT bindings needed for the QUIC
-path validation to complete successfully, however, these NAT bindings are
-usually only valid for a limited amount of time.
+This mode needs be negotiated during the handshake, see {{negotiate-extension}}.
 
-## Using a QUIC Connection as a Signaling Channel, using QUIC for Connectivity Checks
+## Gathering Address Candidates
 
-Similar to mode 2, in this mode a (proxied) QUIC connection is used as the ICE
-signaling channel. Instead of performing the connectivy checks (section 7 of
-{{!RFC8445}}) themselves, the ICE stacks delegates them to the QUIC stack.
+The gathering of address candidates is out of scope for this document. Endpoints
+MAY use the logic described in sections 5.1.1 and 5.2 of ({{!RFC8445}}), or use
+address candidates provided by the application.
 
-The QUIC client MUST ensure that it ends up as the controlling agent (see
-section 2.3 of {{!RFC8445}}). This can be achieved by sending the maximum
-allowed value for the tiebreaker value (see section 7.3.1. of {{!RFC8445}}).
+## Address Transmission
 
-When the ICE stack requests to perform a connectivity check for an address
-candidate pair, each QUIC endpoint probes the path by sending a probing packet
-containing a PATH_CHALLENGE frames, as described in section 8.2 of {{!RFC9000}}.
-Note that this differs slightly from {{!RFC9000}}, where only the client sends a
-probing packet. To create the required NAT bindings, it's necessary for both
-endpoints to send packets.
+The server transmits its address candidates to the client using ADD_ADDRESS
+frames. It SHOULD NOT wait until address candidate discovery has finished,
+instead, it SHOULD send address candidates as soon as they become available.
+This allows speeding up the NAT traversal, and is similar to the Trickle ICE
+({{!RFC8838}}) logic.
 
-Upon the completion of path validation, the QUIC stack passes the result
-(successful or failed) back to the ICE stack. The ICE stack then nominates an
-address pair. The client SHOULD then migrate the QUIC connection to this path in
-a timely manner.
+Addresses transmitted to the client can be removed using the REMOVE_ADDRESS
+frame if the address candidate becomes stale, e.g. because the network interface
+becomes unavailable.
 
-# Negotiating Extension Use
+Address candidates are only transmitted from the server to the client, since the
+entire address matching logic is run on the client side.
 
-Endpoints advertise their support of the extension needed for mode 2 and 3 by
-sending the ice (0x3d7e9f0bca12fea6) transport parameter (section 7.4 of
-{{!RFC9000}}) with an empty value. An implementation that understands this
-transport parameter MUST treat the receipt of a non-empty value as a connection
-error of type TRANSPORT_PARAMETER_ERROR.
+## Address Matching
+
+The client matches the address candidates sent by the server with its own
+address candidates, forming candidate pairs. Section 5.1 of {{!RFC8445}}
+describes an algorithm for pairing address candidates. Since the pairing
+algorithm is only run on the client side, the peers do not need to agree on the
+algorithm used, and the client is free to use other algorithms.
+
+## Probing paths
+
+The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
+client SHOULD start path validation (see section 8.2 of {{!RFC9000}}) for the
+respective path immediately after sending the PUNCH_ME_NOW frame.
+
+On the server side, path validation SHOULD be started immediately when receiving
+a PUNCH_ME_NOW frame. This document introduces path validation on the server
+side, since {{!RFC9000}} assumes that any QUIC server is able to receive packets
+on a path without creating a NAT binding first. Path validation on the server
+side works as described in section 8.2.1 of {{!RFC9000}}, with additional
+rate-limiting to prevent amplification attacks.
+
+Path probing happens in rounds, allowing the peers to limit the bandwidth
+consumed by path validation packets. For every round, the client MUST NOT send
+more PUNCH_ME_NOW frames than allowed by the server's transport parameter. A new
+round is started when a PUNCH_ME_NOW with a higher Round value is received. This
+immediately cancels all path probes in progress.
+
+To speed up NAT traversal, the client SHOULD send address pairs as soon as they
+become available. However, for small concurrency limits, it MAY delay sending of
+address pairs in order prioritize them first and only initiate path validation
+for the highest-priority candidate pairs.
+
+### Amplification Attack Mitigation
+
+TODO describe exactly how to migitate amplification attacks
+
+## Negotiating Extension Use {#negotiate-extension}
+
+Endpoints advertise their support of the extension by sending the nat_traversal
+(0x3d7e9f0bca12fea6) transport parameter (section 7.4 of {{!RFC9000}}).
+
+The client MUST send this transport parameter with an empty value. A server
+implementation that understands this transport parameter MUST treat the receipt
+of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.
+
+For the server, the value of this transport parameter is a variable-length
+integer, the concurrency limit. The concurrency limit limits the amount of
+concurrent NAT traversal attempts, and can be used to limit the bandwith
+required to execute the path validation. Any value larger than 0 is valid. A
+client implementation that understands this transport parameter MUST treat the
+receipt of a value that is not a variable-length integer, or the receipt of the
+value 0, as a connection error of type TRANSPORT_PARAMETER_ERROR.
 
 In order to the use of this extension in 0-RTT packets, the client MUST remember
 the value of this transport parameter. If 0-RTT data is accepted by the server,
 the server MUST not disable this extension on the resumed connection.
 
-# ICE Frame
+## Frames
+
+### ADD_ADDRESS Frame
 
 ~~~
-ICE Frame {
-    Type (i) = 0x1ce,
-    Length (i),
-    Data (...),
+ADD_ADDRESS Frame {
+    Type (i) = 0x3d7e90..0x3d7e91,
+    Sequence Number (i),
+    [ IPv4 (32) ],
+    [ IPv6 (128) ],
+    Port (16),
 }
 ~~~
 
-The ICE frame contains the following fields:
+The ADD_ADDRESS frame contains the following fields:
 
-Length: A variable-length integer encoding the length of the following Data field.
+Sequence Number: A variable-length integer encoding the sequence number of this
+   address advertisement.
 
-Data: The ICE message.
+IPv4: The IPv4 address. Only present if the least significant bit of the frame
+   type is 0.
 
-If the Length is larger than the remaining payload of the QUIC packet, the
-receiver MUST close the connection with a connection error of type
-FRAME_ENCODING_ERROR.
+IPv6: The IPv6 address. Only present if the least significant bit of the frame
+   type is 1.
 
-ICE frames are ack-eliciting. When lost, they MUST NOT be retransmitted, as the
-ICE layer is handling retransmission of messages.
+Port: The port number.
+
+ADD_ADDRESS frames are ack-eliciting. When lost, they SHOULD be retransmitted,
+unless the address is not active anymore.
+
+This frame is only sent from the server to the client. Servers MUST treat
+receipt of an ADD_ADDRESS frame as a connection error of type
+PROTOCOL_VIOLATION.
+
+### PUNCH_ME_NOW Frame
+
+~~~
+PUNCH_ME_NOW Frame {
+    Type (i) = 0x3d7e92..0x3d7e93,
+    Round (i),
+    Paired With Sequence Number (i),
+    [ IPv4 (32) ],
+    [ IPv6 (128) ],
+    Port (16),
+}
+~~~
+
+The ADD_ADDRESS frame contains the following fields:
+
+Round: The sequence number of the NAT Traversal attempts.
+
+Paired With Sequence Number: A variable-length integer encoding the sequence
+   number of the address that was paired with this address.
+
+IPv4: The IPv4 address. Only present if the least significant bit of the frame
+   type is 0.
+
+IPv6: The IPv6 address. Only present if the least significant bit of the frame
+   type is 1.
+
+Port: The port number.
+
+PUNCH_ME_NOW frames are ack-eliciting.
+
+This frame is only sent from the client to the server. Clients MUST treat
+receipt of a PUNCH_ME_NOW frame as a connection error of type
+PROTOCOL_VIOLATION.
+
+### REMOVE_ADDRESS Frame
+
+~~~
+REMOVE_ADDRESS Frame {
+    Type (i) = 0x3d7e94,
+    Sequence Number (i),
+}
+~~~
+
+REMOVE_ADDRESS frames are ack-eliciting. When lost, they SHOULD be
+retransmitted.
+
+This frame is only sent from the server to the client. Servers MUST treat
+receipt of an REMOVE_ADDRESS frame as a connection error of type
+PROTOCOL_VIOLATION.
 
 # Conventions and Definitions
 
@@ -173,7 +259,15 @@ ICE layer is handling retransmission of messages.
 
 # Security Considerations
 
-TODO Security
+This document expands QUIC's path validation logic to the server side, allowing
+the client to request sending of path validation packets on unverified paths. A
+malicious client can direct traffic to a target IP. This attack is similar to
+the IP address spoofing attack that address validation during connection
+establishment (see section 8.1 of {{!RFC9000}}) is designed to prevent. In
+practice however, IP address spoofing is often additionally mitigated by both
+the ingress and egress network at the IP layer, which is not possible when using
+this extension. The server therefore needs to carefully limit the amount of data
+it sends on unverified paths.
 
 
 # IANA Considerations
