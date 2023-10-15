@@ -83,6 +83,10 @@ after the two ICE agents have agreed on a candidate pair. This mode doesn't
 require any modification to existing QUIC stacks, particularly, it does not
 necessitate the negotiation of the ICE extension defined in this document.
 
+For address discovery to work, QUIC and ICE need to use the same UDP socket
+Since this requires demultiplexing of QUIC and STUN packets, the QUIC bit cannot
+be greased as described in {{!RFC9287}}.
+
 Once ICE has completed, the client immediately initiates a normal QUIC handshake
 using the server's address from the nominated address pair. The ICE connectivity
 checks should have created the necessary NAT bindings for the client's first
