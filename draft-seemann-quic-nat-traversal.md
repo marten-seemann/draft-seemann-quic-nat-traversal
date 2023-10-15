@@ -28,22 +28,23 @@ informative:
 
 --- abstract
 
-QUIC ({{!RFC9000}}) is well-suited to various NAT traversal techniques. As it
-operates over UDP, and because the QUIC header was designed to be demultipexed
-from other protocols, STUN ({{!RFC5389}}) can be used on the same UDP socket.
-This allows for using ICE ({{!RFC8445}}) with QUIC. Furthermore, QUIC’s path
-validation mechanism can be used to test the viability of an address candidate
-pair, allowing the immediate use of a new path.
+QUIC is well-suited to various NAT traversal techniques. As it operates over
+UDP, and because the QUIC header was designed to be demultipexed from other
+protocols, STUN can be used on the same UDP socket. This allows for using ICE
+with QUIC. Furthermore, QUIC’s path validation mechanism can be used to test the
+viability of an address candidate pair, allowing the immediate use of a new
+path.
 
 --- middle
 
 # Introduction
 
-This document defines three distinct modes for traversing NATs using QUIC:
+This document defines three distinct modes for traversing NATs using QUIC
+({{!RFC9000}}):
 
-1. Using ICE with an external signaling channel to select a pair of UDP
-   addresses. Once candidate nomination is completed, a new QUIC connection
-   between the two endpoints can be established.
+1. Using ICE ({{!RFC8445}}) with an external signaling channel to select a pair
+   of UDP addresses. Once candidate nomination is completed, a new QUIC
+   connection between the two endpoints can be established.
 2. Using a (proxied) QUIC connection as the signaling channel for ICE. Once ICE
    has nominated a candidate pair (i.e., selected a usable path), the proxied
    connection is migrated using QUIC’s connection migration.
@@ -52,9 +53,10 @@ This document defines three distinct modes for traversing NATs using QUIC:
    determine possible paths.
 
 The first mode doesn't require any changes to existing QUIC and ICE stacks. The
-only requirement is the ability to send non-QUIC (STUN) packets on the UDP
-socket that a QUIC server is listening on. However, it necessitates running a
-separate signaling channel for the communication between the two ICE agents.
+only requirement is the ability to send non-QUIC (STUN ({{!RFC5389}})) packets
+on the UDP socket that a QUIC server is listening on. However, it necessitates
+running a separate signaling channel for the communication between the two ICE
+agents.
 
 The second mode requires a minor modification of the QUIC stacks involved, as
 they now need to be capable of exchanging ICE messages on top of the proxied
