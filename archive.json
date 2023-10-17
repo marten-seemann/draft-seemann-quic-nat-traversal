@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-10-12T03:28:57.870284+00:00",
+  "timestamp": "2023-10-17T03:26:33.937497+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -93,15 +93,15 @@
       "id": "I_kwDOJ5p67M5r8Xxq",
       "title": "Citations in abstracts",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "As a general rule (and due to the style guide), citations in abstracts are discouraged.  That is, you might say \"RFC 9000\", but not use \"[RFC9000]\".",
       "createdAt": "2023-07-19T01:45:27Z",
-      "updatedAt": "2023-07-19T01:45:27Z",
-      "closedAt": null,
+      "updatedAt": "2023-10-15T05:09:52Z",
+      "closedAt": "2023-10-15T05:09:52Z",
       "comments": []
     },
     {
@@ -141,15 +141,15 @@
       "id": "I_kwDOJ5p67M5sUIk0",
       "title": "put the QUIC layer in control of selecting the path (mode 3)",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/5",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "marten-seemann",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Currently the draft says:\r\n> Upon the completion of path validation, the QUIC stack passes the result (successful or failed) back to the ICE stack. The ICE stack then nominates an address pair. The client SHOULD then migrate the QUIC connection to this path in a timely manner.\r\n\r\nAs pointed out by @martinthomson on the list, we should put the QUIC layer in charge of selecting a path when using mode 3. A QUIC stack (multipath or not) will necessarily have some path selection / scheduling logic. We don't need to hand off the decision to ICE.",
       "createdAt": "2023-07-23T17:40:02Z",
-      "updatedAt": "2023-07-23T17:40:02Z",
-      "closedAt": null,
+      "updatedAt": "2023-10-15T07:34:54Z",
+      "closedAt": "2023-10-15T07:34:53Z",
       "comments": []
     },
     {
@@ -157,15 +157,15 @@
       "id": "I_kwDOJ5p67M5sjgVT",
       "title": "consider removing mode 2",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "marten-seemann",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Mode 2 has been helpful to think about how to go from 1 to 3, but there might be limited value in defining it.",
       "createdAt": "2023-07-25T22:16:01Z",
-      "updatedAt": "2023-07-25T22:16:01Z",
-      "closedAt": null,
+      "updatedAt": "2023-10-15T07:34:54Z",
+      "closedAt": "2023-10-15T07:34:54Z",
       "comments": []
     },
     {
@@ -173,15 +173,15 @@
       "id": "I_kwDOJ5p67M5s6sG9",
       "title": "consider moving ICE address matching / time ordering logic into this draft",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/7",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "marten-seemann",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Then we wouldn't need a dependency on ICE.\r\n\r\nApparently ICE was designed with the assumption that the application might have several connections to the same endpoint at the same time, e.g. to demultiplex audio and video. Obviously, this isn't needed when using a multiplexed transport, and might lead to some simplifications.",
       "createdAt": "2023-07-29T05:17:36Z",
-      "updatedAt": "2023-07-29T05:17:36Z",
-      "closedAt": null,
+      "updatedAt": "2023-10-15T07:34:54Z",
+      "closedAt": "2023-10-15T07:34:54Z",
       "comments": []
     },
     {
@@ -196,9 +196,17 @@
       "labels": [],
       "body": "When presenting this proposal in AVTCore at IETF 117, some concern was voiced that probing using RFC 9000's path probing mechanism consumes more bandwidth than probing using STUN packets. While that's true, it's not clear if that poses a problem in 2023. We should evaluate and at the very least add these considerations to the draft.",
       "createdAt": "2023-07-29T05:44:39Z",
-      "updatedAt": "2023-07-29T05:44:39Z",
+      "updatedAt": "2023-10-15T07:29:57Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "I'm still not convinced that bandwidth is a major concern here. Especially for video applications, the bandwidth requirements of the application most likely far surpass the bandwidth consumed by path probes.\r\n\r\nHowever, there's a case to be made that any protocol mechanism that creates state on the peer needs to be limited to protect from DoS attacks. This can either be done explicitly (by setting a limit), or implicitly (by rejecting everything that exceeds a peer-defined limit). #11 suggests a way limit the number of concurrent path validations by using the transport parameter.",
+          "createdAt": "2023-10-15T07:29:57Z",
+          "updatedAt": "2023-10-15T07:29:57Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -207,24 +215,82 @@
       "id": "PR_kwDOJ5p67M5cXMY2",
       "title": "don't use citations in the abstract",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/9",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "marten-seemann",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Fixes #2.",
       "createdAt": "2023-10-10T10:04:14Z",
-      "updatedAt": "2023-10-10T11:05:09Z",
+      "updatedAt": "2023-10-15T05:09:51Z",
       "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
       "baseRefName": "main",
       "baseRefOid": "22b04d127e4a19d293604ddd6487e7a41bdc2c64",
       "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
       "headRefName": "abstract-citations",
       "headRefOid": "379a926b72a10da7a42a0075d8090ec58f0757a4",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2023-10-15T05:09:51Z",
+      "mergedAt": "2023-10-15T05:09:51Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "a643ef81708c89cc565a3f6945cd39f11be75e28"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 10,
+      "id": "PR_kwDOJ5p67M5c0miR",
+      "title": "don't use QUIC bit greasing when demultiplexing ICE",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/10",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-10-15T05:15:48Z",
+      "updatedAt": "2023-10-15T05:16:47Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "a643ef81708c89cc565a3f6945cd39f11be75e28",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "no-quic-bit-greasing",
+      "headRefOid": "19ed33e7914bc6ee001a5d5cfb0da17b28454357",
+      "closedAt": "2023-10-15T05:16:47Z",
+      "mergedAt": "2023-10-15T05:16:47Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "858f34db53634a5495fae26d7fb642963a466478"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 11,
+      "id": "PR_kwDOJ5p67M5c0uJt",
+      "title": "absorb ICE into this draft, coordinate NAT traversals from the client",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/11",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #5. Fixes #6. Fixes #7.",
+      "createdAt": "2023-10-15T07:03:52Z",
+      "updatedAt": "2023-10-15T07:34:53Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "858f34db53634a5495fae26d7fb642963a466478",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "replace-ice",
+      "headRefOid": "069749f475318fd0df68326541b46783b2dff569",
+      "closedAt": "2023-10-15T07:34:53Z",
+      "mergedAt": "2023-10-15T07:34:53Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "799b4668a527fff51b0c7f305cd5acb337c0aecf"
+      },
       "comments": [],
       "reviews": []
     }
