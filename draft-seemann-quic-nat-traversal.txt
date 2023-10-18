@@ -4,8 +4,8 @@
 
 QUIC                                                          M. Seemann
 Internet-Draft                                             Protocol Labs
-Intended status: Standards Track                         15 October 2023
-Expires: 17 April 2024
+Intended status: Standards Track                         18 October 2023
+Expires: 20 April 2024
 
 
                       Using QUIC to traverse NATs
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 April 2024.
+   This Internet-Draft will expire on 20 April 2024.
 
 Copyright Notice
 
@@ -246,14 +246,14 @@ Table of Contents
 
    The ADD_ADDRESS frame contains the following fields:
 
-   Sequence Number: A variable-length integer encoding the sequence
-   number of this address advertisement.
+   Sequence Number:  A variable-length integer encoding the sequence
+      number of this address advertisement.
 
-   IPv4: The IPv4 address.  Only present if the least significant bit of
-   the frame type is 0.
+   IPv4:  The IPv4 address.  Only present if the least significant bit
+      of the frame type is 0.
 
-   IPv6: The IPv6 address.  Only present if the least significant bit of
-   the frame type is 1.
+   IPv6:  The IPv6 address.  Only present if the least significant bit
+      of the frame type is 1.
 
    Port: The port number.
 
@@ -277,18 +277,18 @@ Table of Contents
 
    The ADD_ADDRESS frame contains the following fields:
 
-   Round: The sequence number of the NAT Traversal attempts.
+   Round:  The sequence number of the NAT Traversal attempts.
 
-   Paired With Sequence Number: A variable-length integer encoding the
-   sequence number of the address that was paired with this address.
+   Paired With Sequence Number:  A variable-length integer encoding the
+      sequence number of the address that was paired with this address.
 
-   IPv4: The IPv4 address.  Only present if the least significant bit of
-   the frame type is 0.
+   IPv4:  The IPv4 address.  Only present if the least significant bit
+      of the frame type is 0.
 
-   IPv6: The IPv6 address.  Only present if the least significant bit of
-   the frame type is 1.
+   IPv6:  The IPv6 address.  Only present if the least significant bit
+      of the frame type is 1.
 
-   Port: The port number.
+   Port:  The port number.
 
    PUNCH_ME_NOW frames are ack-eliciting.
 
@@ -302,6 +302,11 @@ Table of Contents
        Type (i) = 0x3d7e94,
        Sequence Number (i),
    }
+
+   The REMOVE_ADDRESS frame contains the following fields:
+
+   Sequence Number:  A variable-length integer encoding the sequence
+      number of the address advertisement to be removed.
 
    REMOVE_ADDRESS frames are ack-eliciting.  When lost, they SHOULD be
    retransmitted.
