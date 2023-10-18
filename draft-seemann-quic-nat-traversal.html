@@ -1273,10 +1273,17 @@ client.<a href="#section-3-3" class="pilcrow">¶</a></p>
       <h2 id="name-mode-2-quic-nat-traversal">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-mode-2-quic-nat-traversal" class="section-name selfRef">Mode 2: QUIC NAT Traversal</a>
       </h2>
-<p id="section-4-1">ICE is not directly used in this mode. However, the logic run on the client
+<p id="section-4-1">QUIC's path validation mechanism can be used to establish the required NAT
+mappings that allow for a direct connection. Once the NAT mappings are
+established, QUIC's connection migration can be used to migrate the connection
+to a direct path. During the path validation phase, multiple different paths
+might be established in parallel. When using QUIC Multipath <span>[<a href="#MULTIPATH" class="cite xref">MULTIPATH</a>]</span>, these
+paths may be used at the some time, however, the mechanism described in this
+document does not require the use of QUIC multipath.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">ICE is not directly used in this mode. However, the logic run on the client
 makes use of ICE's candidate pairing logic (see especially <span><a href="https://rfc-editor.org/rfc/rfc8445#section-6.1.2.2" class="relref">Section 6.1.2.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>). Implementations are free to implement different algorithms as they
-see fit.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">This mode needs be negotiated during the handshake, see <a href="#negotiate-extension" class="auto internal xref">Section 4.5</a>.<a href="#section-4-2" class="pilcrow">¶</a></p>
+see fit.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">This mode needs be negotiated during the handshake, see <a href="#negotiate-extension" class="auto internal xref">Section 4.5</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <div id="gathering-address-candidates">
 <section id="section-4.1">
         <h3 id="name-gathering-address-candidate">
@@ -1538,6 +1545,10 @@ it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="MULTIPATH">[MULTIPATH]</dt>
+      <dd>
+<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-05</span>, <time datetime="2023-07-10" class="refDate">10 July 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>

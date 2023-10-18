@@ -149,6 +149,15 @@ Table of Contents
 
 4.  Mode 2: QUIC NAT Traversal
 
+   QUIC's path validation mechanism can be used to establish the
+   required NAT mappings that allow for a direct connection.  Once the
+   NAT mappings are established, QUIC's connection migration can be used
+   to migrate the connection to a direct path.  During the path
+   validation phase, multiple different paths might be established in
+   parallel.  When using QUIC Multipath [MULTIPATH], these paths may be
+   used at the some time, however, the mechanism described in this
+   document does not require the use of QUIC multipath.
+
    ICE is not directly used in this mode.  However, the logic run on the
    client makes use of ICE's candidate pairing logic (see especially
    Section 6.1.2.2 of [RFC8445]).  Implementations are free to implement
@@ -347,6 +356,13 @@ Table of Contents
    frame types
 
 7.  Normative References
+
+   [MULTIPATH]
+              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
+              C., and M. Kühlewind, "Multipath Extension for QUIC", Work
+              in Progress, Internet-Draft, draft-ietf-quic-multipath-05,
+              10 July 2023, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-quic-multipath-05>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
