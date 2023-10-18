@@ -86,16 +86,16 @@ client.
 # Mode 2: QUIC NAT Traversal
 
 ICE is not directly used in this mode. However, the logic run on the client
-makes use of ICE's candidate pairing logic (see especially section 6.1.2.2 of
-({{!RFC8445}})). Implementations are free to implement different algorithms as
-they see fit.
+makes use of ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of
+RFC8445}}). Implementations are free to implement different algorithms as they
+see fit.
 
 This mode needs be negotiated during the handshake, see {{negotiate-extension}}.
 
 ## Gathering Address Candidates
 
 The gathering of address candidates is out of scope for this document. Endpoints
-MAY use the logic described in sections 5.1.1 and 5.2 of ({{!RFC8445}}), or use
+MAY use the logic described in {{Sections 5.1.1 and 5.2 of RFC8445}}, or use
 address candidates provided by the application.
 
 ## Address Transmission
@@ -116,7 +116,7 @@ entire address matching logic is run on the client side.
 ## Address Matching
 
 The client matches the address candidates sent by the server with its own
-address candidates, forming candidate pairs. Section 5.1 of {{!RFC8445}}
+address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
 describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the peers do not need to agree on the
 algorithm used, and the client is free to use other algorithms.
@@ -124,14 +124,14 @@ algorithm used, and the client is free to use other algorithms.
 ## Probing paths
 
 The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
-client SHOULD start path validation (see section 8.2 of {{!RFC9000}}) for the
+client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.
 
 On the server side, path validation SHOULD be started immediately when receiving
 a PUNCH_ME_NOW frame. This document introduces path validation on the server
 side, since {{!RFC9000}} assumes that any QUIC server is able to receive packets
 on a path without creating a NAT binding first. Path validation on the server
-side works as described in section 8.2.1 of {{!RFC9000}}, with additional
+side works as described in {{Section 8.2.1 of RFC9000}}, with additional
 rate-limiting to prevent amplification attacks.
 
 Path probing happens in rounds, allowing the peers to limit the bandwidth
@@ -152,7 +152,7 @@ TODO describe exactly how to migitate amplification attacks
 ## Negotiating Extension Use {#negotiate-extension}
 
 Endpoints advertise their support of the extension by sending the nat_traversal
-(0x3d7e9f0bca12fea6) transport parameter (section 7.4 of {{!RFC9000}}).
+(0x3d7e9f0bca12fea6) transport parameter ({{Section 7.4 of RFC9000}}).
 
 The client MUST send this transport parameter with an empty value. A server
 implementation that understands this transport parameter MUST treat the receipt
@@ -288,7 +288,7 @@ This document expands QUIC's path validation logic to the server side, allowing
 the client to request sending of path validation packets on unverified paths. A
 malicious client can direct traffic to a target IP. This attack is similar to
 the IP address spoofing attack that address validation during connection
-establishment (see section 8.1 of {{!RFC9000}}) is designed to prevent. In
+establishment (see {{Section 8.1 of RFC9000}}) is designed to prevent. In
 practice however, IP address spoofing is often additionally mitigated by both
 the ingress and egress network at the IP layer, which is not possible when using
 this extension. The server therefore needs to carefully limit the amount of data
