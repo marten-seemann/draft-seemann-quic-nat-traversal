@@ -1263,9 +1263,8 @@ client.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-mode-2-quic-nat-traversal" class="section-name selfRef">Mode 2: QUIC NAT Traversal</a>
       </h2>
 <p id="section-3-1">ICE is not directly used in this mode. However, the logic run on the client
-makes use of ICE's candidate pairing logic (see especially section 6.1.2.2 of
-(<span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>)). Implementations are free to implement different algorithms as
-they see fit.<a href="#section-3-1" class="pilcrow">¶</a></p>
+makes use of ICE's candidate pairing logic (see especially <span><a href="https://rfc-editor.org/rfc/rfc8445#section-6.1.2.2" class="relref">Section 6.1.2.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>). Implementations are free to implement different algorithms as they
+see fit.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">This mode needs be negotiated during the handshake, see <a href="#negotiate-extension" class="auto internal xref">Section 3.5</a>.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <div id="gathering-address-candidates">
 <section id="section-3.1">
@@ -1273,7 +1272,7 @@ they see fit.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-gathering-address-candidate" class="section-name selfRef">Gathering Address Candidates</a>
         </h3>
 <p id="section-3.1-1">The gathering of address candidates is out of scope for this document. Endpoints
-<span class="bcp14">MAY</span> use the logic described in sections 5.1.1 and 5.2 of (<span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>), or use
+<span class="bcp14">MAY</span> use the logic described in Sections <a href="https://rfc-editor.org/rfc/rfc8445#section-5.1.1" class="relref">5.1.1</a> and <a href="https://rfc-editor.org/rfc/rfc8445#section-5.2" class="relref">5.2</a> of <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>, or use
 address candidates provided by the application.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1300,7 +1299,7 @@ entire address matching logic is run on the client side.<a href="#section-3.2-3"
 <a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-address-matching" class="section-name selfRef">Address Matching</a>
         </h3>
 <p id="section-3.3-1">The client matches the address candidates sent by the server with its own
-address candidates, forming candidate pairs. Section 5.1 of <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>
+address candidates, forming candidate pairs. <span><a href="https://rfc-editor.org/rfc/rfc8445#section-5.1" class="relref">Section 5.1</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>
 describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the peers do not need to agree on the
 algorithm used, and the client is free to use other algorithms.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
@@ -1312,13 +1311,13 @@ algorithm used, and the client is free to use other algorithms.<a href="#section
 <a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-probing-paths" class="section-name selfRef">Probing paths</a>
         </h3>
 <p id="section-3.4-1">The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
-client <span class="bcp14">SHOULD</span> start path validation (see section 8.2 of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) for the
+client <span class="bcp14">SHOULD</span> start path validation (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 <p id="section-3.4-2">On the server side, path validation <span class="bcp14">SHOULD</span> be started immediately when receiving
 a PUNCH_ME_NOW frame. This document introduces path validation on the server
 side, since <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> assumes that any QUIC server is able to receive packets
 on a path without creating a NAT binding first. Path validation on the server
-side works as described in section 8.2.1 of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with additional
+side works as described in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with additional
 rate-limiting to prevent amplification attacks.<a href="#section-3.4-2" class="pilcrow">¶</a></p>
 <p id="section-3.4-3">Path probing happens in rounds, allowing the peers to limit the bandwidth
 consumed by path validation packets. For every round, the client <span class="bcp14">MUST NOT</span> send
@@ -1345,7 +1344,7 @@ for the highest-priority candidate pairs.<a href="#section-3.4-4" class="pilcrow
 <a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-negotiating-extension-use" class="section-name selfRef">Negotiating Extension Use</a>
         </h3>
 <p id="section-3.5-1">Endpoints advertise their support of the extension by sending the nat_traversal
-(0x3d7e9f0bca12fea6) transport parameter (section 7.4 of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>).<a href="#section-3.5-1" class="pilcrow">¶</a></p>
+(0x3d7e9f0bca12fea6) transport parameter (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-7.4" class="relref">Section 7.4</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>).<a href="#section-3.5-1" class="pilcrow">¶</a></p>
 <p id="section-3.5-2">The client <span class="bcp14">MUST</span> send this transport parameter with an empty value. A server
 implementation that understands this transport parameter <span class="bcp14">MUST</span> treat the receipt
 of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.<a href="#section-3.5-2" class="pilcrow">¶</a></p>
@@ -1518,7 +1517,7 @@ appear in all capitals, as shown here.<a href="#section-4-1" class="pilcrow">¶<
 the client to request sending of path validation packets on unverified paths. A
 malicious client can direct traffic to a target IP. This attack is similar to
 the IP address spoofing attack that address validation during connection
-establishment (see section 8.1 of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) is designed to prevent. In
+establishment (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.1" class="relref">Section 8.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) is designed to prevent. In
 practice however, IP address spoofing is often additionally mitigated by both
 the ingress and egress network at the IP layer, which is not possible when using
 this extension. The server therefore needs to carefully limit the amount of data

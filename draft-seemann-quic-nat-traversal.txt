@@ -143,16 +143,16 @@ Table of Contents
 
    ICE is not directly used in this mode.  However, the logic run on the
    client makes use of ICE's candidate pairing logic (see especially
-   section 6.1.2.2 of ([RFC8445])).  Implementations are free to
-   implement different algorithms as they see fit.
+   Section 6.1.2.2 of [RFC8445]).  Implementations are free to implement
+   different algorithms as they see fit.
 
    This mode needs be negotiated during the handshake, see Section 3.5.
 
 3.1.  Gathering Address Candidates
 
    The gathering of address candidates is out of scope for this
-   document.  Endpoints MAY use the logic described in sections 5.1.1
-   and 5.2 of ([RFC8445]), or use address candidates provided by the
+   document.  Endpoints MAY use the logic described in Sections 5.1.1
+   and 5.2 of [RFC8445], or use address candidates provided by the
    application.
 
 3.2.  Address Transmission
@@ -183,7 +183,7 @@ Table of Contents
 3.4.  Probing paths
 
    The client sends candidate pairs to the server using PUNCH_ME_NOW
-   frames.  The client SHOULD start path validation (see section 8.2 of
+   frames.  The client SHOULD start path validation (see Section 8.2 of
    [RFC9000]) for the respective path immediately after sending the
    PUNCH_ME_NOW frame.
 
@@ -192,7 +192,7 @@ Table of Contents
    validation on the server side, since [RFC9000] assumes that any QUIC
    server is able to receive packets on a path without creating a NAT
    binding first.  Path validation on the server side works as described
-   in section 8.2.1 of [RFC9000], with additional rate-limiting to
+   in Section 8.2.1 of [RFC9000], with additional rate-limiting to
    prevent amplification attacks.
 
    Path probing happens in rounds, allowing the peers to limit the
@@ -215,7 +215,7 @@ Table of Contents
 3.5.  Negotiating Extension Use
 
    Endpoints advertise their support of the extension by sending the
-   nat_traversal (0x3d7e9f0bca12fea6) transport parameter (section 7.4
+   nat_traversal (0x3d7e9f0bca12fea6) transport parameter (Section 7.4
    of [RFC9000]).
 
    The client MUST send this transport parameter with an empty value.  A
@@ -335,7 +335,7 @@ Table of Contents
    packets on unverified paths.  A malicious client can direct traffic
    to a target IP.  This attack is similar to the IP address spoofing
    attack that address validation during connection establishment (see
-   section 8.1 of [RFC9000]) is designed to prevent.  In practice
+   Section 8.1 of [RFC9000]) is designed to prevent.  In practice
    however, IP address spoofing is often additionally mitigated by both
    the ingress and egress network at the IP layer, which is not possible
    when using this extension.  The server therefore needs to carefully
