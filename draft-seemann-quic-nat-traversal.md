@@ -184,14 +184,20 @@ ADD_ADDRESS Frame {
 
 The ADD_ADDRESS frame contains the following fields:
 
-Sequence Number: A variable-length integer encoding the sequence number of this
-   address advertisement.
+Sequence Number:
 
-IPv4: The IPv4 address. Only present if the least significant bit of the frame
-   type is 0.
+: A variable-length integer encoding the sequence number of this address
+   advertisement.
 
-IPv6: The IPv6 address. Only present if the least significant bit of the frame
-   type is 1.
+IPv4:
+
+: The IPv4 address. Only present if the least significant bit of the frame type
+   is 0.
+
+IPv6:
+
+: The IPv6 address. Only present if the least significant bit of the frame
+type is 1.
 
 Port: The port number.
 
@@ -217,18 +223,28 @@ PUNCH_ME_NOW Frame {
 
 The ADD_ADDRESS frame contains the following fields:
 
-Round: The sequence number of the NAT Traversal attempts.
+Round:
 
-Paired With Sequence Number: A variable-length integer encoding the sequence
-   number of the address that was paired with this address.
+: The sequence number of the NAT Traversal attempts.
 
-IPv4: The IPv4 address. Only present if the least significant bit of the frame
-   type is 0.
+Paired With Sequence Number:
 
-IPv6: The IPv6 address. Only present if the least significant bit of the frame
-   type is 1.
+: A variable-length integer encoding the sequence number of the address that was
+   paired with this address.
 
-Port: The port number.
+IPv4:
+
+: The IPv4 address. Only present if the least significant bit of the frame type
+   is 0.
+
+IPv6:
+
+: The IPv6 address. Only present if the least significant bit of the frame type
+   is 1.
+
+Port:
+
+: The port number.
 
 PUNCH_ME_NOW frames are ack-eliciting.
 
@@ -244,6 +260,13 @@ REMOVE_ADDRESS Frame {
     Sequence Number (i),
 }
 ~~~
+
+The REMOVE_ADDRESS frame contains the following fields:
+
+Sequence Number:
+
+: A variable-length integer encoding the sequence number of the address
+   advertisement to be removed.
 
 REMOVE_ADDRESS frames are ack-eliciting. When lost, they SHOULD be
 retransmitted.
