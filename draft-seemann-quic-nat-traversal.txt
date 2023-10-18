@@ -343,7 +343,8 @@ Table of Contents
 
 6.  IANA Considerations
 
-   This document has no IANA actions.
+   TODO: fill out registration request for the transport parameter and
+   frame types
 
 7.  Normative References
 
