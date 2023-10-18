@@ -66,6 +66,10 @@ client. Starting with a proxied QUIC connection allows the nodes to begin
 exchanging application data, and switch to the direct connection once it has
 been established and deemed suitable for the application's needs.
 
+# Conventions and Definitions
+
+{::boilerplate bcp14-tagged}
+
 # Mode 1: NAT Traveersal Using an External Signaling Channel
 
 When an external signaling channel is used, the QUIC connection is established
@@ -276,10 +280,6 @@ retransmitted.
 This frame is only sent from the server to the client. Servers MUST treat
 receipt of an REMOVE_ADDRESS frame as a connection error of type
 PROTOCOL_VIOLATION.
-
-# Conventions and Definitions
-
-{::boilerplate bcp14-tagged}
 
 
 # Security Considerations
