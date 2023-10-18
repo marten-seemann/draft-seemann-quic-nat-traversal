@@ -22,6 +22,7 @@ author:
     email: martenseemann@gmail.com
 
 normative:
+   MULTIPATH: I-D.ietf-quic-multipath
 
 informative:
 
@@ -88,6 +89,14 @@ flight to reach the server, and for the server's first flight to reach the
 client.
 
 # Mode 2: QUIC NAT Traversal
+
+QUIC's path validation mechanism can be used to establish the required NAT
+mappings that allow for a direct connection. Once the NAT mappings are
+established, QUIC's connection migration can be used to migrate the connection
+to a direct path. During the path validation phase, multiple different paths
+might be established in parallel. When using QUIC Multipath {{MULTIPATH}}, these
+paths may be used at the some time, however, the mechanism described in this
+document does not require the use of QUIC multipath.
 
 ICE is not directly used in this mode. However, the logic run on the client
 makes use of ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of
