@@ -297,8 +297,7 @@ it sends on unverified paths.
 
 # IANA Considerations
 
-This document has no IANA actions.
-
+TODO: fill out registration request for the transport parameter and frame types
 
 --- back
 
