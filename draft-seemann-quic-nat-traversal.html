@@ -1221,20 +1221,21 @@ validation logic is used to test connectivity of possible paths.<a href="#sectio
 </li>
       </ol>
 <p id="section-1-3">The first mode doesn't require any changes to existing QUIC and ICE stacks. The
-only requirement is the ability to send non-QUIC (STUN (<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets
-on the UDP socket that a QUIC server is listening on. However, it necessitates
-running a separate signaling channel for the communication between the two ICE
-agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
+only requirement is the ability to send and receive non-QUIC (STUN
+(<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets on the UDP socket that a QUIC server is listening on.
+However, it necessitates running a separate signaling channel for the
+communication between the two ICE agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">The second mode doesn't use ICE at all, although it makes use of some of the
-address matching logic described in <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>. It is assumed that the nodes
-are connected via a proxied QUIC connection. Using the logic described in this
-documents, the nodes coordinate QUIC path validations to achieve NAT traversal.
-In addition to the path validation mechanism described in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, the QUIC
-server needs the capability to initiate path validation, which, as per
-<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, is solely executed by the client. This mode allows the nodes to
-begin exchanging application data via the proxied connection, and switch to the
-direct connection if and once it has been established and deemed suitable for
-the application's needs.<a href="#section-1-4" class="pilcrow">¶</a></p>
+concepts, in particular the address matching logic described in <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>. It
+is assumed that the nodes are connected via a proxied QUIC connection. Using the
+logic described in this documents, the nodes coordinate QUIC path validation
+attempts that create the necessary NAT bindings to achieve traversal of the NAT.
+This mechanism makes extensive use of the path validation mechanism described in
+<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>. In addition to that, the QUIC server needs the capability to
+initiate path validation, which, as per <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, is solely executed by the
+client. Starting with a proxied QUIC connection allows the nodes to begin
+exchanging application data, and switch to the direct connection once it has
+been established and deemed suitable for the application's needs.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="mode-1-nat-traveersal-using-an-external-signaling-channel">
