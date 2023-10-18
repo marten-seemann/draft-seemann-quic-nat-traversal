@@ -68,19 +68,19 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Mode 1: NAT Traveersal Using an External Signaling Channel
-   3.  Mode 2: QUIC NAT Traversal
-     3.1.  Gathering Address Candidates
-     3.2.  Address Transmission
-     3.3.  Address Matching
-     3.4.  Probing paths
-       3.4.1.  Amplification Attack Mitigation
-     3.5.  Negotiating Extension Use
-     3.6.  Frames
-       3.6.1.  ADD_ADDRESS Frame
-       3.6.2.  PUNCH_ME_NOW Frame
-       3.6.3.  REMOVE_ADDRESS Frame
-   4.  Conventions and Definitions
+   2.  Conventions and Definitions
+   3.  Mode 1: NAT Traveersal Using an External Signaling Channel
+   4.  Mode 2: QUIC NAT Traversal
+     4.1.  Gathering Address Candidates
+     4.2.  Address Transmission
+     4.3.  Address Matching
+     4.4.  Probing paths
+       4.4.1.  Amplification Attack Mitigation
+     4.5.  Negotiating Extension Use
+     4.6.  Frames
+       4.6.1.  ADD_ADDRESS Frame
+       4.6.2.  PUNCH_ME_NOW Frame
+       4.6.3.  REMOVE_ADDRESS Frame
    5.  Security Considerations
    6.  IANA Considerations
    7.  Normative References
@@ -121,7 +121,15 @@ Table of Contents
    switch to the direct connection once it has been established and
    deemed suitable for the application's needs.
 
-2.  Mode 1: NAT Traveersal Using an External Signaling Channel
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Mode 1: NAT Traveersal Using an External Signaling Channel
 
    When an external signaling channel is used, the QUIC connection is
    established after the two ICE agents have agreed on a candidate pair.
@@ -139,23 +147,23 @@ Table of Contents
    NAT bindings for the client's first flight to reach the server, and
    for the server's first flight to reach the client.
 
-3.  Mode 2: QUIC NAT Traversal
+4.  Mode 2: QUIC NAT Traversal
 
    ICE is not directly used in this mode.  However, the logic run on the
    client makes use of ICE's candidate pairing logic (see especially
    Section 6.1.2.2 of [RFC8445]).  Implementations are free to implement
    different algorithms as they see fit.
 
-   This mode needs be negotiated during the handshake, see Section 3.5.
+   This mode needs be negotiated during the handshake, see Section 4.5.
 
-3.1.  Gathering Address Candidates
+4.1.  Gathering Address Candidates
 
    The gathering of address candidates is out of scope for this
    document.  Endpoints MAY use the logic described in Sections 5.1.1
    and 5.2 of [RFC8445], or use address candidates provided by the
    application.
 
-3.2.  Address Transmission
+4.2.  Address Transmission
 
    The server transmits its address candidates to the client using
    ADD_ADDRESS frames.  It SHOULD NOT wait until address candidate
@@ -171,7 +179,7 @@ Table of Contents
    client, since the entire address matching logic is run on the client
    side.
 
-3.3.  Address Matching
+4.3.  Address Matching
 
    The client matches the address candidates sent by the server with its
    own address candidates, forming candidate pairs.  Section 5.1 of
@@ -180,7 +188,7 @@ Table of Contents
    do not need to agree on the algorithm used, and the client is free to
    use other algorithms.
 
-3.4.  Probing paths
+4.4.  Probing paths
 
    The client sends candidate pairs to the server using PUNCH_ME_NOW
    frames.  The client SHOULD start path validation (see Section 8.2 of
@@ -208,11 +216,11 @@ Table of Contents
    them first and only initiate path validation for the highest-priority
    candidate pairs.
 
-3.4.1.  Amplification Attack Mitigation
+4.4.1.  Amplification Attack Mitigation
 
    TODO describe exactly how to migitate amplification attacks
 
-3.5.  Negotiating Extension Use
+4.5.  Negotiating Extension Use
 
    Endpoints advertise their support of the extension by sending the
    nat_traversal (0x3d7e9f0bca12fea6) transport parameter (Section 7.4
@@ -237,9 +245,9 @@ Table of Contents
    is accepted by the server, the server MUST not disable this extension
    on the resumed connection.
 
-3.6.  Frames
+4.6.  Frames
 
-3.6.1.  ADD_ADDRESS Frame
+4.6.1.  ADD_ADDRESS Frame
 
    ADD_ADDRESS Frame {
        Type (i) = 0x3d7e90..0x3d7e91,
@@ -269,7 +277,7 @@ Table of Contents
    treat receipt of an ADD_ADDRESS frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-3.6.2.  PUNCH_ME_NOW Frame
+4.6.2.  PUNCH_ME_NOW Frame
 
    PUNCH_ME_NOW Frame {
        Type (i) = 0x3d7e92..0x3d7e93,
@@ -301,7 +309,7 @@ Table of Contents
    treat receipt of a PUNCH_ME_NOW frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-3.6.3.  REMOVE_ADDRESS Frame
+4.6.3.  REMOVE_ADDRESS Frame
 
    REMOVE_ADDRESS Frame {
        Type (i) = 0x3d7e94,
@@ -319,14 +327,6 @@ Table of Contents
    This frame is only sent from the server to the client.  Servers MUST
    treat receipt of an REMOVE_ADDRESS frame as a connection error of
    type PROTOCOL_VIOLATION.
-
-4.  Conventions and Definitions
-
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in
-   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
-   capitals, as shown here.
 
 5.  Security Considerations
 
