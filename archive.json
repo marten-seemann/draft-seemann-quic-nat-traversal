@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-10-19T03:31:51.961343+00:00",
+  "timestamp": "2023-10-22T03:27:02.636785+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -227,7 +227,76 @@
       "labels": [],
       "body": "PR #11 introduced the \"Punch me now\" mechanism, as part of bringing the ICE capability inside QUIC. This is great, but we need to beef up the security analysis. As it stands, the client sends a list of \"punch me\" addresses to the server, and the server send probing packets to each address. This can cause a lot of amplification: one packet from the client, as many packets as there are addresses to be punched from the server. It could also cause request spoofing attacks, targeting unrelated services with packets that can be partially predicted by the client.\r\n\r\nI can think of a few mitigations:\r\n\r\n* mitigate request spoofing by making the probing packets somewhat unpredictable. This is a bit hard, because the packets have to include a CID proposed by the client.\r\n* mitigate request spoofing by using the same heuristics used today on client side, such as implement a list of port numbers that will never be punched, check the scope of addresses, etc.\r\n* mitigate amplification by limiting the number of addresses that a server will punch. Consider that if the client sends a new PUNCH ME NOW frame, the previous one is abandoned.\r\n* mitigate amplification by having at most one PUNCH ME NOW frame in a packet. Or maybe limit PUNCH ME NOW to just one address, and just keep act on the last N (3?) PUNCH ME NOW frame received\r\n* mitigate amplification by requiring that PUNCH ME NOW frames be carried in fully padded packets, like \"initial\" or \"challenge\"\r\n* mitigate amplification by allowing servers to send small size probing packets.\r\n\r\nDiscuss?",
       "createdAt": "2023-10-18T18:28:13Z",
-      "updatedAt": "2023-10-18T18:28:13Z",
+      "updatedAt": "2023-10-20T04:29:08Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "Thanks for opening this issue @huitema! You're right that in the current iteration the details of the amplification protection still need a lot of work.\r\n\r\n> * mitigate request spoofing by making the probing packets somewhat unpredictable. This is a bit hard, because the packets have to include a CID proposed by the client.\r\n\r\nRight. There's a risk of a request forgery attack here, but the risk is a lot smaller than what RFC 9000 section 21.5 describes. The attacker doesn't control more than 20 bytes of the packet (the CID), the size of the packet is set to at least 1200 bytes, all of which (except for the first one) will be indistinguishable from random for a 3rd party.\r\n\r\n\r\n\r\n> * mitigate request spoofing by using the same heuristics used today on client side, such as implement a list of port numbers that will never be punched, check the scope of addresses, etc.\r\n\r\nThis will work in certain scenarios, and break in others. We can list this as a possible mitigation strategy, but I don't think we can require it.\r\n\r\n> * mitigate amplification by limiting the number of addresses that a server will punch. Consider that if the client sends a new PUNCH ME NOW frame, the previous one is abandoned.\r\n> * mitigate amplification by having at most one PUNCH ME NOW frame in a packet. Or maybe limit PUNCH ME NOW to just one address, and just keep act on the last N (3?) PUNCH ME NOW frame received\r\n\r\nLimiting concurrency sounds reasonable, and the protocol provides a mechanism for that: The transport parameter already allows limiting the number of concurrent path probes. We should add some text that this can be used to mitigate the amplification attack as well.\r\n\r\n> * mitigate amplification by requiring that PUNCH ME NOW frames be carried in fully padded packets, like \"initial\" or \"challenge\"\r\n\r\nWe could also reuse the byte counting logic we're using during the handshake: A node is only allowed to send 3x the number of received bytes to unverified addresses (note the plural here). You wouldn't necessarily need to pad the PUNCH_ME_NOW packets, any bytes sent on the connection would suffice.\r\n\r\n> * mitigate amplification by allowing servers to send small size probing packets.\r\n\r\nThis would make people concerned about bandwidth requirements happy. However, it would also mean that you don't verify that the path actually supports QUIC (i.e. UDP datagrams >= 1200 bytes), which seems bad. Maybe a 2-step procedure would help here: First verify connectivity using small probe packets, then confirm that the path supports 1200 bytes. Obviously, this takes one additional roundtrip, which is a tradeoff that might or might not be worthwhile.",
+          "createdAt": "2023-10-20T04:29:08Z",
+          "updatedAt": "2023-10-20T04:29:08Z"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "id": "I_kwDOJ5p67M50cBiz",
+      "title": "consider allowing probe packets to be smaller than 1200 bytes",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/20",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "In #19 @huitema suggested to allow probe packets to be smaller than 1200 bytes.\r\n\r\nThis would drastically reduce the bandwidth requirements for path probes (see also #8). This is especially true since it is expected that a lot of paths probed will not work out, and therefore trigger multiple retransmissions of path probes until a timeout is detected. However, a successful response wouldn't mean that the path is actually usable for QUIC, which has a minimum MTU requirement of 1200 bytes. This might be acceptable in Multipath QUIC, but the consequences are more severe in vanilla QUIC.\r\n\r\nWe could make path validation a 2-step process:\r\n1. Test connectivity using small QUIC packets.\r\n2. Once connectivity has been established, test that the path actually support 1200 bytes.\r\n\r\nThis takes an additional RTT, but for some applications this might be an acceptable tradeoff.",
+      "createdAt": "2023-10-20T04:34:40Z",
+      "updatedAt": "2023-10-21T18:23:59Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "The logic could be entirely driven by the client:\r\n* A client MAY send small (smaller than 1200 bytes) probing packets.\r\n* A server MAY respond with a small probing packets, if and only if the client's probe was a small packet. If the client used a full-size (>= 1200 bytes) probing packet, it MUST send a full-size packet in response.\r\n* If the client sent a small probing packet, it MUST confirm that the path supports the minimum MTU by sending a full-size probing packet before initiating migration to that path.",
+          "createdAt": "2023-10-20T04:37:08Z",
+          "updatedAt": "2023-10-20T04:37:08Z"
+        },
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "To be clear, I was only thinking of allowing the server to send short packets. If I understand correctly, the proposed logic would be:\r\n\r\n1) Client sends \"punch me now\" to the server via the proxy collection\r\n2) In parallel, client sends a probe packet (PATH CHALLENGE) on the desired path (new 4 tuple)\r\n3) Server receives \"punch me now\" and sends a probe packet (PATH CHALLENGE) on the desired path (same new 4 tuple)\r\n4) Hopefully the PATH CHALLENGE of the server has punched a hole in the local NAT, the source address of the server was predicted correctly, and the PATH CHALLENGE from the server reaches the client.\r\n\r\nThis is a bit heavy, because the server will be in fact creating the path. I would prefer something like:\r\n\r\n1) Client sends \"punch me now\" to the server via the proxy collection\r\n2) Server receives \"punch me now\" and sends a probe packet (some new frame) on the desired path (new 4 tuple). Server does not otherwise create any state. Probe opens a pinhole for the path on server side firewall, is not really expected to reach the client. (In a P2P environment, the server may be sitting behind a home firewall.)\r\n3) Some time after \"punch me now\", client sends a probe packet (PATH CHALLENGE) on the desired path (new 4 tuple). If it arrives after the punch but before the pinhole is closed, server receives that, sends PATH Response, etc.\r\n\r\nMaybe that's what you had in mind? In that case, we need to specify what the probe packet is. Shall it contain just a PING, or some new frame \"PUNCHING YOU\", with indication of which \"punch me now\" frame it is responding to? The probe packet could be kept small, of course.\r\n",
+          "createdAt": "2023-10-20T06:24:12Z",
+          "updatedAt": "2023-10-20T06:24:12Z"
+        },
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "It was not, but it's an interesting idea. Currently, you're limited by the peer's active_connection_id_limit, which might be significantly smaller than the number of paths that you want to validate at the same time. It would be nice to get around this somehow. Maybe PUNCH_ME_NOW should contain a CID that doesn't count towards that limit, and is _only_ used for the hole punching (the actual path would have to use a regular CID).\r\n\r\nI like the idea of not creating any state, but I'm not sure if that's feasible. Due to its time-dependence, hole punching normally relies on multiple packets being sent. Furthermore, there might be packet loss on the way to your NAT (lossy WiFi, or normal packet loss if you're dealing with a CGNAT), so retransmissions are a necessity here.",
+          "createdAt": "2023-10-21T03:56:07Z",
+          "updatedAt": "2023-10-21T03:56:07Z"
+        },
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "I think it would be nice to only create state on the client that wants to set up a new path. Have a \"puch me now\" request trigger a stateless response from the server,with enough content to identify which \"punch\" request it is replying to. If more than one message is needed, then the client should repeat the process.\r\n\r\nWith IPv6, simple solutions might suffice. You need to deal with a stateful firewall at each end, but there is no NAT -- or there is a V6 NAT but the mapping is typically stable. In those environment, a simple \"message from client\" opens the pinhole in the stateful firewalls on the client side, and simple message from server opens the pinhole from the server side. So basically:\r\n\r\n1) Client sends a sacrificial probe on the desired path. It opens a pinhole the client-side firewall, but most likely is dropped at the server firewall.\r\n2) Client sends \"punch me now\" through the proxy.\r\n3) Server replies with probe on desired path, does not create state -- one probe per punch, no more. Probes opens a pinhole in server firewall, and if things go as expected it squeezes through the pinhole created by the client's probe in the client's firewall.\r\n4) If the client receives the server's probe, it can proceed with PATH CHALLENGE, etc.\r\n\r\nThe advantage there is \"no CID consumed\". The probes can be tiny, the PMTU will be checked by the path challenge. The cost is one RTT. The optimistic client could send a PATH CHALLENGE just after step 2, but there is a race condition between PATH CHALLENGE and PUNCH ME NOW, so that may fail. The cautious client will just spend one RTT. \r\n\r\nThat scenario will succeed with some IPv4 NAT, but will fail if the server side NAT maps the server probe to an address that the client did not predict (a.k.a. symmetric NAT). In that case, the server's probe will knock on the wrong pinhole. When I was working on Windows, we tried to fix that in a bunch of different ways, which all boil down to trying to predict the port number over which the server's response will arrive. You need a match between:\r\n\r\n1) Client has sent a recent probe with source-ip=Ca, source-port=Cp, dest-ip=Sa, dest-port=Sp,\r\n2) Server's probe appears as dest-ip=Ca', dest-port=Cp', source-ip=Sa', source-port=Sp'\r\n\r\nThe client in most scenarios does have a good idea of Ca and Sa, so we can assume Ca==Ca', Sa==Sa'. The client must predict Cp' and Sp'. The various prediction algorithms that were tried include \"same as before\", \"in sequence\", and \"random\", which lead to different strategies:\r\n\r\nsame as before: ask the server about the addresses that it has seen recently, collect the port numbers, send probes to each of those.\r\nin sequence: assume that if the server has seen port P in use recently, it is likely that the send probes will arrive from one of P+1...P+n. Send client probes to these ports to open as many pin-holes.\r\nrandom: can predict anything. May try the birthday paradox approach, in which each end sends N probes to the peer, with the hope than one pair will match.\r\n\r\nOf course, each probe creates state in the NAT, so sending too many probes risk exhausting the space allocated to mapping tables in the NAT and thus kill existing paths through that NAT.\r\n\r\nBottom line: all these work much better if one of the two ends is open. If you can use PMP or UPNP, or if you can reserve a port number in your home NAT, then do it!",
+          "createdAt": "2023-10-21T18:23:59Z",
+          "updatedAt": "2023-10-21T18:23:59Z"
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "I_kwDOJ5p67M50cCt2",
+      "title": "limit the number of addresses the server can send",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/21",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "There's a potential DoS attack if the server sends a large number of ADD_ADDRESS frames. While the client could silently drop addresses above a certain limit, this seems less than ideal. An explicit limit seems preferable, but the current makes this hard to achieve, since there's no ordering between ADD_ADDRESS and REMOVE_ADDRESS frames.",
+      "createdAt": "2023-10-20T04:39:52Z",
+      "updatedAt": "2023-10-20T04:39:52Z",
       "closedAt": null,
       "comments": []
     }
