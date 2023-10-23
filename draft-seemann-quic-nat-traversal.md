@@ -108,7 +108,7 @@ might be established in parallel. When using QUIC Multipath {{MULTIPATH}}, these
 paths may be used at the some time, however, the mechanism described in this
 document does not require the use of QUIC multipath.
 
-Altough ICE is not directly used, the logic run on the client makes use of
+Although ICE is not directly used, the logic run on the client makes use of
 ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of RFC8445}}).
 Implementations are free to implement different algorithms as they see fit.
 
