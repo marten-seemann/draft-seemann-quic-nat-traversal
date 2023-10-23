@@ -73,7 +73,7 @@ deemed suitable for the application's needs.
 
 {::boilerplate bcp14-tagged}
 
-# Mode 1: NAT Traveersal Using an External Signaling Channel
+# NAT Traversal Using an External Signaling Channel
 
 When an external signaling channel is used, the QUIC connection is established
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
@@ -90,7 +90,7 @@ checks should have created the necessary NAT bindings for the client's first
 flight to reach the server, and for the server's first flight to reach the
 client.
 
-# Mode 2: QUIC NAT Traversal
+# NAT Traversal using the NAT Traversal QUIC Extension
 
 QUIC's path validation mechanism can be used to establish the required NAT
 mappings that allow for a direct connection. Once the NAT mappings are
