@@ -235,7 +235,7 @@ IPv6:
 : The IPv6 address. Only present if the least significant bit of the frame type
    is 1.
 
-Port: 
+Port:
 
 : The port number.
 
