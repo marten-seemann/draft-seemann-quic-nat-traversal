@@ -160,6 +160,17 @@ become available. However, for small concurrency limits, it MAY delay sending of
 address pairs in order prioritize them first and only initiate path validation
 for the highest-priority candidate pairs.
 
+### Interaction with active_connection_id_limit
+
+The active_connection_id_limit limits the number of connection IDs that are
+active at any given time. Both endpoints need to use a previously unused
+connection ID when validating a new path in order to avoid linkability.
+Therefore, the active_connection_id_limit effectively places a limit on the
+number of concurrent path validations.
+
+Endpoints should set an active_connection_id_limit that is high enough to allow
+for the desired number of concurrent path validation attempts.
+
 ### Amplification Attack Mitigation
 
 TODO describe exactly how to migitate amplification attacks
