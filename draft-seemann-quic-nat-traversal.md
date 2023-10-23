@@ -64,9 +64,9 @@ documents, the nodes coordinate QUIC path validation attempts that create the
 necessary NAT bindings to achieve traversal of the NAT. This mechanism makes
 extensive use of the path validation mechanism described in {{!RFC9000}}. In
 addition, the QUIC server needs the capability to initiate path validation,
-which, as per {{!RFC9000}}, is solely executed by the client. Starting with a
-proxied QUIC connection allows the nodes to start exchanging application data
-right away, and switch to the direct connection once it has been established and
+which, as per {{!RFC9000}}, is initiated by the client. Starting with a proxied
+QUIC connection allows the nodes to start exchanging application data right
+away, and switch to the direct connection once it has been established and
 deemed suitable for the application's needs.
 
 # Conventions and Definitions
@@ -100,10 +100,9 @@ might be established in parallel. When using QUIC Multipath {{MULTIPATH}}, these
 paths may be used at the some time, however, the mechanism described in this
 document does not require the use of QUIC multipath.
 
-ICE is not directly used in this mode. However, the logic run on the client
-makes use of ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of
-RFC8445}}). Implementations are free to implement different algorithms as they
-see fit.
+ICE is not directly used, however, the logic run on the client makes use of
+ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of RFC8445}}).
+Implementations are free to implement different algorithms as they see fit.
 
 This mode needs be negotiated during the handshake, see {{negotiate-extension}}.
 
@@ -113,52 +112,53 @@ The gathering of address candidates is out of scope for this document. Endpoints
 MAY use the logic described in {{Sections 5.1.1 and 5.2 of RFC8445}}, or use
 address candidates provided by the application.
 
-## Address Transmission
+## Sending Address Candidates to the Client
 
-The server transmits its address candidates to the client using ADD_ADDRESS
-frames. It SHOULD NOT wait until address candidate discovery has finished,
-instead, it SHOULD send address candidates as soon as they become available.
-This allows speeding up the NAT traversal, and is similar to the Trickle ICE
-({{!RFC8838}}) logic.
+The server sends its address candidates to the client using ADD_ADDRESS frames.
+It SHOULD NOT wait until address candidate discovery has finished, instead, it
+SHOULD send address candidates as soon as they become available. This allows
+speeding up the NAT traversal, and is similar to Trickle ICE ({{!RFC8838}}).
 
-Addresses transmitted to the client can be removed using the REMOVE_ADDRESS
-frame if the address candidate becomes stale, e.g. because the network interface
-becomes unavailable.
+Addresses sent to the client can be removed using the REMOVE_ADDRESS frame if
+the address candidate becomes stale, e.g. because the network interface becomes
+unavailable.
 
-Address candidates are only transmitted from the server to the client, since the
-entire address matching logic is run on the client side.
+Since address matching is run on the client side, address candidates are only
+sent from the server to the client. The client does not send any addresses to
+the server.
 
 ## Address Matching
 
 The client matches the address candidates sent by the server with its own
 address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
 describes an algorithm for pairing address candidates. Since the pairing
-algorithm is only run on the client side, the peers do not need to agree on the
-algorithm used, and the client is free to use other algorithms.
+algorithm is only run on the client side, the endpoints do not need to agree on
+the algorithm used, and the client is free to use a different algorithms.
 
-## Probing paths
+## Probing Paths
 
 The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.
 
 On the server side, path validation SHOULD be started immediately when receiving
-a PUNCH_ME_NOW frame. This document introduces path validation on the server
-side, since {{!RFC9000}} assumes that any QUIC server is able to receive packets
-on a path without creating a NAT binding first. Path validation on the server
-side works as described in {{Section 8.2.1 of RFC9000}}, with additional
-rate-limiting to prevent amplification attacks.
+a PUNCH_ME_NOW frame. This document introduces the concept of path validation on
+the server side, since {{!RFC9000}} assumes that any QUIC server is able to
+receive packets on a path without creating a NAT binding first. Path validation
+on the server side works as described in {{Section 8.2.1 of RFC9000}}, with
+additional rate-limiting (see {{amplification-attack}}) to prevent amplification
+attacks.
 
 Path probing happens in rounds, allowing the peers to limit the bandwidth
-consumed by path validation packets. For every round, the client MUST NOT send
-more PUNCH_ME_NOW frames than allowed by the server's transport parameter. A new
-round is started when a PUNCH_ME_NOW with a higher Round value is received. This
-immediately cancels all path probes in progress.
+consumed by sending path validation packets. For every round, the client MUST
+NOT send more PUNCH_ME_NOW frames than allowed by the server's transport
+parameter. A new round is started when a PUNCH_ME_NOW frame with a higher Round
+value is received. This immediately cancels all path probes in progress.
 
 To speed up NAT traversal, the client SHOULD send address pairs as soon as they
 become available. However, for small concurrency limits, it MAY delay sending of
-address pairs in order prioritize them first and only initiate path validation
-for the highest-priority candidate pairs.
+address pairs in order rank them first and only initiate path validation for the
+highest-priority candidate pairs.
 
 ### Interaction with active_connection_id_limit
 
@@ -168,10 +168,10 @@ connection ID when validating a new path in order to avoid linkability.
 Therefore, the active_connection_id_limit effectively places a limit on the
 number of concurrent path validations.
 
-Endpoints should set an active_connection_id_limit that is high enough to allow
+Endpoints SHOULD set an active_connection_id_limit that is high enough to allow
 for the desired number of concurrent path validation attempts.
 
-### Amplification Attack Mitigation
+### Amplification Attack Mitigation {#amplification-attack}
 
 TODO describe exactly how to migitate amplification attacks
 
