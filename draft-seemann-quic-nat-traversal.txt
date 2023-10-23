@@ -69,8 +69,8 @@ Table of Contents
 
    1.  Introduction
    2.  Conventions and Definitions
-   3.  Mode 1: NAT Traveersal Using an External Signaling Channel
-   4.  Mode 2: QUIC NAT Traversal
+   3.  NAT Traversal Using an External Signaling Channel
+   4.  NAT Traversal using the NAT Traversal QUIC Extension
      4.1.  Gathering Address Candidates
      4.2.  Address Transmission
      4.3.  Address Matching
@@ -131,7 +131,7 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-3.  Mode 1: NAT Traveersal Using an External Signaling Channel
+3.  NAT Traversal Using an External Signaling Channel
 
    When an external signaling channel is used, the QUIC connection is
    established after the two ICE agents have agreed on a candidate pair.
@@ -149,7 +149,7 @@ Table of Contents
    NAT bindings for the client's first flight to reach the server, and
    for the server's first flight to reach the client.
 
-4.  Mode 2: QUIC NAT Traversal
+4.  NAT Traversal using the NAT Traversal QUIC Extension
 
    QUIC's path validation mechanism can be used to establish the
    required NAT mappings that allow for a direct connection.  Once the
