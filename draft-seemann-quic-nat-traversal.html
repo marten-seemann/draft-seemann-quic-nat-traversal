@@ -1152,7 +1152,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-gathering-address-candidate" class="internal xref">Gathering Address Candidates</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-address-transmission" class="internal xref">Address Transmission</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-sending-address-candidates-" class="internal xref">Sending Address Candidates to the Client</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
                 <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-address-matching" class="internal xref">Address Matching</a></p>
@@ -1284,9 +1284,9 @@ to a direct path. During the path validation phase, multiple different paths
 might be established in parallel. When using QUIC Multipath <span>[<a href="#MULTIPATH" class="cite xref">MULTIPATH</a>]</span>, these
 paths may be used at the some time, however, the mechanism described in this
 document does not require the use of QUIC multipath.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">ICE is not directly used in this mode. However, the logic run on the client
-makes use of ICE's candidate pairing logic (see especially <span><a href="https://rfc-editor.org/rfc/rfc8445#section-6.1.2.2" class="relref">Section 6.1.2.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>). Implementations are free to implement different algorithms as they
-see fit.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-2">ICE is not directly used, however, the logic run on the client makes use of
+ICE's candidate pairing logic (see especially <span><a href="https://rfc-editor.org/rfc/rfc8445#section-6.1.2.2" class="relref">Section 6.1.2.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).
+Implementations are free to implement different algorithms as they see fit.<a href="#section-4-2" class="pilcrow">¶</a></p>
 <p id="section-4-3">This mode needs be negotiated during the handshake, see <a href="#negotiate-extension" class="auto internal xref">Section 4.5</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <div id="gathering-address-candidates">
 <section id="section-4.1">
@@ -1298,21 +1298,21 @@ see fit.<a href="#section-4-2" class="pilcrow">¶</a></p>
 address candidates provided by the application.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="address-transmission">
+<div id="sending-address-candidates-to-the-client">
 <section id="section-4.2">
-        <h3 id="name-address-transmission">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-address-transmission" class="section-name selfRef">Address Transmission</a>
+        <h3 id="name-sending-address-candidates-">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-sending-address-candidates-" class="section-name selfRef">Sending Address Candidates to the Client</a>
         </h3>
-<p id="section-4.2-1">The server transmits its address candidates to the client using ADD_ADDRESS
-frames. It <span class="bcp14">SHOULD NOT</span> wait until address candidate discovery has finished,
-instead, it <span class="bcp14">SHOULD</span> send address candidates as soon as they become available.
-This allows speeding up the NAT traversal, and is similar to the Trickle ICE
-(<span>[<a href="#RFC8838" class="cite xref">RFC8838</a>]</span>) logic.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">Addresses transmitted to the client can be removed using the REMOVE_ADDRESS
-frame if the address candidate becomes stale, e.g. because the network interface
-becomes unavailable.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">Address candidates are only transmitted from the server to the client, since the
-entire address matching logic is run on the client side.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">The server sends its address candidates to the client using ADD_ADDRESS frames.
+It <span class="bcp14">SHOULD NOT</span> wait until address candidate discovery has finished, instead, it
+<span class="bcp14">SHOULD</span> send address candidates as soon as they become available. This allows
+speeding up the NAT traversal, and is similar to Trickle ICE (<span>[<a href="#RFC8838" class="cite xref">RFC8838</a>]</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">Addresses sent to the client can be removed using the REMOVE_ADDRESS frame if
+the address candidate becomes stale, e.g. because the network interface becomes
+unavailable.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">Since address matching is run on the client side, address candidates are only
+sent from the server to the client. The client does not send any addresses to
+the server.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="address-matching">
@@ -1323,8 +1323,8 @@ entire address matching logic is run on the client side.<a href="#section-4.2-3"
 <p id="section-4.3-1">The client matches the address candidates sent by the server with its own
 address candidates, forming candidate pairs. <span><a href="https://rfc-editor.org/rfc/rfc8445#section-5.1" class="relref">Section 5.1</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>
 describes an algorithm for pairing address candidates. Since the pairing
-algorithm is only run on the client side, the peers do not need to agree on the
-algorithm used, and the client is free to use other algorithms.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+algorithm is only run on the client side, the endpoints do not need to agree on
+the algorithm used, and the client is free to use a different algorithms.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="probing-paths">
@@ -1336,20 +1336,20 @@ algorithm used, and the client is free to use other algorithms.<a href="#section
 client <span class="bcp14">SHOULD</span> start path validation (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.4-2">On the server side, path validation <span class="bcp14">SHOULD</span> be started immediately when receiving
-a PUNCH_ME_NOW frame. This document introduces path validation on the server
-side, since <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> assumes that any QUIC server is able to receive packets
-on a path without creating a NAT binding first. Path validation on the server
-side works as described in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with additional
-rate-limiting to prevent amplification attacks.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+a PUNCH_ME_NOW frame. This document introduces the concept of path validation on
+the server side, since <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> assumes that any QUIC server is able to
+receive packets on a path without creating a NAT binding first. Path validation
+on the server side works as described in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with
+additional rate-limiting (see <a href="#amplification-attack" class="auto internal xref">Section 4.4.2</a>) to prevent amplification
+attacks.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
 <p id="section-4.4-3">Path probing happens in rounds, allowing the peers to limit the bandwidth
-consumed by path validation packets. For every round, the client <span class="bcp14">MUST NOT</span> send
-more PUNCH_ME_NOW frames than allowed by the server's transport parameter. A new
-round is started when a PUNCH_ME_NOW with a higher Round value is received. This
-immediately cancels all path probes in progress.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+consumed by sending path validation packets. For every round, the client <span class="bcp14">MUST NOT</span> send more PUNCH_ME_NOW frames than allowed by the server's transport
+parameter. A new round is started when a PUNCH_ME_NOW frame with a higher Round
+value is received. This immediately cancels all path probes in progress.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 <p id="section-4.4-4">To speed up NAT traversal, the client <span class="bcp14">SHOULD</span> send address pairs as soon as they
 become available. However, for small concurrency limits, it <span class="bcp14">MAY</span> delay sending of
-address pairs in order prioritize them first and only initiate path validation
-for the highest-priority candidate pairs.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+address pairs in order rank them first and only initiate path validation for the
+highest-priority candidate pairs.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
 <div id="interaction-with-activeconnectionidlimit">
 <section id="section-4.4.1">
           <h4 id="name-interaction-with-active_con">
@@ -1364,7 +1364,7 @@ number of concurrent path validations.<a href="#section-4.4.1-1" class="pilcrow"
 for the desired number of concurrent path validation attempts.<a href="#section-4.4.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="amplification-attack-mitigation">
+<div id="amplification-attack">
 <section id="section-4.4.2">
           <h4 id="name-amplification-attack-mitiga">
 <a href="#section-4.4.2" class="section-number selfRef">4.4.2. </a><a href="#name-amplification-attack-mitiga" class="section-name selfRef">Amplification Attack Mitigation</a>

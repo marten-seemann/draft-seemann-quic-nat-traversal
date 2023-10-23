@@ -72,7 +72,7 @@ Table of Contents
    3.  NAT Traversal Using an External Signaling Channel
    4.  NAT Traversal using the NAT Traversal QUIC Extension
      4.1.  Gathering Address Candidates
-     4.2.  Address Transmission
+     4.2.  Sending Address Candidates to the Client
      4.3.  Address Matching
      4.4.  Probing paths
        4.4.1.  Interaction with active_connection_id_limit
@@ -161,10 +161,10 @@ Table of Contents
    used at the some time, however, the mechanism described in this
    document does not require the use of QUIC multipath.
 
-   ICE is not directly used in this mode.  However, the logic run on the
-   client makes use of ICE's candidate pairing logic (see especially
-   Section 6.1.2.2 of [RFC8445]).  Implementations are free to implement
-   different algorithms as they see fit.
+   ICE is not directly used, however, the logic run on the client makes
+   use of ICE's candidate pairing logic (see especially Section 6.1.2.2
+   of [RFC8445]).  Implementations are free to implement different
+   algorithms as they see fit.
 
    This mode needs be negotiated during the handshake, see Section 4.5.
 
@@ -175,30 +175,30 @@ Table of Contents
    and 5.2 of [RFC8445], or use address candidates provided by the
    application.
 
-4.2.  Address Transmission
+4.2.  Sending Address Candidates to the Client
 
-   The server transmits its address candidates to the client using
+   The server sends its address candidates to the client using
    ADD_ADDRESS frames.  It SHOULD NOT wait until address candidate
    discovery has finished, instead, it SHOULD send address candidates as
    soon as they become available.  This allows speeding up the NAT
-   traversal, and is similar to the Trickle ICE ([RFC8838]) logic.
+   traversal, and is similar to Trickle ICE ([RFC8838]).
 
-   Addresses transmitted to the client can be removed using the
-   REMOVE_ADDRESS frame if the address candidate becomes stale, e.g.
-   because the network interface becomes unavailable.
+   Addresses sent to the client can be removed using the REMOVE_ADDRESS
+   frame if the address candidate becomes stale, e.g. because the
+   network interface becomes unavailable.
 
-   Address candidates are only transmitted from the server to the
-   client, since the entire address matching logic is run on the client
-   side.
+   Since address matching is run on the client side, address candidates
+   are only sent from the server to the client.  The client does not
+   send any addresses to the server.
 
 4.3.  Address Matching
 
    The client matches the address candidates sent by the server with its
    own address candidates, forming candidate pairs.  Section 5.1 of
    [RFC8445] describes an algorithm for pairing address candidates.
-   Since the pairing algorithm is only run on the client side, the peers
-   do not need to agree on the algorithm used, and the client is free to
-   use other algorithms.
+   Since the pairing algorithm is only run on the client side, the
+   endpoints do not need to agree on the algorithm used, and the client
+   is free to use a different algorithms.
 
 4.4.  Probing paths
 
@@ -208,24 +208,25 @@ Table of Contents
    PUNCH_ME_NOW frame.
 
    On the server side, path validation SHOULD be started immediately
-   when receiving a PUNCH_ME_NOW frame.  This document introduces path
-   validation on the server side, since [RFC9000] assumes that any QUIC
-   server is able to receive packets on a path without creating a NAT
-   binding first.  Path validation on the server side works as described
-   in Section 8.2.1 of [RFC9000], with additional rate-limiting to
-   prevent amplification attacks.
+   when receiving a PUNCH_ME_NOW frame.  This document introduces the
+   concept of path validation on the server side, since [RFC9000]
+   assumes that any QUIC server is able to receive packets on a path
+   without creating a NAT binding first.  Path validation on the server
+   side works as described in Section 8.2.1 of [RFC9000], with
+   additional rate-limiting (see Section 4.4.2) to prevent amplification
+   attacks.
 
    Path probing happens in rounds, allowing the peers to limit the
-   bandwidth consumed by path validation packets.  For every round, the
-   client MUST NOT send more PUNCH_ME_NOW frames than allowed by the
-   server's transport parameter.  A new round is started when a
-   PUNCH_ME_NOW with a higher Round value is received.  This immediately
-   cancels all path probes in progress.
+   bandwidth consumed by sending path validation packets.  For every
+   round, the client MUST NOT send more PUNCH_ME_NOW frames than allowed
+   by the server's transport parameter.  A new round is started when a
+   PUNCH_ME_NOW frame with a higher Round value is received.  This
+   immediately cancels all path probes in progress.
 
    To speed up NAT traversal, the client SHOULD send address pairs as
    soon as they become available.  However, for small concurrency
-   limits, it MAY delay sending of address pairs in order prioritize
-   them first and only initiate path validation for the highest-priority
+   limits, it MAY delay sending of address pairs in order rank them
+   first and only initiate path validation for the highest-priority
    candidate pairs.
 
 4.4.1.  Interaction with active_connection_id_limit
