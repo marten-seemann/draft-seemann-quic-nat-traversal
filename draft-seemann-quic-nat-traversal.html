@@ -1038,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Seemann</td>
-<td class="center">Expires 20 April 2024</td>
+<td class="center">Expires 25 April 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1051,12 +1051,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-seemann-quic-nat-traversal-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-10-18" class="published">18 October 2023</time>
+<time datetime="2023-10-23" class="published">23 October 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-04-20">20 April 2024</time></dd>
+<dd class="expires"><time datetime="2024-04-25">25 April 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1107,7 +1107,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 April 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 April 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1220,22 +1220,23 @@ connection between the two endpoints can be established.<a href="#section-1-2.1.
 validation logic is used to test connectivity of possible paths.<a href="#section-1-2.2.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
-<p id="section-1-3">The first mode doesn't require any changes to existing QUIC and ICE stacks. The
-only requirement is the ability to send and receive non-QUIC (STUN
-(<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets on the UDP socket that a QUIC server is listening on.
-However, it necessitates running a separate signaling channel for the
-communication between the two ICE agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">The second mode doesn't use ICE at all, although it makes use of some of the
+<p id="section-1-3">The first option merely documents how NAT traversal can be achieved using
+unmodified QUIC and ICE stacks. The only requirement is the ability to send and
+receive non-QUIC (STUN (<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets on the UDP socket that a QUIC
+server is listening on. However, it necessitates running a separate signaling
+channel for the communication between the two ICE agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">The second option doesn't use ICE at all, although it makes use of some of the
 concepts, in particular the address matching logic described in <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>. It
-is assumed that the nodes are connected via a proxied QUIC connection. Using the
-logic described in this documents, the nodes coordinate QUIC path validation
-attempts that create the necessary NAT bindings to achieve traversal of the NAT.
-This mechanism makes extensive use of the path validation mechanism described in
-<span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>. In addition to that, the QUIC server needs the capability to
-initiate path validation, which, as per <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, is solely executed by the
-client. Starting with a proxied QUIC connection allows the nodes to begin
-exchanging application data, and switch to the direct connection once it has
-been established and deemed suitable for the application's needs.<a href="#section-1-4" class="pilcrow">¶</a></p>
+is assumed that the nodes are connected via a proxied QUIC connection, for
+example using <span>[<a href="#CONNECT-UDP-LISTEN" class="cite xref">CONNECT-UDP-LISTEN</a>]</span>. Using the QUIC extension defined in this
+documents, the nodes coordinate QUIC path validation attempts that create the
+necessary NAT bindings to achieve traversal of the NAT. This mechanism makes
+extensive use of the path validation mechanism described in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>. In
+addition, the QUIC server needs the capability to initiate path validation,
+which, as per <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, is solely executed by the client. Starting with a
+proxied QUIC connection allows the nodes to start exchanging application data
+right away, and switch to the direct connection once it has been established and
+deemed suitable for the application's needs.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1545,6 +1546,10 @@ it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="CONNECT-UDP-LISTEN">[CONNECT-UDP-LISTEN]</dt>
+      <dd>
+<span class="refAuthor">Schinazi, D.</span> and <span class="refAuthor">A. Singh</span>, <span class="refTitle">"Proxying Listener UDP in HTTP"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-masque-connect-udp-listen-01</span>, <time datetime="2023-09-08" class="refDate">8 September 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-masque-connect-udp-listen-01">https://datatracker.ietf.org/doc/html/draft-ietf-masque-connect-udp-listen-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="MULTIPATH">[MULTIPATH]</dt>
       <dd>
 <span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-05</span>, <time datetime="2023-07-10" class="refDate">10 July 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05</a>&gt;</span>. </dd>
