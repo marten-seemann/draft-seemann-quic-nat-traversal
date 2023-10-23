@@ -23,6 +23,7 @@ author:
 
 normative:
    MULTIPATH: I-D.ietf-quic-multipath
+   CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
 
 informative:
 
@@ -49,23 +50,24 @@ This document describes two ways to use QUIC ({{!RFC9000}}) to traverse NATs:
 2. Using a (proxied) QUIC connection as the signaling channel.  QUIC's path
    validation logic is used to test connectivity of possible paths.
 
-The first mode doesn't require any changes to existing QUIC and ICE stacks. The
-only requirement is the ability to send and receive non-QUIC (STUN
-({{!RFC5389}})) packets on the UDP socket that a QUIC server is listening on.
-However, it necessitates running a separate signaling channel for the
-communication between the two ICE agents.
+The first option merely documents how NAT traversal can be achieved using
+unmodified QUIC and ICE stacks. The only requirement is the ability to send and
+receive non-QUIC (STUN ({{!RFC5389}})) packets on the UDP socket that a QUIC
+server is listening on. However, it necessitates running a separate signaling
+channel for the communication between the two ICE agents.
 
-The second mode doesn't use ICE at all, although it makes use of some of the
+The second option doesn't use ICE at all, although it makes use of some of the
 concepts, in particular the address matching logic described in {{!RFC8445}}. It
-is assumed that the nodes are connected via a proxied QUIC connection. Using the
-logic described in this documents, the nodes coordinate QUIC path validation
-attempts that create the necessary NAT bindings to achieve traversal of the NAT.
-This mechanism makes extensive use of the path validation mechanism described in
-{{!RFC9000}}. In addition to that, the QUIC server needs the capability to
-initiate path validation, which, as per {{!RFC9000}}, is solely executed by the
-client. Starting with a proxied QUIC connection allows the nodes to begin
-exchanging application data, and switch to the direct connection once it has
-been established and deemed suitable for the application's needs.
+is assumed that the nodes are connected via a proxied QUIC connection, for
+example using {{CONNECT-UDP-LISTEN}}. Using the QUIC extension defined in this
+documents, the nodes coordinate QUIC path validation attempts that create the
+necessary NAT bindings to achieve traversal of the NAT. This mechanism makes
+extensive use of the path validation mechanism described in {{!RFC9000}}. In
+addition, the QUIC server needs the capability to initiate path validation,
+which, as per {{!RFC9000}}, is solely executed by the client. Starting with a
+proxied QUIC connection allows the nodes to start exchanging application data
+right away, and switch to the direct connection once it has been established and
+deemed suitable for the application's needs.
 
 # Conventions and Definitions
 
