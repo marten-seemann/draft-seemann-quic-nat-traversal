@@ -119,10 +119,10 @@ Table of Contents
    This mechanism makes extensive use of the path validation mechanism
    described in [RFC9000].  In addition, the QUIC server needs the
    capability to initiate path validation, which, as per [RFC9000], is
-   solely executed by the client.  Starting with a proxied QUIC
-   connection allows the nodes to start exchanging application data
-   right away, and switch to the direct connection once it has been
-   established and deemed suitable for the application's needs.
+   initiated by the client.  Starting with a proxied QUIC connection
+   allows the nodes to start exchanging application data right away, and
+   switch to the direct connection once it has been established and
+   deemed suitable for the application's needs.
 
 2.  Conventions and Definitions
 
