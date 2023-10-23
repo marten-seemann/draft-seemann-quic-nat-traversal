@@ -6,13 +6,14 @@
 <meta content="initial-scale=1.0" name="viewport">
 <title>Using QUIC to traverse NATs</title>
 <meta content="Marten Seemann" name="author">
+<meta content="Eric Kinnear" name="author">
 <meta content="
        QUIC is well-suited to various NAT traversal techniques. As it operates over
 UDP, and because the QUIC header was designed to be demultipexed from other
-protocols, STUN can be used on the same UDP socket. This allows for using ICE
-with QUIC. Furthermore, QUIC’s path validation mechanism can be used to test the
-viability of an address candidate pair while at the same time creating the NAT
-bindings required for a direction connection, after which QUIC connection
+protocols, STUN can be used on the same UDP socket, enabling ICE to be used
+with QUIC. Furthermore, QUIC’s path validation mechanism can be used to test
+the viability of an address candidate pair while at the same time creating the
+NAT bindings required for a direction connection, after which QUIC connection
 migration can be used to migrate the connection to a direct path. 
     " name="description">
 <meta content="xml2rfc 3.18.2" name="generator">
@@ -1037,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <td class="right">October 2023</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Seemann</td>
+<td class="left">Seemann &amp; Kinnear</td>
 <td class="center">Expires 25 April 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1057,11 +1058,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
 <dd class="expires"><time datetime="2024-04-25">25 April 2024</time></dd>
-<dt class="label-authors">Author:</dt>
+<dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
       <div class="author-name">M. Seemann</div>
 <div class="org">Protocol Labs</div>
+</div>
+<div class="author">
+      <div class="author-name">E. Kinnear</div>
+<div class="org">Apple Inc.</div>
 </div>
 </dd>
 </dl>
@@ -1071,10 +1076,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">QUIC is well-suited to various NAT traversal techniques. As it operates over
 UDP, and because the QUIC header was designed to be demultipexed from other
-protocols, STUN can be used on the same UDP socket. This allows for using ICE
-with QUIC. Furthermore, QUIC’s path validation mechanism can be used to test the
-viability of an address candidate pair while at the same time creating the NAT
-bindings required for a direction connection, after which QUIC connection
+protocols, STUN can be used on the same UDP socket, enabling ICE to be used
+with QUIC. Furthermore, QUIC’s path validation mechanism can be used to test
+the viability of an address candidate pair while at the same time creating the
+NAT bindings required for a direction connection, after which QUIC connection
 migration can be used to migrate the connection to a direct path.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
@@ -1200,7 +1205,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
             <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1219,26 +1224,26 @@ of UDP addresses. Once candidate nomination is completed, a new QUIC
 connection between the two endpoints can be established.<a href="#section-1-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-1-2.2">
-          <p id="section-1-2.2.1">Using a (proxied) QUIC connection as the signaling channel.  QUIC's path
+          <p id="section-1-2.2.1">Using a (proxied) QUIC connection as the signaling channel. QUIC's path
 validation logic is used to test connectivity of possible paths.<a href="#section-1-2.2.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
-<p id="section-1-3">The first option merely documents how NAT traversal can be achieved using
-unmodified QUIC and ICE stacks. The only requirement is the ability to send and
-receive non-QUIC (STUN (<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets on the UDP socket that a QUIC
-server is listening on. However, it necessitates running a separate signaling
-channel for the communication between the two ICE agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-3">The first option documents how NAT traversal can be achieved using unmodified
+QUIC and ICE stacks. The only requirement is the ability to send and receive
+non-QUIC (STUN (<span>[<a href="#RFC5389" class="cite xref">RFC5389</a>]</span>)) packets on the UDP socket that a QUIC server is
+listening on. However, it necessitates running a separate signaling channel for
+the communication between the two ICE agents.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">The second option doesn't use ICE at all, although it makes use of some of the
 concepts, in particular the address matching logic described in <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>. It
 is assumed that the nodes are connected via a proxied QUIC connection, for
 example using <span>[<a href="#CONNECT-UDP-LISTEN" class="cite xref">CONNECT-UDP-LISTEN</a>]</span>. Using the QUIC extension defined in this
-documents, the nodes coordinate QUIC path validation attempts that create the
+document, the nodes coordinate QUIC path validation attempts that create the
 necessary NAT bindings to achieve traversal of the NAT. This mechanism makes
 extensive use of the path validation mechanism described in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>. In
 addition, the QUIC server needs the capability to initiate path validation,
 which, as per <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, is initiated by the client. Starting with a proxied
 QUIC connection allows the nodes to start exchanging application data right
-away, and switch to the direct connection once it has been established and
+away and switch to the direct connection once it has been established and
 deemed suitable for the application's needs.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1262,14 +1267,14 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
 require any modification to existing QUIC stacks. In particular, it does not
 necessitate the negotiation of the extension defined in this document.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">For address discovery to work, QUIC and ICE need to use the same UDP socket
+<p id="section-3-2">For address discovery to work, QUIC and ICE need to use the same UDP socket.
 Since this requires demultiplexing of QUIC and STUN packets, the QUIC bit cannot
 be greased as described in <span>[<a href="#RFC9287" class="cite xref">RFC9287</a>]</span>.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">Once ICE has completed, the client immediately initiates a normal QUIC handshake
-using the server's address from the nominated address pair. The ICE connectivity
-checks should have created the necessary NAT bindings for the client's first
-flight to reach the server, and for the server's first flight to reach the
-client.<a href="#section-3-3" class="pilcrow">¶</a></p>
+using the server's address from the nominated address pair. The ICE
+connectivity checks should have created the necessary NAT bindings for the
+client's first flight to reach the server and for the server's first flight to
+reach the client.<a href="#section-3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="nat-traversal-using-the-nat-traversal-quic-extension">
@@ -1284,7 +1289,7 @@ to a direct path. During the path validation phase, multiple different paths
 might be established in parallel. When using QUIC Multipath <span>[<a href="#MULTIPATH" class="cite xref">MULTIPATH</a>]</span>, these
 paths may be used at the some time, however, the mechanism described in this
 document does not require the use of QUIC multipath.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">ICE is not directly used, however, the logic run on the client makes use of
+<p id="section-4-2">Although ICE is not directly used, the logic run on the client makes use of
 ICE's candidate pairing logic (see especially <span><a href="https://rfc-editor.org/rfc/rfc8445#section-6.1.2.2" class="relref">Section 6.1.2.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).
 Implementations are free to implement different algorithms as they see fit.<a href="#section-4-2" class="pilcrow">¶</a></p>
 <p id="section-4-3">This mode needs be negotiated during the handshake, see <a href="#negotiate-extension" class="auto internal xref">Section 4.5</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
@@ -1294,8 +1299,8 @@ Implementations are free to implement different algorithms as they see fit.<a hr
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-gathering-address-candidate" class="section-name selfRef">Gathering Address Candidates</a>
         </h3>
 <p id="section-4.1-1">The gathering of address candidates is out of scope for this document. Endpoints
-<span class="bcp14">MAY</span> use the logic described in Sections <a href="https://rfc-editor.org/rfc/rfc8445#section-5.1.1" class="relref">5.1.1</a> and <a href="https://rfc-editor.org/rfc/rfc8445#section-5.2" class="relref">5.2</a> of <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>, or use
-address candidates provided by the application.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<span class="bcp14">MAY</span> use the logic described in Sections <a href="https://rfc-editor.org/rfc/rfc8445#section-5.1.1" class="relref">5.1.1</a> and <a href="https://rfc-editor.org/rfc/rfc8445#section-5.2" class="relref">5.2</a> of <span>[<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>, or they
+<span class="bcp14">MAY</span> use address candidates provided by the application.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sending-address-candidates-to-the-client">
@@ -1305,8 +1310,8 @@ address candidates provided by the application.<a href="#section-4.1-1" class="p
         </h3>
 <p id="section-4.2-1">The server sends its address candidates to the client using ADD_ADDRESS frames.
 It <span class="bcp14">SHOULD NOT</span> wait until address candidate discovery has finished, instead, it
-<span class="bcp14">SHOULD</span> send address candidates as soon as they become available. This allows
-speeding up the NAT traversal, and is similar to Trickle ICE (<span>[<a href="#RFC8838" class="cite xref">RFC8838</a>]</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<span class="bcp14">SHOULD</span> send address candidates as soon as they become available. This speeds up
+the NAT traversal and is similar to Trickle ICE (<span>[<a href="#RFC8838" class="cite xref">RFC8838</a>]</span>).<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">Addresses sent to the client can be removed using the REMOVE_ADDRESS frame if
 the address candidate becomes stale, e.g. because the network interface becomes
 unavailable.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
@@ -1324,7 +1329,7 @@ the server.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
 address candidates, forming candidate pairs. <span><a href="https://rfc-editor.org/rfc/rfc8445#section-5.1" class="relref">Section 5.1</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>
 describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
-the algorithm used, and the client is free to use a different algorithms.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+the algorithm used, and the client is free to use a different algorithm.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="probing-paths">
@@ -1335,13 +1340,13 @@ the algorithm used, and the client is free to use a different algorithms.<a href
 <p id="section-4.4-1">The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client <span class="bcp14">SHOULD</span> start path validation (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.4-2">On the server side, path validation <span class="bcp14">SHOULD</span> be started immediately when receiving
-a PUNCH_ME_NOW frame. This document introduces the concept of path validation on
+<p id="section-4.4-2">The server <span class="bcp14">SHOULD</span> start path validation immediately upon receipt of a
+PUNCH_ME_NOW frame. This document introduces the concept of path validation on
 the server side, since <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> assumes that any QUIC server is able to
 receive packets on a path without creating a NAT binding first. Path validation
-on the server side works as described in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with
-additional rate-limiting (see <a href="#amplification-attack" class="auto internal xref">Section 4.4.2</a>) to prevent amplification
-attacks.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+on the server works as described in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with
+additional rate-limiting (see <a href="#amplification-attack" class="auto internal xref">Section 4.4.2</a>) to prevent
+amplification attacks.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
 <p id="section-4.4-3">Path probing happens in rounds, allowing the peers to limit the bandwidth
 consumed by sending path validation packets. For every round, the client <span class="bcp14">MUST NOT</span> send more PUNCH_ME_NOW frames than allowed by the server's transport
 parameter. A new round is started when a PUNCH_ME_NOW frame with a higher Round
@@ -1386,7 +1391,7 @@ implementation that understands this transport parameter <span class="bcp14">MUS
 of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
 <p id="section-4.5-3">For the server, the value of this transport parameter is a variable-length
 integer, the concurrency limit. The concurrency limit limits the amount of
-concurrent NAT traversal attempts, and can be used to limit the bandwith
+concurrent NAT traversal attempts and can be used to limit the bandwith
 required to execute the path validation. Any value larger than 0 is valid. A
 client implementation that understands this transport parameter <span class="bcp14">MUST</span> treat the
 receipt of a value that is not a variable-length integer, or the receipt of the
@@ -1433,17 +1438,21 @@ ADD_ADDRESS Frame {
             <dd class="break"></dd>
 <dt id="section-4.6.1-3.5">IPv6:</dt>
             <dd style="margin-left: 1.5em" id="section-4.6.1-3.6">
-              <p id="section-4.6.1-3.6.1">The IPv6 address. Only present if the least significant bit of the frame
-type is 1.<a href="#section-4.6.1-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-4.6.1-3.6.1">The IPv6 address. Only present if the least significant bit of the frame type
+ is 1.<a href="#section-4.6.1-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-4.6.1-3.7">Port:</dt>
+            <dd style="margin-left: 1.5em" id="section-4.6.1-3.8">
+              <p id="section-4.6.1-3.8.1">The port number.<a href="#section-4.6.1-3.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-4.6.1-4">Port: The port number.<a href="#section-4.6.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.6.1-5">ADD_ADDRESS frames are ack-eliciting. When lost, they <span class="bcp14">SHOULD</span> be retransmitted,
-unless the address is not active anymore.<a href="#section-4.6.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.6.1-6">This frame is only sent from the server to the client. Servers <span class="bcp14">MUST</span> treat
+<p id="section-4.6.1-4">ADD_ADDRESS frames are ack-eliciting. When lost, they <span class="bcp14">SHOULD</span> be retransmitted,
+unless the address is not active anymore.<a href="#section-4.6.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.6.1-5">This frame is only sent from the server to the client. Servers <span class="bcp14">MUST</span> treat
 receipt of an ADD_ADDRESS frame as a connection error of type
-PROTOCOL_VIOLATION.<a href="#section-4.6.1-6" class="pilcrow">¶</a></p>
+PROTOCOL_VIOLATION.<a href="#section-4.6.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="punchmenow-frame">
@@ -1463,7 +1472,7 @@ PUNCH_ME_NOW Frame {
 }
 </pre><a href="#section-4.6.2-1" class="pilcrow">¶</a>
 </div>
-<p id="section-4.6.2-2">The ADD_ADDRESS frame contains the following fields:<a href="#section-4.6.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.6.2-2">The PUNCH_ME_NOW frame contains the following fields:<a href="#section-4.6.2-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-4.6.2-3">
             <dt id="section-4.6.2-3.1">Round:</dt>
             <dd style="margin-left: 1.5em" id="section-4.6.2-3.2">
@@ -1538,15 +1547,15 @@ PROTOCOL_VIOLATION.<a href="#section-4.6.3-5" class="pilcrow">¶</a></p>
       <h2 id="name-security-considerations">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-5-1">This document expands QUIC's path validation logic to the server side, allowing
-the client to request sending of path validation packets on unverified paths. A
-malicious client can direct traffic to a target IP. This attack is similar to
+<p id="section-5-1">This document expands QUIC's path validation logic to QUIC servers, allowing a
+QUIC client to request sending of path validation packets on unverified paths.
+A malicious client can direct traffic to a target IP. This attack is similar to
 the IP address spoofing attack that address validation during connection
 establishment (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.1" class="relref">Section 8.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) is designed to prevent. In
 practice however, IP address spoofing is often additionally mitigated by both
-the ingress and egress network at the IP layer, which is not possible when using
-this extension. The server therefore needs to carefully limit the amount of data
-it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
+the ingress and egress network at the IP layer, which is not possible when
+using this extension. The server therefore needs to carefully limit the amount
+of data it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -1569,7 +1578,7 @@ it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <dd class="break"></dd>
 <dt id="MULTIPATH">[MULTIPATH]</dt>
       <dd>
-<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-05</span>, <time datetime="2023-07-10" class="refDate">10 July 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-05</a>&gt;</span>. </dd>
+<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">马云飞, M. Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-06</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
@@ -1612,8 +1621,8 @@ it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 </div>
 <div id="authors-addresses">
 <section id="appendix-B">
-      <h2 id="name-authors-address">
-<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Marten Seemann</span></div>
@@ -1621,6 +1630,18 @@ it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:martenseemann@gmail.com" class="email">martenseemann@gmail.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Eric Kinnear</span></div>
+<div dir="auto" class="left"><span class="org">Apple Inc.</span></div>
+<div dir="auto" class="left"><span class="street-address">One Apple Park Way</span></div>
+<div dir="auto" class="left">
+<span class="locality">Cupertino, California 95014</span>,  </div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:ekinnear@apple.com" class="email">ekinnear@apple.com</a>
 </div>
 </address>
 </section>
