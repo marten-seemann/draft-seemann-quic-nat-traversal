@@ -1158,7 +1158,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
                 <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-address-matching" class="internal xref">Address Matching</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
-                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-probing-paths" class="internal xref">Probing paths</a></p>
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-probing-paths" class="internal xref">Probing Paths</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4.2.1">
                     <p id="section-toc.1-1.4.2.4.2.1.1"><a href="#section-4.4.1" class="auto internal xref">4.4.1</a>.  <a href="#name-interaction-with-active_con" class="internal xref">Interaction with active_connection_id_limit</a></p>
@@ -1330,7 +1330,7 @@ the algorithm used, and the client is free to use a different algorithms.<a href
 <div id="probing-paths">
 <section id="section-4.4">
         <h3 id="name-probing-paths">
-<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-probing-paths" class="section-name selfRef">Probing paths</a>
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-probing-paths" class="section-name selfRef">Probing Paths</a>
         </h3>
 <p id="section-4.4-1">The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client <span class="bcp14">SHOULD</span> start path validation (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>) for the
@@ -1360,7 +1360,7 @@ active at any given time. Both endpoints need to use a previously unused
 connection ID when validating a new path in order to avoid linkability.
 Therefore, the active_connection_id_limit effectively places a limit on the
 number of concurrent path validations.<a href="#section-4.4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.4.1-2">Endpoints should set an active_connection_id_limit that is high enough to allow
+<p id="section-4.4.1-2">Endpoints <span class="bcp14">SHOULD</span> set an active_connection_id_limit that is high enough to allow
 for the desired number of concurrent path validation attempts.<a href="#section-4.4.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>

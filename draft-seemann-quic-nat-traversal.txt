@@ -74,7 +74,7 @@ Table of Contents
      4.1.  Gathering Address Candidates
      4.2.  Sending Address Candidates to the Client
      4.3.  Address Matching
-     4.4.  Probing paths
+     4.4.  Probing Paths
        4.4.1.  Interaction with active_connection_id_limit
        4.4.2.  Amplification Attack Mitigation
      4.5.  Negotiating Extension Use
@@ -200,7 +200,7 @@ Table of Contents
    endpoints do not need to agree on the algorithm used, and the client
    is free to use a different algorithms.
 
-4.4.  Probing paths
+4.4.  Probing Paths
 
    The client sends candidate pairs to the server using PUNCH_ME_NOW
    frames.  The client SHOULD start path validation (see Section 8.2 of
@@ -238,7 +238,7 @@ Table of Contents
    effectively places a limit on the number of concurrent path
    validations.
 
-   Endpoints should set an active_connection_id_limit that is high
+   Endpoints SHOULD set an active_connection_id_limit that is high
    enough to allow for the desired number of concurrent path validation
    attempts.
 
