@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-10-22T03:27:02.636785+00:00",
+  "timestamp": "2023-10-24T03:35:19.414090+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -299,6 +299,22 @@
       "updatedAt": "2023-10-20T04:39:52Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 24,
+      "id": "I_kwDOJ5p67M50olKF",
+      "title": "Add clarity for what's new on the server",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/24",
+      "state": "OPEN",
+      "author": "ekinnear",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "> This document introduces the concept of path validation on the server side\r\n\r\nTechnically, the server already validates paths, but we may want to editorially re-word to make it slightly more clear the parts here that are new (NAT bindings, etc. which are covered right after)",
+      "createdAt": "2023-10-23T09:59:03Z",
+      "updatedAt": "2023-10-23T09:59:03Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -578,6 +594,139 @@
       "mergedBy": "marten-seemann",
       "mergeCommit": {
         "oid": "20f96483dcf7c2cae543dddbf307ba89871acdc8"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 22,
+      "id": "PR_kwDOJ5p67M5de3xN",
+      "title": "don't call it modes",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/22",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-10-23T02:54:08Z",
+      "updatedAt": "2023-10-23T02:57:23Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "20f96483dcf7c2cae543dddbf307ba89871acdc8",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "no-modes",
+      "headRefOid": "6329b54fafe26ded02c7a62581c1eed88373c162",
+      "closedAt": "2023-10-23T02:57:23Z",
+      "mergedAt": "2023-10-23T02:57:23Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "267727ddbad2822e9e440fa7e5f14fab2c97aeba"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDOJ5p67M5dfDGq",
+      "title": "document interaction with active_connection_id_limit",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/23",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "This interaction is quite ugly, and we need to find a better solution here. @huitema listed some ideas in #20.\r\n\r\nHowever, this won't happen before the draft cutoff for Prague (which is later today). Better to document this weird interaction and resolve it in the next iteration of the draft.",
+      "createdAt": "2023-10-23T04:04:23Z",
+      "updatedAt": "2023-10-23T04:17:17Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "a8f86b0cc64f6a00fcb5fdfe65b383a46b89d7a1",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "active_connection_id_limit",
+      "headRefOid": "7debd6180e27c3cdb1f0513a7d4bd309b12af020",
+      "closedAt": "2023-10-23T04:17:17Z",
+      "mergedAt": "2023-10-23T04:17:17Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "e0a2b014d9b68cbf9de68dfa6cd2b883b09d7a7a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDOJ5p67M5dgt4T",
+      "title": "Editorial pass, update authors",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/25",
+      "state": "MERGED",
+      "author": "ekinnear",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Editorial pass, update authors\r\n\r\nAlmost entirely little editorial nits, will file issues for more substantial items, etc.",
+      "createdAt": "2023-10-23T10:03:47Z",
+      "updatedAt": "2023-10-23T21:00:10Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "faaf6a2f5065858185ee366df4e75b315584152b",
+      "headRepository": "ekinnear/draft-seemann-quic-nat-traversal",
+      "headRefName": "ek/editorial_updates",
+      "headRefOid": "b0f399405316e228a29dc5e60f1bc677e97023b8",
+      "closedAt": "2023-10-23T21:00:07Z",
+      "mergedAt": "2023-10-23T21:00:07Z",
+      "mergedBy": "ekinnear",
+      "mergeCommit": {
+        "oid": "5c1e7d213428399b368c9bb714124988c0da1384"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOJ5p67M5k3LdR",
+          "commit": {
+            "abbreviatedOid": "6f9e09a"
+          },
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2023-10-23T10:17:01Z",
+          "updatedAt": "2023-10-23T10:19:01Z",
+          "comments": [
+            {
+              "originalPosition": 91,
+              "body": "```suggestion\r\nAlthough ICE is not directly used, the logic run on the client makes use of\r\n```",
+              "createdAt": "2023-10-23T10:17:01Z",
+              "updatedAt": "2023-10-23T10:19:02Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "PR_kwDOJ5p67M5dk3tJ",
+      "title": "Fix whitespace",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/26",
+      "state": "MERGED",
+      "author": "ekinnear",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fix whitespace",
+      "createdAt": "2023-10-23T21:06:21Z",
+      "updatedAt": "2023-10-23T22:15:15Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "5c1e7d213428399b368c9bb714124988c0da1384",
+      "headRepository": "ekinnear/draft-seemann-quic-nat-traversal",
+      "headRefName": "main",
+      "headRefOid": "a4d32ad79129676b63f772be5c482a9311d5e68e",
+      "closedAt": "2023-10-23T22:15:15Z",
+      "mergedAt": "2023-10-23T22:15:15Z",
+      "mergedBy": "ekinnear",
+      "mergeCommit": {
+        "oid": "88bc3434389a59ab4a2f373bf9d668a54972355d"
       },
       "comments": [],
       "reviews": []
