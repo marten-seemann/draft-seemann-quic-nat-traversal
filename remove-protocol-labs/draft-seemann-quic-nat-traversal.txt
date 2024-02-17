@@ -3,9 +3,10 @@
 
 
 QUIC                                                          M. Seemann
-Internet-Draft                                             Protocol Labs
-Intended status: Standards Track                         23 October 2023
-Expires: 25 April 2024
+Internet-Draft                                                          
+Intended status: Standards Track                              E. Kinnear
+Expires: 20 August 2024                                       Apple Inc.
+                                                        17 February 2024
 
 
                       Using QUIC to traverse NATs
@@ -16,12 +17,11 @@ Abstract
    QUIC is well-suited to various NAT traversal techniques.  As it
    operates over UDP, and because the QUIC header was designed to be
    demultipexed from other protocols, STUN can be used on the same UDP
-   socket.  This allows for using ICE with QUIC.  Furthermore, QUIC’s
-   path validation mechanism can be used to test the viability of an
-   address candidate pair while at the same time creating the NAT
-   bindings required for a direction connection, after which QUIC
-   connection migration can be used to migrate the connection to a
-   direct path.
+   socket, enabling ICE to be used with QUIC.  Furthermore, QUIC’s path
+   validation mechanism can be used to test the viability of an address
+   candidate pair while at the same time creating the NAT bindings
+   required for a direction connection, after which QUIC connection
+   migration can be used to migrate the connection to a direct path.
 
 Discussion Venues
 
@@ -49,11 +49,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 April 2024.
+   This Internet-Draft will expire on 20 August 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -72,9 +72,9 @@ Table of Contents
    3.  NAT Traversal Using an External Signaling Channel
    4.  NAT Traversal using the NAT Traversal QUIC Extension
      4.1.  Gathering Address Candidates
-     4.2.  Address Transmission
+     4.2.  Sending Address Candidates to the Client
      4.3.  Address Matching
-     4.4.  Probing paths
+     4.4.  Probing Paths
        4.4.1.  Interaction with active_connection_id_limit
        4.4.2.  Amplification Attack Mitigation
      4.5.  Negotiating Extension Use
@@ -86,7 +86,7 @@ Table of Contents
    6.  IANA Considerations
    7.  Normative References
    Acknowledgments
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -102,27 +102,27 @@ Table of Contents
        QUIC's path validation logic is used to test connectivity of
        possible paths.
 
-   The first option merely documents how NAT traversal can be achieved
-   using unmodified QUIC and ICE stacks.  The only requirement is the
-   ability to send and receive non-QUIC (STUN ([RFC5389])) packets on
-   the UDP socket that a QUIC server is listening on.  However, it
-   necessitates running a separate signaling channel for the
-   communication between the two ICE agents.
+   The first option documents how NAT traversal can be achieved using
+   unmodified QUIC and ICE stacks.  The only requirement is the ability
+   to send and receive non-QUIC (STUN ([RFC5389])) packets on the UDP
+   socket that a QUIC server is listening on.  However, it necessitates
+   running a separate signaling channel for the communication between
+   the two ICE agents.
 
    The second option doesn't use ICE at all, although it makes use of
    some of the concepts, in particular the address matching logic
    described in [RFC8445].  It is assumed that the nodes are connected
    via a proxied QUIC connection, for example using
    [CONNECT-UDP-LISTEN].  Using the QUIC extension defined in this
-   documents, the nodes coordinate QUIC path validation attempts that
+   document, the nodes coordinate QUIC path validation attempts that
    create the necessary NAT bindings to achieve traversal of the NAT.
    This mechanism makes extensive use of the path validation mechanism
    described in [RFC9000].  In addition, the QUIC server needs the
    capability to initiate path validation, which, as per [RFC9000], is
-   solely executed by the client.  Starting with a proxied QUIC
-   connection allows the nodes to start exchanging application data
-   right away, and switch to the direct connection once it has been
-   established and deemed suitable for the application's needs.
+   initiated by the client.  Starting with a proxied QUIC connection
+   allows the nodes to start exchanging application data right away and
+   switch to the direct connection once it has been established and
+   deemed suitable for the application's needs.
 
 2.  Conventions and Definitions
 
@@ -141,13 +141,13 @@ Table of Contents
    extension defined in this document.
 
    For address discovery to work, QUIC and ICE need to use the same UDP
-   socket Since this requires demultiplexing of QUIC and STUN packets,
+   socket.  Since this requires demultiplexing of QUIC and STUN packets,
    the QUIC bit cannot be greased as described in [RFC9287].
 
    Once ICE has completed, the client immediately initiates a normal
    QUIC handshake using the server's address from the nominated address
    pair.  The ICE connectivity checks should have created the necessary
-   NAT bindings for the client's first flight to reach the server, and
+   NAT bindings for the client's first flight to reach the server and
    for the server's first flight to reach the client.
 
 4.  NAT Traversal using the NAT Traversal QUIC Extension
@@ -161,10 +161,10 @@ Table of Contents
    used at the some time, however, the mechanism described in this
    document does not require the use of QUIC multipath.
 
-   ICE is not directly used in this mode.  However, the logic run on the
-   client makes use of ICE's candidate pairing logic (see especially
-   Section 6.1.2.2 of [RFC8445]).  Implementations are free to implement
-   different algorithms as they see fit.
+   Although ICE is not directly used, the logic run on the client makes
+   use of ICE's candidate pairing logic (see especially Section 6.1.2.2
+   of [RFC8445]).  Implementations are free to implement different
+   algorithms as they see fit.
 
    This mode needs be negotiated during the handshake, see Section 4.5.
 
@@ -172,60 +172,60 @@ Table of Contents
 
    The gathering of address candidates is out of scope for this
    document.  Endpoints MAY use the logic described in Sections 5.1.1
-   and 5.2 of [RFC8445], or use address candidates provided by the
-   application.
+   and 5.2 of [RFC8445], or they MAY use address candidates provided by
+   the application.
 
-4.2.  Address Transmission
+4.2.  Sending Address Candidates to the Client
 
-   The server transmits its address candidates to the client using
+   The server sends its address candidates to the client using
    ADD_ADDRESS frames.  It SHOULD NOT wait until address candidate
    discovery has finished, instead, it SHOULD send address candidates as
-   soon as they become available.  This allows speeding up the NAT
-   traversal, and is similar to the Trickle ICE ([RFC8838]) logic.
+   soon as they become available.  This speeds up the NAT traversal and
+   is similar to Trickle ICE ([RFC8838]).
 
-   Addresses transmitted to the client can be removed using the
-   REMOVE_ADDRESS frame if the address candidate becomes stale, e.g.
-   because the network interface becomes unavailable.
+   Addresses sent to the client can be removed using the REMOVE_ADDRESS
+   frame if the address candidate becomes stale, e.g. because the
+   network interface becomes unavailable.
 
-   Address candidates are only transmitted from the server to the
-   client, since the entire address matching logic is run on the client
-   side.
+   Since address matching is run on the client side, address candidates
+   are only sent from the server to the client.  The client does not
+   send any addresses to the server.
 
 4.3.  Address Matching
 
    The client matches the address candidates sent by the server with its
    own address candidates, forming candidate pairs.  Section 5.1 of
    [RFC8445] describes an algorithm for pairing address candidates.
-   Since the pairing algorithm is only run on the client side, the peers
-   do not need to agree on the algorithm used, and the client is free to
-   use other algorithms.
+   Since the pairing algorithm is only run on the client side, the
+   endpoints do not need to agree on the algorithm used, and the client
+   is free to use a different algorithm.
 
-4.4.  Probing paths
+4.4.  Probing Paths
 
    The client sends candidate pairs to the server using PUNCH_ME_NOW
    frames.  The client SHOULD start path validation (see Section 8.2 of
    [RFC9000]) for the respective path immediately after sending the
    PUNCH_ME_NOW frame.
 
-   On the server side, path validation SHOULD be started immediately
-   when receiving a PUNCH_ME_NOW frame.  This document introduces path
+   The server SHOULD start path validation immediately upon receipt of a
+   PUNCH_ME_NOW frame.  This document introduces the concept of path
    validation on the server side, since [RFC9000] assumes that any QUIC
    server is able to receive packets on a path without creating a NAT
-   binding first.  Path validation on the server side works as described
-   in Section 8.2.1 of [RFC9000], with additional rate-limiting to
-   prevent amplification attacks.
+   binding first.  Path validation on the server works as described in
+   Section 8.2.1 of [RFC9000], with additional rate-limiting (see
+   Section 4.4.2) to prevent amplification attacks.
 
    Path probing happens in rounds, allowing the peers to limit the
-   bandwidth consumed by path validation packets.  For every round, the
-   client MUST NOT send more PUNCH_ME_NOW frames than allowed by the
-   server's transport parameter.  A new round is started when a
-   PUNCH_ME_NOW with a higher Round value is received.  This immediately
-   cancels all path probes in progress.
+   bandwidth consumed by sending path validation packets.  For every
+   round, the client MUST NOT send more PUNCH_ME_NOW frames than allowed
+   by the server's transport parameter.  A new round is started when a
+   PUNCH_ME_NOW frame with a higher Round value is received.  This
+   immediately cancels all path probes in progress.
 
    To speed up NAT traversal, the client SHOULD send address pairs as
    soon as they become available.  However, for small concurrency
-   limits, it MAY delay sending of address pairs in order prioritize
-   them first and only initiate path validation for the highest-priority
+   limits, it MAY delay sending of address pairs in order rank them
+   first and only initiate path validation for the highest-priority
    candidate pairs.
 
 4.4.1.  Interaction with active_connection_id_limit
@@ -237,7 +237,7 @@ Table of Contents
    effectively places a limit on the number of concurrent path
    validations.
 
-   Endpoints should set an active_connection_id_limit that is high
+   Endpoints SHOULD set an active_connection_id_limit that is high
    enough to allow for the desired number of concurrent path validation
    attempts.
 
@@ -258,7 +258,7 @@ Table of Contents
 
    For the server, the value of this transport parameter is a variable-
    length integer, the concurrency limit.  The concurrency limit limits
-   the amount of concurrent NAT traversal attempts, and can be used to
+   the amount of concurrent NAT traversal attempts and can be used to
    limit the bandwith required to execute the path validation.  Any
    value larger than 0 is valid.  A client implementation that
    understands this transport parameter MUST treat the receipt of a
@@ -293,7 +293,7 @@ Table of Contents
    IPv6:  The IPv6 address.  Only present if the least significant bit
       of the frame type is 1.
 
-   Port: The port number.
+   Port:  The port number.
 
    ADD_ADDRESS frames are ack-eliciting.  When lost, they SHOULD be
    retransmitted, unless the address is not active anymore.
@@ -313,7 +313,7 @@ Table of Contents
        Port (16),
    }
 
-   The ADD_ADDRESS frame contains the following fields:
+   The PUNCH_ME_NOW frame contains the following fields:
 
    Round:  The sequence number of the NAT Traversal attempts.
 
@@ -355,11 +355,11 @@ Table of Contents
 
 5.  Security Considerations
 
-   This document expands QUIC's path validation logic to the server
-   side, allowing the client to request sending of path validation
-   packets on unverified paths.  A malicious client can direct traffic
-   to a target IP.  This attack is similar to the IP address spoofing
-   attack that address validation during connection establishment (see
+   This document expands QUIC's path validation logic to QUIC servers,
+   allowing a QUIC client to request sending of path validation packets
+   on unverified paths.  A malicious client can direct traffic to a
+   target IP.  This attack is similar to the IP address spoofing attack
+   that address validation during connection establishment (see
    Section 8.1 of [RFC9000]) is designed to prevent.  In practice
    however, IP address spoofing is often additionally mitigated by both
    the ingress and egress network at the IP layer, which is not possible
@@ -383,9 +383,9 @@ Table of Contents
    [MULTIPATH]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Multipath Extension for QUIC", Work
-              in Progress, Internet-Draft, draft-ietf-quic-multipath-05,
-              10 July 2023, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-quic-multipath-05>.
+              in Progress, Internet-Draft, draft-ietf-quic-multipath-06,
+              23 October 2023, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-quic-multipath-06>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -426,8 +426,15 @@ Acknowledgments
 
    TODO acknowledge.
 
-Author's Address
+Authors' Addresses
 
    Marten Seemann
-   Protocol Labs
    Email: martenseemann@gmail.com
+
+
+   Eric Kinnear
+   Apple Inc.
+   One Apple Park Way
+   Cupertino, California 95014,
+   United States of America
+   Email: ekinnear@apple.com
