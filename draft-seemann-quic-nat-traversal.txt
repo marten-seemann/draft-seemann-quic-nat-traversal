@@ -3,10 +3,10 @@
 
 
 QUIC                                                          M. Seemann
-Internet-Draft                                             Protocol Labs
+Internet-Draft                                                          
 Intended status: Standards Track                              E. Kinnear
-Expires: 25 April 2024                                        Apple Inc.
-                                                         23 October 2023
+Expires: 20 August 2024                                       Apple Inc.
+                                                        17 February 2024
 
 
                       Using QUIC to traverse NATs
@@ -49,11 +49,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 April 2024.
+   This Internet-Draft will expire on 20 August 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -381,12 +381,11 @@ Table of Contents
               connect-udp-listen-01>.
 
    [MULTIPATH]
-              Liu, Y., 马云飞, M. Y., De Coninck, Q., Bonaventure, O.,
-              Huitema, C., and M. Kühlewind, "Multipath Extension for
-              QUIC", Work in Progress, Internet-Draft, draft-ietf-quic-
-              multipath-06, 23 October 2023,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
-              multipath-06>.
+              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
+              C., and M. Kühlewind, "Multipath Extension for QUIC", Work
+              in Progress, Internet-Draft, draft-ietf-quic-multipath-06,
+              23 October 2023, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-quic-multipath-06>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -430,7 +429,6 @@ Acknowledgments
 Authors' Addresses
 
    Marten Seemann
-   Protocol Labs
    Email: martenseemann@gmail.com
 
 

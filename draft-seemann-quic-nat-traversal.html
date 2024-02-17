@@ -16,27 +16,27 @@ the viability of an address candidate pair while at the same time creating the
 NAT bindings required for a direction connection, after which QUIC connection
 migration can be used to migrate the connection to a direct path. 
     " name="description">
-<meta content="xml2rfc 3.18.2" name="generator">
+<meta content="xml2rfc 3.19.2" name="generator">
 <meta content="QUIC" name="keyword">
 <meta content="ICE" name="keyword">
 <meta content="NAT traversal" name="keyword">
 <meta content="hole punching" name="keyword">
 <meta content="draft-seemann-quic-nat-traversal-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.18.2
+  xml2rfc 3.19.2
     Python 3.11.6
-    ConfigArgParse 1.5.3
+    ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 3.11.0
+    platformdirs 4.2.0
     pycountry 22.3.5
-    PyYAML 6.0
+    PyYAML 6.0.1
     requests 2.31.0
-    setuptools 67.7.2
+    setuptools 68.2.2
     six 1.16.0
-    wcwidth 0.2.8
+    wcwidth 0.2.13
 -->
 <link href="draft-seemann-quic-nat-traversal.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1035,11 +1035,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">QUIC NAT Traversal</td>
-<td class="right">October 2023</td>
+<td class="right">February 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Seemann &amp; Kinnear</td>
-<td class="center">Expires 25 April 2024</td>
+<td class="center">Expires 20 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1052,17 +1052,16 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-seemann-quic-nat-traversal-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-10-23" class="published">23 October 2023</time>
+<time datetime="2024-02-17" class="published">17 February 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-04-25">25 April 2024</time></dd>
+<dd class="expires"><time datetime="2024-08-20">20 August 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
       <div class="author-name">M. Seemann</div>
-<div class="org">Protocol Labs</div>
 </div>
 <div class="author">
       <div class="author-name">E. Kinnear</div>
@@ -1112,7 +1111,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 25 April 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1121,7 +1120,7 @@ migration can be used to migrate the connection to a direct path.<a href="#secti
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2023 IETF Trust and the persons identified as the
+            Copyright (c) 2024 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1578,7 +1577,7 @@ of data it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</
 <dd class="break"></dd>
 <dt id="MULTIPATH">[MULTIPATH]</dt>
       <dd>
-<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">马云飞, M. Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-06</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06</a>&gt;</span>. </dd>
+<span class="refAuthor">Liu, Y.</span>, <span class="refAuthor">Ma, Y.</span>, <span class="refAuthor">De Coninck, Q.</span>, <span class="refAuthor">Bonaventure, O.</span>, <span class="refAuthor">Huitema, C.</span>, and <span class="refAuthor">M. Kühlewind</span>, <span class="refTitle">"Multipath Extension for QUIC"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-multipath-06</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06">https://datatracker.ietf.org/doc/html/draft-ietf-quic-multipath-06</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
@@ -1626,7 +1625,6 @@ of data it sends on unverified paths.<a href="#section-5-1" class="pilcrow">¶</
       </h2>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Marten Seemann</span></div>
-<div dir="auto" class="left"><span class="org">Protocol Labs</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:martenseemann@gmail.com" class="email">martenseemann@gmail.com</a>
