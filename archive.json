@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-15T00:12:05.751638+00:00",
+  "timestamp": "2024-02-18T00:13:05.695477+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -727,6 +727,34 @@
       "mergedBy": "ekinnear",
       "mergeCommit": {
         "oid": "88bc3434389a59ab4a2f373bf9d668a54972355d"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 27,
+      "id": "PR_kwDOJ5p67M5nJqHr",
+      "title": "remove Marten's affiliation",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/27",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-17T03:07:00Z",
+      "updatedAt": "2024-02-17T03:07:49Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "88bc3434389a59ab4a2f373bf9d668a54972355d",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "remove-protocol-labs",
+      "headRefOid": "bb72202c3e25860b9762e269888a1d82bdff7a60",
+      "closedAt": "2024-02-17T03:07:49Z",
+      "mergedAt": "2024-02-17T03:07:49Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "f47f871affa08a6b69d6bbfc9abcc086d11dab3d"
       },
       "comments": [],
       "reviews": []
