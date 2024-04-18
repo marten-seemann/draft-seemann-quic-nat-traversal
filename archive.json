@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-04-16T00:12:02.776691+00:00",
+  "timestamp": "2024-04-18T00:12:32.832746+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -315,6 +315,30 @@
       "updatedAt": "2023-10-23T09:59:03Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 28,
+      "id": "I_kwDOJ5p67M6F2oA0",
+      "title": "Request for Working Example of QUIC with ICE",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/28",
+      "state": "CLOSED",
+      "author": "minchopm",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Hello,\r\n\r\nI've been reviewing your draft on QUIC's ability to traverse NATs using ICE as outlined in the draft-seemann-quic-nat-traversal. The concepts and methods introduced, especially the dual mode of operation\u2014using both a standalone ICE process and a QUIC-based signalling channel\u2014are particularly intriguing.\r\n\r\nI am currently trying to implement these ideas in a practical setting, but I am encountering some challenges in visualizing how the integration works in real-world applications. It would be tremendously helpful if you could provide a working example or a more detailed guide that demonstrates QUIC working in conjunction with ICE for NAT traversal.\r\n\r\nAn example implementation or even pseudocode or real solution would greatly aid in understanding the flow and interactions better, and also help in adopting this technique for projects that might benefit from such a setup.\r\n\r\nThank you for your efforts in creating this draft and for considering this request.\r\n\r\nBest regards,\r\nMincho",
+      "createdAt": "2024-04-16T10:25:55Z",
+      "updatedAt": "2024-04-16T12:14:52Z",
+      "closedAt": "2024-04-16T12:14:51Z",
+      "comments": [
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "This is the repo of the draft, not an implementation. Feel free to implement one if you\u2019re interested in this.",
+          "createdAt": "2024-04-16T12:14:51Z",
+          "updatedAt": "2024-04-16T12:14:51Z"
+        }
+      ]
     }
   ],
   "pulls": [
