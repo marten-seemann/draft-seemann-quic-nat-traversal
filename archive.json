@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-20T00:14:04.290752+00:00",
+  "timestamp": "2024-08-22T00:14:06.033497+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -353,6 +353,46 @@
       "body": "From reading the proposal I'm under the impression reporting is, let's say, opportunistic:\r\n\r\n> An endpoint that negotiated (see Section 3) this extension and\r\n   offered to provide address observations to the peer MUST send an\r\n   OBSERVED_ADDRESS frame on every new path.  This also applies to the\r\n   path used for the QUIC handshake.\r\n\r\nSimilar parts seem to follow this line of thought. Similarly, there is no frame to request a report in which a potential requester might set this request id. There is also no information about encoding or type. Was this removed at some point, or added missing other parts? Or am I misunderstanding something?",
       "createdAt": "2024-07-04T17:38:32Z",
       "updatedAt": "2024-07-04T17:38:32Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 30,
+      "id": "I_kwDOJ5p67M6TptwO",
+      "title": "Compatibility with multipath",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/30",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The proposed mechanism is to have server and clients start \"path validation\" simultaneously, using the \"PUNCH_ME_NOW\" frame for synchronization. I assume that the goal is to create a single path.\r\n\r\nThere is no problem doing that with RFC 9000, but there is an issue if the multipath extension is negotiated, because then path creation implies picking a path ID -- i.e., both server and client pick a CID associated with the same path-ID. If they don't, we get two paths.\r\n\r\nThe simplest way to do that would be to add a \"path_id\" element in the PUNCH_ME_NOW frame.\r\n",
+      "createdAt": "2024-08-21T06:33:20Z",
+      "updatedAt": "2024-08-21T06:34:01Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "Or, we will have to define MP_PUNCH_ME_NOW, but that does not feel right.",
+          "createdAt": "2024-08-21T06:34:01Z",
+          "updatedAt": "2024-08-21T06:34:01Z"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "id": "I_kwDOJ5p67M6Tp150",
+      "title": "Management of connection ID and rounds",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/31",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "It seems that servers have two ways to limit the number of ongoing attempts: they can use the \"rounds\" mechanism, or they can control the number of CID provided to the client. The draft is a bit silent about that, merely asking for \"enough CID\".\r\n\r\nIn RFC 9000, the way to get more CID is to retire the unused ones. Logically, that should happen after an attempt is cancelled. Retiring is normally effective after only a \"draining\" timer -- typically 3*RTO, but that's an imperfect mechanism. What happens if a path challenge is delayed and arrives after the CID has been retired? Will that trigger a stateless reset?\r\n\r\nIf we consider the multipath extension, I assume that abandoning an attempt means abandoning the path number used in the attempt. That will be synchronized with the peer (bilateral abandon), and will trigger provisioning of new CID (life is good, if slow).\r\n\r\nIn both cases, there is a pacing mechanism -- there wont be enough resource for new attempts until the RETIRE_CID or PATH_ABANDON have been processed, which include a 3*RTO timer. Given that pacing mechanism, I wonder whether we need to worry with rounds, etc.",
+      "createdAt": "2024-08-21T06:53:31Z",
+      "updatedAt": "2024-08-21T06:53:31Z",
       "closedAt": null,
       "comments": []
     }
