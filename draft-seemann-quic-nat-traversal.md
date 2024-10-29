@@ -142,7 +142,7 @@ describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
 
-## Probing Paths
+## Probing Paths {#probing-paths}
 
 The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
@@ -167,7 +167,7 @@ become available. However, for small concurrency limits, it MAY delay sending of
 address pairs in order rank them first and only initiate path validation for the
 highest-priority candidate pairs.
 
-### Interaction with active_connection_id_limit
+### Interaction with active_connection_id_limit {#cid-limit}
 
 The active_connection_id_limit limits the number of connection IDs that are
 active at any given time. Both endpoints need to use a previously unused
@@ -177,6 +177,39 @@ number of concurrent path validations.
 
 Endpoints SHOULD set an active_connection_id_limit that is high enough to allow
 for the desired number of concurrent path validation attempts.
+
+### Probing Paths when using QUIC Multipath
+
+If the QUIC Multipath extensions have been negotiated (see {{MULTIPATH}}),
+the probing of paths will be as described in {{probing-paths}}, but the
+client should send the candidate pairs using PUNCH_MY_PATH frames instead
+of PUNCH_ME_NOW frames. The PUNCH_MY_PATH frames carry the same information
+as the PUNCH_ME_NOW frame, plus a path identifier (Path ID), chosen
+from the range of valid Path ID. The server should
+use connection identifiers associated to that Path-ID when validating
+the path.
+
+If the selected Path ID is not yet in use, successful path probing will
+result in the creation of a new path, to be used in combination with the
+pre-existing paths.
+
+If the selected Path ID is already in use, successful path probing will
+result in the migration of the existing path to a new address.
+
+Different PUNCH_MY_PATH frames may be sent with different path identifiers,
+which may result in the creation or migration of as many paths.
+
+If the server receives a PUNCH_ME_NOW frame after the QUIC Multipath extensions
+have been negotiated, it MUST treat it as PUNCH_MY_PATH frame carrying Path ID 0.
+
+When QUIC Multipath extensions is been negotiated, the probing of new
+path will be limited by the availability of connection identifiers
+for new Path IDs. Endpoints SHOULD set Path ID limits high enough to allow
+for the desired number of concurrent path validation attempts.
+
+*TODO* See description of PUNCH_MY_PATH frame. If we had 4 values of the
+frame ID instead of just two, we would not need a new frame name, just
+a mention of carrying aPath ID.
 
 ### Amplification Attack Mitigation {#amplification-attack}
 
@@ -288,6 +321,41 @@ PUNCH_ME_NOW frames are ack-eliciting.
 This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_ME_NOW frame as a connection error of type
 PROTOCOL_VIOLATION.
+
+### PUNCH_MY_PATH Frame
+
+~~~
+PUNCH_MY_PATH Frame {
+    Type (i) = 0x3d7e95..0x3d7e96,
+    Round (i),
+    Paired With Sequence Number (i),
+    Path ID (i),
+    [ IPv4 (32) ],
+    [ IPv6 (128) ],
+    Port (16),
+}
+~~~
+
+The PUNCH_MY_PATH frame is identical to the PUNCH_ME_NOW
+frame, except for the addition of the Path-Id element:
+
+Path ID:
+
+: The path Id selected by the client for the new path.
+
+PUNCH_MY_PATH frames are ack-eliciting.
+
+This frame is only sent from the client to the server, and is only
+valid if the QUIC Extension for Multipath has been negotiated,
+(see {{quic-multipath}}. Clients MUST treat
+receipt of a PUNCH_MY_PATH frame as a connection error of type
+PROTOCOL_VIOLATION.
+
+*TODO* There is lots of duplicated text here. This could be
+eliminated if we allocate a range of 4 values for the PUNCH_ME_NOW
+frame ID, with the least significant bit indicating IPv4/IPv6,
+and the second least significant bit indicating absence/presence
+of the Path ID.
 
 ### REMOVE_ADDRESS Frame
 
