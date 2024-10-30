@@ -341,7 +341,7 @@ frame, except for the addition of the Path-Id element:
 
 Path ID:
 
-: The path Id selected by the client for the new path.
+: The Path ID selected by the client for the new path.
 
 PUNCH_MY_PATH frames are ack-eliciting.
 
