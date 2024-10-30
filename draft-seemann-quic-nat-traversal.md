@@ -202,7 +202,7 @@ which may result in the creation or migration of as many paths.
 If the server receives a PUNCH_ME_NOW frame after the QUIC Multipath extensions
 have been negotiated, it MUST treat it as PUNCH_MY_PATH frame carrying Path ID 0.
 
-When QUIC Multipath extensions is been negotiated, the probing of new
+When the QUIC Multipath extensions have been negotiated, the probing of new
 path will be limited by the availability of connection identifiers
 for new Path IDs. Endpoints SHOULD set Path ID limits high enough to allow
 for the desired number of concurrent path validation attempts.
