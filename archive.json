@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-29T00:16:21.759250+00:00",
+  "timestamp": "2024-10-31T00:16:11.216058+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -838,6 +838,157 @@
       },
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 32,
+      "id": "PR_kwDOJ5p67M6AMHcA",
+      "title": "Introduce PUNCH_MY_PATH frame for multipath",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/32",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I looked at what if would take to support multipath. I used a new frame for \"PUNCH_ME_NOW + Path ID\", but if we could have a bit in the PUNCH_ME_NOW frame type we would not need that. We would need some explanation about how to use the Path ID, which I added in a subsection of PUNCH_ME_NOW.\r\n\r\nI expect this text to evolve after discussions. But I would like to have these discussions.",
+      "createdAt": "2024-10-29T05:36:51Z",
+      "updatedAt": "2024-10-30T18:49:50Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "f47f871affa08a6b69d6bbfc9abcc086d11dab3d",
+      "headRepository": "huitema/draft-seemann-quic-nat-traversal",
+      "headRefName": "punch-my-path",
+      "headRefOid": "2fe40f3e9fa50a51ab3ca376fef8eaaf29a3aa28",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "body": "Based on @ekinnear comments, I think I should do the clean edit now (tomorrow?), unify PUNCH_MY_PATH and PUNCH_ME_NOW, etc. That would be cleaner.",
+          "createdAt": "2024-10-30T07:10:02Z",
+          "updatedAt": "2024-10-30T07:10:02Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOJ5p67M6PRBF9",
+          "commit": {
+            "abbreviatedOid": "198df46"
+          },
+          "author": "ekinnear",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "Probably worth another editorial pass as you noted, but overall seems like a straightforward mapping of the core concepts to multipath -- nice! ",
+          "createdAt": "2024-10-30T04:52:37Z",
+          "updatedAt": "2024-10-30T04:59:15Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "Silly nit, is it `Path ID` or `Path-ID`?",
+              "createdAt": "2024-10-30T04:52:37Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 81,
+              "body": "```suggestion\r\n: The Path ID selected by the client for the new path.\r\n```",
+              "createdAt": "2024-10-30T04:53:31Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 95,
+              "body": "It seems reasonable to have the frame have a flag indicating presence of the single additional field. We don't seem them otherwise diverging much in the future, right?",
+              "createdAt": "2024-10-30T04:54:16Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 49,
+              "body": "No objection to helping people do the right thing here, but for my understanding -- this is true of all multipath, no? And we'd note it here because we might be asking people to try more paths than they otherwise would without NAT traversal?",
+              "createdAt": "2024-10-30T04:56:41Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 41,
+              "body": "Wording nit: We can probably reword this to make it more clear, something like you'd have \"as many paths as PUNCH_MY_PATH frames\" or similar.",
+              "createdAt": "2024-10-30T04:57:31Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 46,
+              "body": "```suggestion\r\nWhen the QUIC Multipath extensions have been negotiated, the probing of new\r\n```",
+              "createdAt": "2024-10-30T04:57:42Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            },
+            {
+              "originalPosition": 38,
+              "body": "Just to make sure I understand, we're saying: \r\n- If this is a new path, it just brings up a new path, potentially having hole-punched it\r\n- If it's an existing path, please hole-punch it over here, like if we did PUNCH_ME_NOW, but since it's MP-QUIC, just move that path and not everything else",
+              "createdAt": "2024-10-30T04:58:45Z",
+              "updatedAt": "2024-10-30T04:59:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOJ5p67M6PRxck",
+          "commit": {
+            "abbreviatedOid": "198df46"
+          },
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-30T07:04:51Z",
+          "updatedAt": "2024-10-30T07:04:51Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "The multipath draft uses \"path ID\" throughout.",
+              "createdAt": "2024-10-30T07:04:51Z",
+              "updatedAt": "2024-10-30T07:04:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOJ5p67M6PRzXF",
+          "commit": {
+            "abbreviatedOid": "198df46"
+          },
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-30T07:06:48Z",
+          "updatedAt": "2024-10-30T07:06:49Z",
+          "comments": [
+            {
+              "originalPosition": 49,
+              "body": "Yes. Same reason as the blurb on connection ID limits",
+              "createdAt": "2024-10-30T07:06:48Z",
+              "updatedAt": "2024-10-30T07:06:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOJ5p67M6PZz2U",
+          "commit": {
+            "abbreviatedOid": "198df46"
+          },
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-30T18:26:13Z",
+          "updatedAt": "2024-10-30T18:26:13Z",
+          "comments": [
+            {
+              "originalPosition": 95,
+              "body": "Yes. That means changing the current provisional allocation of the frame type for PUNCH_ME_NOW.",
+              "createdAt": "2024-10-30T18:26:13Z",
+              "updatedAt": "2024-10-30T18:26:13Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
