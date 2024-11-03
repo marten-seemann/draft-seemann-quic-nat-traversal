@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-31T00:16:11.216058+00:00",
+  "timestamp": "2024-11-03T00:17:25.856910+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -393,6 +393,22 @@
       "body": "It seems that servers have two ways to limit the number of ongoing attempts: they can use the \"rounds\" mechanism, or they can control the number of CID provided to the client. The draft is a bit silent about that, merely asking for \"enough CID\".\r\n\r\nIn RFC 9000, the way to get more CID is to retire the unused ones. Logically, that should happen after an attempt is cancelled. Retiring is normally effective after only a \"draining\" timer -- typically 3*RTO, but that's an imperfect mechanism. What happens if a path challenge is delayed and arrives after the CID has been retired? Will that trigger a stateless reset?\r\n\r\nIf we consider the multipath extension, I assume that abandoning an attempt means abandoning the path number used in the attempt. That will be synchronized with the peer (bilateral abandon), and will trigger provisioning of new CID (life is good, if slow).\r\n\r\nIn both cases, there is a pacing mechanism -- there wont be enough resource for new attempts until the RETIRE_CID or PATH_ABANDON have been processed, which include a 3*RTO timer. Given that pacing mechanism, I wonder whether we need to worry with rounds, etc.",
       "createdAt": "2024-08-21T06:53:31Z",
       "updatedAt": "2024-08-21T06:53:31Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 33,
+      "id": "I_kwDOJ5p67M6cvqef",
+      "title": "Should we negotiate ADD_ADDRESS as a separate transport parameter?",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/33",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The ADD_ADDRESS frame is required in the NAT Traversal scenario, but it is also useful for \"server initiated path creation\" -- a classic multipath scenario. See for example the issue \"(Should servers be allowed to open new paths)[https://github.com/quicwg/multipath/issues/47]\" in the QUIC Multipath Extension repository. This draft negotiates ADD_ADDRESS and PUNCH_ME_NOW with a single parameter. Supporting one implies supporting the other. That may or may not be the right solution. I anticipate that this point will be raised during adoption discussions in the QUIC WG. It would be good to document the issue in a future version of the draft.\r\n\r\nMost scenarios of  \"server initiated path creation\"  require traversing the client side NAT. This is one of the reasons why this type of path creation was punted to a further version is the QUIC Multipath draft -- or why only the client initiates Path Migration in RFC 9000. We can argue that such path creation also traverses a server side NAT, or at a minimum a server side firewall. If it does, then bundling ADD_ADDRESS and PUNCH_ME_NOW is natural. As an example, servers deployed as Virtual Machines in big servers farms are typically behind a firewall, which will only allow traffic though a few specific port numbers such as 80 or 443. Establishing a path that uses a different port will require firewall traversal.\r\n\r\n",
+      "createdAt": "2024-11-01T19:35:03Z",
+      "updatedAt": "2024-11-01T19:35:03Z",
       "closedAt": null,
       "comments": []
     }
@@ -849,9 +865,9 @@
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
-      "body": "I looked at what if would take to support multipath. I used a new frame for \"PUNCH_ME_NOW + Path ID\", but if we could have a bit in the PUNCH_ME_NOW frame type we would not need that. We would need some explanation about how to use the Path ID, which I added in a subsection of PUNCH_ME_NOW.\r\n\r\nI expect this text to evolve after discussions. But I would like to have these discussions.",
+      "body": "I looked at what if would take to support multipath. I used a new frame for \"PUNCH_ME_NOW + Path ID\", but if we could have a bit in the PUNCH_ME_NOW frame type we would not need that. We would need some explanation about how to use the Path ID, which I added in a subsection of PUNCH_ME_NOW.\r\n\r\nI expect this text to evolve after discussions. But I would like to have these discussions.\r\n\r\nClose #30",
       "createdAt": "2024-10-29T05:36:51Z",
-      "updatedAt": "2024-10-30T18:49:50Z",
+      "updatedAt": "2024-11-01T19:14:21Z",
       "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
       "baseRefName": "main",
       "baseRefOid": "f47f871affa08a6b69d6bbfc9abcc086d11dab3d",
@@ -985,6 +1001,26 @@
               "body": "Yes. That means changing the current provisional allocation of the frame type for PUNCH_ME_NOW.",
               "createdAt": "2024-10-30T18:26:13Z",
               "updatedAt": "2024-10-30T18:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOJ5p67M6Pj8t6",
+          "commit": {
+            "abbreviatedOid": "198df46"
+          },
+          "author": "huitema",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-31T17:00:06Z",
+          "updatedAt": "2024-10-31T17:00:06Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "I rewrote that part, because the Multipath logic will not normally do path migration. Having a packet arriving with a new tuple on an existing path signals a NAT rebinding. That will trigger a Path Challenge on old and new path, keeping the old path if it is still available, maybe migrating to the new path if it responds sooner. Overall, picking an unused path ID is much cleaner. Even if the desired result is path migration, using a new path ID provides \"make before break\" functionality.",
+              "createdAt": "2024-10-31T17:00:06Z",
+              "updatedAt": "2024-10-31T17:00:06Z"
             }
           ]
         }
