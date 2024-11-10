@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-11-07T00:15:56.287290+00:00",
+  "timestamp": "2024-11-10T00:16:48.142162+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -411,6 +411,46 @@
       "updatedAt": "2024-11-01T19:35:03Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 34,
+      "id": "I_kwDOJ5p67M6dWmU3",
+      "title": "Acknowledge draft-deconinck-multipath-quic-00",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/34",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The early [MPQUIC draft](https://datatracker.ietf.org/doc/html/draft-deconinck-multipath-quic-00) published in October 2017 contained the specification of an ADD_ADDRESS Frame sent by server to client so the client could open a path towards the server.",
+      "createdAt": "2024-11-07T05:42:45Z",
+      "updatedAt": "2024-11-07T05:42:45Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 35,
+      "id": "I_kwDOJ5p67M6dZbJZ",
+      "title": "Can we separate address responder and proxy if needed?",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/35",
+      "state": "OPEN",
+      "author": "huitema",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "From the minutes of QUIC at IETF 121:\r\n\r\nAntoine: Is there a way for a proxy inlvolved in address coordination to not be involved in relaying traffic.\r\n\r\nMarten: this would need to be worked out.",
+      "createdAt": "2024-11-07T06:06:47Z",
+      "updatedAt": "2024-11-07T11:09:23Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "marten-seemann",
+          "authorAssociation": "OWNER",
+          "body": "I understood this as comment regarding the overarching p2p vision, and a request to disentangle the relay used for the coordination channel and the relay used when hole punching fails. This remains to be figured out for the p2p draft.\r\n\r\nTo answer the particular question: any node enabling the address discovery extension is fine. Ideally, we'll end up in a world where major QUIC deployments support this extension.",
+          "createdAt": "2024-11-07T11:09:06Z",
+          "updatedAt": "2024-11-07T11:09:06Z"
+        }
+      ]
     }
   ],
   "pulls": [
