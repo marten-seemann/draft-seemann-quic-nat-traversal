@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-11-21T00:16:54.983420+00:00",
+  "timestamp": "2024-11-24T00:18:05.484120+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -345,15 +345,15 @@
       "id": "I_kwDOJ5p67M6Oh-A8",
       "title": "undefined \"Request Id\" in observed address frames?",
       "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/issues/29",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "divagant-martian",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "From reading the proposal I'm under the impression reporting is, let's say, opportunistic:\r\n\r\n> An endpoint that negotiated (see Section 3) this extension and\r\n   offered to provide address observations to the peer MUST send an\r\n   OBSERVED_ADDRESS frame on every new path.  This also applies to the\r\n   path used for the QUIC handshake.\r\n\r\nSimilar parts seem to follow this line of thought. Similarly, there is no frame to request a report in which a potential requester might set this request id. There is also no information about encoding or type. Was this removed at some point, or added missing other parts? Or am I misunderstanding something?",
       "createdAt": "2024-07-04T17:38:32Z",
-      "updatedAt": "2024-07-04T17:38:32Z",
-      "closedAt": null,
+      "updatedAt": "2024-11-22T19:59:34Z",
+      "closedAt": "2024-11-22T19:59:34Z",
       "comments": []
     },
     {
