@@ -5,8 +5,8 @@
 QUIC                                                          M. Seemann
 Internet-Draft                                                          
 Intended status: Standards Track                              E. Kinnear
-Expires: 20 August 2024                                       Apple Inc.
-                                                        17 February 2024
+Expires: 24 September 2025                                    Apple Inc.
+                                                           23 March 2025
 
 
                       Using QUIC to traverse NATs
@@ -49,11 +49,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 August 2024.
+   This Internet-Draft will expire on 24 September 2025.
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2025 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -374,18 +374,18 @@ Table of Contents
 7.  Normative References
 
    [CONNECT-UDP-LISTEN]
-              Schinazi, D. and A. Singh, "Proxying Listener UDP in
-              HTTP", Work in Progress, Internet-Draft, draft-ietf-
-              masque-connect-udp-listen-01, 8 September 2023,
+              Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
+              Work in Progress, Internet-Draft, draft-ietf-masque-
+              connect-udp-listen-05, 27 February 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              connect-udp-listen-01>.
+              connect-udp-listen-05>.
 
    [MULTIPATH]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Multipath Extension for QUIC", Work
-              in Progress, Internet-Draft, draft-ietf-quic-multipath-06,
-              23 October 2023, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-quic-multipath-06>.
+              in Progress, Internet-Draft, draft-ietf-quic-multipath-13,
+              3 March 2025, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-quic-multipath-13>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
