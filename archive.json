@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-30T00:15:24.606230+00:00",
+  "timestamp": "2025-03-25T00:17:25.788738+00:00",
   "repo": "marten-seemann/draft-seemann-quic-nat-traversal",
   "labels": [
     {
@@ -1065,6 +1065,34 @@
           ]
         }
       ]
+    },
+    {
+      "number": 36,
+      "id": "PR_kwDOJ5p67M6Pvxhd",
+      "title": "run make update-ci",
+      "url": "https://github.com/marten-seemann/draft-seemann-quic-nat-traversal/pull/36",
+      "state": "MERGED",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-03-23T02:10:04Z",
+      "updatedAt": "2025-03-23T05:38:21Z",
+      "baseRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "baseRefName": "main",
+      "baseRefOid": "f47f871affa08a6b69d6bbfc9abcc086d11dab3d",
+      "headRepository": "marten-seemann/draft-seemann-quic-nat-traversal",
+      "headRefName": "update-ci",
+      "headRefOid": "217f35e3cfaa9072decadcf64dec1d57c90e894b",
+      "closedAt": "2025-03-23T05:38:21Z",
+      "mergedAt": "2025-03-23T05:38:21Z",
+      "mergedBy": "marten-seemann",
+      "mergeCommit": {
+        "oid": "077db8d9251500587b23b20a229bdd1b33d49015"
+      },
+      "comments": [],
+      "reviews": []
     }
   ]
 }
