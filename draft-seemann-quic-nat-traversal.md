@@ -142,7 +142,7 @@ describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
 
-## Probing Paths
+## Probing Paths {#probing-paths}
 
 The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
@@ -167,7 +167,7 @@ become available. However, for small concurrency limits, it MAY delay sending of
 address pairs in order rank them first and only initiate path validation for the
 highest-priority candidate pairs.
 
-### Interaction with active_connection_id_limit
+### Interaction with active_connection_id_limit {#cid-limit}
 
 The active_connection_id_limit limits the number of connection IDs that are
 active at any given time. Both endpoints need to use a previously unused
@@ -176,6 +176,36 @@ Therefore, the active_connection_id_limit effectively places a limit on the
 number of concurrent path validations.
 
 Endpoints SHOULD set an active_connection_id_limit that is high enough to allow
+for the desired number of concurrent path validation attempts.
+
+### Probing Paths when using QUIC Multipath
+
+If the QUIC Multipath extensions have been negotiated (see {{MULTIPATH}}),
+the probing of paths will be as described in {{probing-paths}}, but 
+for each candidate pair the client should select a the path identifier
+(path ID), chosen from the range of valid path IDs. That path ID will
+be documented in the "path ID" parameter of the PUNCH_ME_NOW frame.
+The server MUST
+use connection identifiers associated to that path ID when validating
+the path.
+
+For each candidate pair, the client SHOULD select a path ID that is
+not yet in use, including not yet in use for the probing of a different
+candidate pair. 
+If the selected Path ID is not yet in use, successful path probing will
+result in the creation of a new path, to be used in combination with the
+pre-existing paths, and the selection of the new path will naturally
+follow a "make before break" logic. If multiple candidate pairs are
+validated, this will result in the creation of as many paths.
+
+If the client selects a Path ID that is already in use, the path management
+logic specified in {{MULTIPATH}} in will treat that as an NAT Rebinding. The
+results will be unpredictable, and will depend on the order of arrival of
+the path probing packets.
+
+When the QUIC Multipath extensions have been negotiated, the probing of new
+path will be limited by the availability of connection identifiers
+for new Path IDs. Endpoints SHOULD set path ID limits high enough to allow
 for the desired number of concurrent path validation attempts.
 
 ### Amplification Attack Mitigation {#amplification-attack}
@@ -249,9 +279,10 @@ PROTOCOL_VIOLATION.
 
 ~~~
 PUNCH_ME_NOW Frame {
-    Type (i) = 0x3d7e92..0x3d7e93,
+    Type (i) = 0x3d7e96..0x3d7e99,
     Round (i),
     Paired With Sequence Number (i),
+    [ Path ID (i) ],
     [ IPv4 (32) ],
     [ IPv6 (128) ],
     Port (16),
@@ -268,6 +299,12 @@ Paired With Sequence Number:
 
 : A variable-length integer encoding the sequence number of the address that was
    paired with this address.
+
+Path ID:
+
+: Path ID used for this attempt. Only present if the second least significant bit
+  of the frame type is 1.
+
 
 IPv4:
 
@@ -288,6 +325,11 @@ PUNCH_ME_NOW frames are ack-eliciting.
 This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_ME_NOW frame as a connection error of type
 PROTOCOL_VIOLATION.
+
+The Path ID element MUST be ignored if the QUIC Extension for Multipath
+have not been negotiated (see {{MULTIPATH}}). If the QUIC Extension for Multipath
+have been negotiated, absence of this element MUST be treated the same as
+receiving a Path ID set to 0.
 
 ### REMOVE_ADDRESS Frame
 
