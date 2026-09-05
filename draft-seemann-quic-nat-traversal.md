@@ -81,7 +81,7 @@ deemed suitable for the application's needs.
 
 {::boilerplate bcp14-tagged}
 
-# NAT Traversal Using an External Signaling Channel
+# Background: NAT Traversal with ICE
 
 When an external signaling channel is used, the QUIC connection is established
 after the two ICE agents have agreed on a candidate pair. This mode doesn't
@@ -98,7 +98,7 @@ checks should have created the necessary NAT bindings for the client's first
 flight to reach the server and for the server's first flight to reach the
 client.
 
-# NAT Traversal Using the NAT Traversal QUIC Extension
+# NAT Traversal Extension Overview
 
 QUIC's path validation mechanism can be used to establish the required NAT
 mappings that allow for a direct connection. Once the NAT mappings are
@@ -115,13 +115,15 @@ Implementations are free to implement different algorithms as they see fit.
 This mode needs to be negotiated during the handshake; see
 {{negotiate-extension}}.
 
+# Candidate Discovery and Exchange
+
 ## Gathering Address Candidates
 
 The gathering of address candidates is out of scope for this document. Endpoints
 MAY use the logic described in {{Sections 5.1.1 and 5.2 of RFC8445}}, or they
 MAY use address candidates provided by the application.
 
-## Sending Address Candidates to the Client
+## Advertising Server Address Candidates
 
 The server advertises its address candidates using ALTERNATIVE_ADDRESS frames,
 as defined in {{ALTERNATIVE-ADDRESS}}. Each frame advertises the complete set of
@@ -137,7 +139,7 @@ Since address matching is run on the client side, only the server advertises
 address candidates. The client communicates selected address pairs to the server
 using PUNCH_ME_NOW frames.
 
-## Address Matching
+## Forming Candidate Pairs
 
 The client matches the address candidates sent by the server with its own
 address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
@@ -145,7 +147,7 @@ describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
 
-## Probing Paths
+# Coordinated Path Probing
 
 The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
@@ -170,7 +172,7 @@ become available. However, for small concurrency limits, it MAY delay sending
 address pairs in order to rank them first and only initiate path validation for
 the highest-priority candidate pairs.
 
-### Interaction with active_connection_id_limit
+## Interaction with active_connection_id_limit
 
 The active_connection_id_limit limits the number of connection IDs that are
 active at any given time. Both endpoints need to use a previously unused
@@ -181,11 +183,11 @@ number of concurrent path validations.
 Endpoints SHOULD set an active_connection_id_limit that is high enough to allow
 for the desired number of concurrent path validation attempts.
 
-### Amplification Attack Mitigation {#amplification-attack}
+## Amplification Attack Mitigation {#amplification-attack}
 
 TODO describe exactly how to mitigate amplification attacks
 
-## Negotiating Extension Use {#negotiate-extension}
+# Extension Negotiation {#negotiate-extension}
 
 Endpoints advertise their support of the extension by sending the nat_traversal
 (0x3d7e9f0bca12fea6) transport parameter ({{Section 7.4 of RFC9000}}).
@@ -211,9 +213,7 @@ To enable the use of this extension in 0-RTT packets, the client MUST remember
 the value of this transport parameter. If 0-RTT data is accepted by the server,
 the server MUST not disable this extension on the resumed connection.
 
-## Frames
-
-### PUNCH_ME_NOW Frame
+# PUNCH_ME_NOW Frame
 
 ~~~
 PUNCH_ME_NOW Frame {
