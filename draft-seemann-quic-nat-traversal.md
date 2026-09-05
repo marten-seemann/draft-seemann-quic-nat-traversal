@@ -30,10 +30,10 @@ author:
 
 normative:
    ALTERNATIVE-ADDRESS: I-D.munizaga-quic-alternative-server-address
-   MULTIPATH: I-D.ietf-quic-multipath
-   CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
 
 informative:
+   MULTIPATH: I-D.ietf-quic-multipath
+   CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
 
 
 --- abstract
@@ -130,7 +130,7 @@ as defined in {{ALTERNATIVE-ADDRESS}}. Each frame advertises the complete set of
 alternative addresses and replaces the previously advertised set. The server
 SHOULD NOT wait until address candidate discovery has finished; instead, it
 SHOULD update the advertised set as soon as new candidates become available.
-This speeds up NAT traversal and is similar to Trickle ICE ({{!RFC8838}}).
+This speeds up NAT traversal and is similar to Trickle ICE ({{?RFC8838}}).
 
 The server removes a stale address candidate by omitting it from a subsequent
 address-set update, e.g., when the network interface becomes unavailable.
