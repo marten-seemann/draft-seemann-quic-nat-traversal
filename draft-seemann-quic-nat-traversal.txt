@@ -82,7 +82,9 @@ Table of Contents
    8.  PUNCH_ME_NOW Frame
    9.  Security Considerations
    10. IANA Considerations
-   11. Normative References
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -339,7 +341,9 @@ Table of Contents
    TODO: fill out registration request for the transport parameter and
    frame types
 
-11.  Normative References
+11.  References
+
+11.1.  Normative References
 
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
@@ -347,21 +351,6 @@ Table of Contents
               munizaga-quic-alternative-server-address-01, 21 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-munizaga-
               quic-alternative-server-address-01>.
-
-   [CONNECT-UDP-LISTEN]
-              Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
-              Work in Progress, Internet-Draft, draft-ietf-masque-
-              connect-udp-listen-16, 24 August 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              connect-udp-listen-16>.
-
-   [MULTIPATH]
-              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
-              C., and M. Kühlewind, "Managing multiple paths for a QUIC
-              connection", Work in Progress, Internet-Draft, draft-ietf-
-              quic-multipath-21, 17 March 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
-              multipath-21>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -383,12 +372,6 @@ Table of Contents
               DOI 10.17487/RFC8445, July 2018,
               <https://www.rfc-editor.org/rfc/rfc8445>.
 
-   [RFC8838]  Ivov, E., Uberti, J., and P. Saint-Andre, "Trickle ICE:
-              Incremental Provisioning of Candidates for the Interactive
-              Connectivity Establishment (ICE) Protocol", RFC 8838,
-              DOI 10.17487/RFC8838, January 2021,
-              <https://www.rfc-editor.org/rfc/rfc8838>.
-
    [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
               Multiplexed and Secure Transport", RFC 9000,
               DOI 10.17487/RFC9000, May 2021,
@@ -397,6 +380,29 @@ Table of Contents
    [RFC9287]  Thomson, M., "Greasing the QUIC Bit", RFC 9287,
               DOI 10.17487/RFC9287, August 2022,
               <https://www.rfc-editor.org/rfc/rfc9287>.
+
+11.2.  Informative References
+
+   [CONNECT-UDP-LISTEN]
+              Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
+              Work in Progress, Internet-Draft, draft-ietf-masque-
+              connect-udp-listen-16, 24 August 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
+              connect-udp-listen-16>.
+
+   [MULTIPATH]
+              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
+              C., and M. Kühlewind, "Managing multiple paths for a QUIC
+              connection", Work in Progress, Internet-Draft, draft-ietf-
+              quic-multipath-21, 17 March 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              multipath-21>.
+
+   [RFC8838]  Ivov, E., Uberti, J., and P. Saint-Andre, "Trickle ICE:
+              Incremental Provisioning of Candidates for the Interactive
+              Connectivity Establishment (ICE) Protocol", RFC 8838,
+              DOI 10.17487/RFC8838, January 2021,
+              <https://www.rfc-editor.org/rfc/rfc8838>.
 
 Acknowledgments
 
