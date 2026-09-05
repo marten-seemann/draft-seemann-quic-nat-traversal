@@ -15,12 +15,12 @@ Expires: 9 March 2027                                         Apple Inc.
 Abstract
 
    QUIC is well-suited to various NAT traversal techniques.  As it
-   operates over UDP, and because the QUIC header was designed to be
-   demultipexed from other protocols, STUN can be used on the same UDP
+   operates over UDP and because the QUIC header was designed to be
+   demultiplexed from other protocols, STUN can be used on the same UDP
    socket, enabling ICE to be used with QUIC.  Furthermore, QUIC’s path
    validation mechanism can be used to test the viability of an address
    candidate pair while at the same time creating the NAT bindings
-   required for a direction connection, after which QUIC connection
+   required for a direct connection, after which QUIC connection
    migration can be used to migrate the connection to a direct path.
 
 Discussion Venues
@@ -70,7 +70,7 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  NAT Traversal Using an External Signaling Channel
-   4.  NAT Traversal using the NAT Traversal QUIC Extension
+   4.  NAT Traversal Using the NAT Traversal QUIC Extension
      4.1.  Gathering Address Candidates
      4.2.  Sending Address Candidates to the Client
      4.3.  Address Matching
@@ -116,11 +116,11 @@ Table of Contents
    create the necessary NAT bindings to achieve traversal of the NAT.
    This mechanism makes extensive use of the path validation mechanism
    described in [RFC9000].  In addition, the QUIC server needs the
-   capability to initiate path validation, which, as per [RFC9000], is
-   initiated by the client.  Starting with a proxied QUIC connection
-   allows the nodes to start exchanging application data right away and
-   switch to the direct connection once it has been established and
-   deemed suitable for the application's needs.
+   capability to initiate path validation, whereas [RFC9000] assumes
+   that it is initiated by the client.  Starting with a proxied QUIC
+   connection allows the nodes to start exchanging application data
+   right away and switch to the direct connection once it has been
+   established and deemed suitable for the application's needs.
 
 2.  Conventions and Definitions
 
@@ -148,7 +148,7 @@ Table of Contents
    NAT bindings for the client's first flight to reach the server and
    for the server's first flight to reach the client.
 
-4.  NAT Traversal using the NAT Traversal QUIC Extension
+4.  NAT Traversal Using the NAT Traversal QUIC Extension
 
    QUIC's path validation mechanism can be used to establish the
    required NAT mappings that allow for a direct connection.  Once the
@@ -156,7 +156,7 @@ Table of Contents
    to migrate the connection to a direct path.  During the path
    validation phase, multiple different paths might be established in
    parallel.  When using QUIC Multipath [MULTIPATH], these paths may be
-   used at the some time, however, the mechanism described in this
+   used at the same time; however, the mechanism described in this
    document does not require the use of QUIC multipath.
 
    Although ICE is not directly used, the logic run on the client makes
@@ -164,7 +164,8 @@ Table of Contents
    of [RFC8445]).  Implementations are free to implement different
    algorithms as they see fit.
 
-   This mode needs be negotiated during the handshake, see Section 4.5.
+   This mode needs to be negotiated during the handshake; see
+   Section 4.5.
 
 4.1.  Gathering Address Candidates
 
@@ -179,13 +180,13 @@ Table of Contents
    ALTERNATIVE_ADDRESS frames, as defined in [ALTERNATIVE-ADDRESS].
    Each frame advertises the complete set of alternative addresses and
    replaces the previously advertised set.  The server SHOULD NOT wait
-   until address candidate discovery has finished, instead, it SHOULD
+   until address candidate discovery has finished; instead, it SHOULD
    update the advertised set as soon as new candidates become available.
    This speeds up NAT traversal and is similar to Trickle ICE
    ([RFC8838]).
 
    The server removes a stale address candidate by omitting it from a
-   subsequent address-set update, e.g. when the network interface
+   subsequent address-set update, e.g., when the network interface
    becomes unavailable.
 
    Since address matching is run on the client side, only the server
@@ -225,7 +226,7 @@ Table of Contents
 
    To speed up NAT traversal, the client SHOULD send address pairs as
    soon as they become available.  However, for small concurrency
-   limits, it MAY delay sending of address pairs in order rank them
+   limits, it MAY delay sending address pairs in order to rank them
    first and only initiate path validation for the highest-priority
    candidate pairs.
 
@@ -244,7 +245,7 @@ Table of Contents
 
 4.4.2.  Amplification Attack Mitigation
 
-   TODO describe exactly how to migitate amplification attacks
+   TODO describe exactly how to mitigate amplification attacks
 
 4.5.  Negotiating Extension Use
 
@@ -265,17 +266,17 @@ Table of Contents
 
    For the server, the value of this transport parameter is a variable-
    length integer, the concurrency limit.  The concurrency limit limits
-   the amount of concurrent NAT traversal attempts and can be used to
-   limit the bandwith required to execute the path validation.  Any
-   value larger than 0 is valid.  A client implementation that
-   understands this transport parameter MUST treat the receipt of a
-   value that is not a variable-length integer, or the receipt of the
-   value 0, as a connection error of type TRANSPORT_PARAMETER_ERROR.
+   the number of concurrent NAT traversal attempts and can be used to
+   limit the bandwidth required to perform path validation.  Any value
+   larger than 0 is valid.  A client implementation that understands
+   this transport parameter MUST treat the receipt of a value that is
+   not a variable-length integer, or the receipt of the value 0, as a
+   connection error of type TRANSPORT_PARAMETER_ERROR.
 
-   In order to the use of this extension in 0-RTT packets, the client
-   MUST remember the value of this transport parameter.  If 0-RTT data
-   is accepted by the server, the server MUST not disable this extension
-   on the resumed connection.
+   To enable the use of this extension in 0-RTT packets, the client MUST
+   remember the value of this transport parameter.  If 0-RTT data is
+   accepted by the server, the server MUST not disable this extension on
+   the resumed connection.
 
 4.6.  Frames
 
@@ -294,7 +295,7 @@ Table of Contents
 
    The PUNCH_ME_NOW frame contains the following fields:
 
-   Round:  The sequence number of the NAT Traversal attempts.
+   Round:  The sequence number of the NAT traversal round.
 
    Client Address Type and Server Address Type:  The address family of
       the corresponding IP Address field.  The values 0x01 and 0x02
@@ -324,15 +325,15 @@ Table of Contents
 5.  Security Considerations
 
    This document expands QUIC's path validation logic to QUIC servers,
-   allowing a QUIC client to request sending of path validation packets
-   on unverified paths.  A malicious client can direct traffic to a
-   target IP.  This attack is similar to the IP address spoofing attack
-   that address validation during connection establishment (see
-   Section 8.1 of [RFC9000]) is designed to prevent.  In practice
-   however, IP address spoofing is often additionally mitigated by both
-   the ingress and egress network at the IP layer, which is not possible
-   when using this extension.  The server therefore needs to carefully
-   limit the amount of data it sends on unverified paths.
+   allowing a QUIC client to request the sending of path validation
+   packets on unverified paths.  A malicious client can direct traffic
+   to a target IP.  This attack is similar to the IP address spoofing
+   attack that address validation during connection establishment (see
+   Section 8.1 of [RFC9000]) is designed to prevent.  In practice,
+   however, IP address spoofing is often additionally mitigated by
+   ingress and egress filtering at the IP layer.  This mitigation is not
+   possible when using this extension.  The server therefore needs to
+   carefully limit the amount of data it sends on unverified paths.
 
 6.  IANA Considerations
 
