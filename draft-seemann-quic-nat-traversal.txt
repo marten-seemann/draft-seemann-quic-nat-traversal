@@ -69,20 +69,20 @@ Table of Contents
 
    1.  Introduction
    2.  Conventions and Definitions
-   3.  NAT Traversal Using an External Signaling Channel
-   4.  NAT Traversal Using the NAT Traversal QUIC Extension
-     4.1.  Gathering Address Candidates
-     4.2.  Sending Address Candidates to the Client
-     4.3.  Address Matching
-     4.4.  Probing Paths
-       4.4.1.  Interaction with active_connection_id_limit
-       4.4.2.  Amplification Attack Mitigation
-     4.5.  Negotiating Extension Use
-     4.6.  Frames
-       4.6.1.  PUNCH_ME_NOW Frame
-   5.  Security Considerations
-   6.  IANA Considerations
-   7.  Normative References
+   3.  Background: NAT Traversal with ICE
+   4.  NAT Traversal Extension Overview
+   5.  Candidate Discovery and Exchange
+     5.1.  Gathering Address Candidates
+     5.2.  Advertising Server Address Candidates
+     5.3.  Forming Candidate Pairs
+   6.  Coordinated Path Probing
+     6.1.  Interaction with active_connection_id_limit
+     6.2.  Amplification Attack Mitigation
+   7.  Extension Negotiation
+   8.  PUNCH_ME_NOW Frame
+   9.  Security Considerations
+   10. IANA Considerations
+   11. Normative References
    Acknowledgments
    Authors' Addresses
 
@@ -130,7 +130,7 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-3.  NAT Traversal Using an External Signaling Channel
+3.  Background: NAT Traversal with ICE
 
    When an external signaling channel is used, the QUIC connection is
    established after the two ICE agents have agreed on a candidate pair.
@@ -148,7 +148,7 @@ Table of Contents
    NAT bindings for the client's first flight to reach the server and
    for the server's first flight to reach the client.
 
-4.  NAT Traversal Using the NAT Traversal QUIC Extension
+4.  NAT Traversal Extension Overview
 
    QUIC's path validation mechanism can be used to establish the
    required NAT mappings that allow for a direct connection.  Once the
@@ -164,17 +164,18 @@ Table of Contents
    of [RFC8445]).  Implementations are free to implement different
    algorithms as they see fit.
 
-   This mode needs to be negotiated during the handshake; see
-   Section 4.5.
+   This mode needs to be negotiated during the handshake; see Section 7.
 
-4.1.  Gathering Address Candidates
+5.  Candidate Discovery and Exchange
+
+5.1.  Gathering Address Candidates
 
    The gathering of address candidates is out of scope for this
    document.  Endpoints MAY use the logic described in Sections 5.1.1
    and 5.2 of [RFC8445], or they MAY use address candidates provided by
    the application.
 
-4.2.  Sending Address Candidates to the Client
+5.2.  Advertising Server Address Candidates
 
    The server advertises its address candidates using
    ALTERNATIVE_ADDRESS frames, as defined in [ALTERNATIVE-ADDRESS].
@@ -193,7 +194,7 @@ Table of Contents
    advertises address candidates.  The client communicates selected
    address pairs to the server using PUNCH_ME_NOW frames.
 
-4.3.  Address Matching
+5.3.  Forming Candidate Pairs
 
    The client matches the address candidates sent by the server with its
    own address candidates, forming candidate pairs.  Section 5.1 of
@@ -202,7 +203,7 @@ Table of Contents
    endpoints do not need to agree on the algorithm used, and the client
    is free to use a different algorithm.
 
-4.4.  Probing Paths
+6.  Coordinated Path Probing
 
    The client sends candidate pairs to the server using PUNCH_ME_NOW
    frames.  The client SHOULD start path validation (see Section 8.2 of
@@ -215,7 +216,7 @@ Table of Contents
    server is able to receive packets on a path without creating a NAT
    binding first.  Path validation on the server works as described in
    Section 8.2.1 of [RFC9000], with additional rate-limiting (see
-   Section 4.4.2) to prevent amplification attacks.
+   Section 6.2) to prevent amplification attacks.
 
    Path probing happens in rounds, allowing the peers to limit the
    bandwidth consumed by sending path validation packets.  For every
@@ -230,7 +231,7 @@ Table of Contents
    first and only initiate path validation for the highest-priority
    candidate pairs.
 
-4.4.1.  Interaction with active_connection_id_limit
+6.1.  Interaction with active_connection_id_limit
 
    The active_connection_id_limit limits the number of connection IDs
    that are active at any given time.  Both endpoints need to use a
@@ -243,11 +244,11 @@ Table of Contents
    enough to allow for the desired number of concurrent path validation
    attempts.
 
-4.4.2.  Amplification Attack Mitigation
+6.2.  Amplification Attack Mitigation
 
    TODO describe exactly how to mitigate amplification attacks
 
-4.5.  Negotiating Extension Use
+7.  Extension Negotiation
 
    Endpoints advertise their support of the extension by sending the
    nat_traversal (0x3d7e9f0bca12fea6) transport parameter (Section 7.4
@@ -278,9 +279,7 @@ Table of Contents
    accepted by the server, the server MUST not disable this extension on
    the resumed connection.
 
-4.6.  Frames
-
-4.6.1.  PUNCH_ME_NOW Frame
+8.  PUNCH_ME_NOW Frame
 
    PUNCH_ME_NOW Frame {
        Type (i) = 0x3d7e92,
@@ -322,7 +321,7 @@ Table of Contents
    treat receipt of a PUNCH_ME_NOW frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-5.  Security Considerations
+9.  Security Considerations
 
    This document expands QUIC's path validation logic to QUIC servers,
    allowing a QUIC client to request the sending of path validation
@@ -335,12 +334,12 @@ Table of Contents
    possible when using this extension.  The server therefore needs to
    carefully limit the amount of data it sends on unverified paths.
 
-6.  IANA Considerations
+10.  IANA Considerations
 
    TODO: fill out registration request for the transport parameter and
    frame types
 
-7.  Normative References
+11.  Normative References
 
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
