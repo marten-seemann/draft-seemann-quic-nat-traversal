@@ -29,6 +29,7 @@ author:
     email: ekinnear@apple.com
 
 normative:
+   ALTERNATIVE-ADDRESS: I-D.munizaga-quic-alternative-server-address
    MULTIPATH: I-D.ietf-quic-multipath
    CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
 
@@ -121,18 +122,19 @@ MAY use address candidates provided by the application.
 
 ## Sending Address Candidates to the Client
 
-The server sends its address candidates to the client using ADD_ADDRESS frames.
-It SHOULD NOT wait until address candidate discovery has finished, instead, it
-SHOULD send address candidates as soon as they become available. This speeds up
-the NAT traversal and is similar to Trickle ICE ({{!RFC8838}}).
+The server advertises its address candidates using ALTERNATIVE_ADDRESS frames,
+as defined in {{ALTERNATIVE-ADDRESS}}. Each frame advertises the complete set of
+alternative addresses and replaces the previously advertised set. The server
+SHOULD NOT wait until address candidate discovery has finished, instead, it
+SHOULD update the advertised set as soon as new candidates become available.
+This speeds up NAT traversal and is similar to Trickle ICE ({{!RFC8838}}).
 
-Addresses sent to the client can be removed using the REMOVE_ADDRESS frame if
-the address candidate becomes stale, e.g. because the network interface becomes
-unavailable.
+The server removes a stale address candidate by omitting it from a subsequent
+address-set update, e.g. when the network interface becomes unavailable.
 
-Since address matching is run on the client side, address candidates are only
-sent from the server to the client. The client does not send any addresses to
-the server.
+Since address matching is run on the client side, only the server advertises
+address candidates. The client communicates selected address pairs to the
+server using PUNCH_ME_NOW frames.
 
 ## Address Matching
 
@@ -191,6 +193,11 @@ The client MUST send this transport parameter with an empty value. A server
 implementation that understands this transport parameter MUST treat the receipt
 of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.
 
+The client MUST also send the alternative_address transport parameter defined
+in {{ALTERNATIVE-ADDRESS}}. A server that understands nat_traversal MUST treat
+receipt of nat_traversal without alternative_address as a connection error of
+type TRANSPORT_PARAMETER_ERROR.
+
 For the server, the value of this transport parameter is a variable-length
 integer, the concurrency limit. The concurrency limit limits the amount of
 concurrent NAT traversal attempts and can be used to limit the bandwith
@@ -205,56 +212,18 @@ the server MUST not disable this extension on the resumed connection.
 
 ## Frames
 
-### ADD_ADDRESS Frame
-
-~~~
-ADD_ADDRESS Frame {
-    Type (i) = 0x3d7e90..0x3d7e91,
-    Sequence Number (i),
-    [ IPv4 (32) ],
-    [ IPv6 (128) ],
-    Port (16),
-}
-~~~
-
-The ADD_ADDRESS frame contains the following fields:
-
-Sequence Number:
-
-: A variable-length integer encoding the sequence number of this address
-   advertisement.
-
-IPv4:
-
-: The IPv4 address. Only present if the least significant bit of the frame type
-   is 0.
-
-IPv6:
-
-: The IPv6 address. Only present if the least significant bit of the frame type
-   is 1.
-
-Port:
-
-: The port number.
-
-ADD_ADDRESS frames are ack-eliciting. When lost, they SHOULD be retransmitted,
-unless the address is not active anymore.
-
-This frame is only sent from the server to the client. Servers MUST treat
-receipt of an ADD_ADDRESS frame as a connection error of type
-PROTOCOL_VIOLATION.
-
 ### PUNCH_ME_NOW Frame
 
 ~~~
 PUNCH_ME_NOW Frame {
-    Type (i) = 0x3d7e92..0x3d7e93,
+    Type (i) = 0x3d7e92,
     Round (i),
-    Paired With Sequence Number (i),
-    [ IPv4 (32) ],
-    [ IPv6 (128) ],
-    Port (16),
+    Client Address Type (8),
+    Client IP Address (32..128),
+    Client Port (16),
+    Server Address Type (8),
+    Server IP Address (32..128),
+    Server Port (16),
 }
 ~~~
 
@@ -264,54 +233,37 @@ Round:
 
 : The sequence number of the NAT Traversal attempts.
 
-Paired With Sequence Number:
+Client Address Type and Server Address Type:
 
-: A variable-length integer encoding the sequence number of the address that was
-   paired with this address.
+: The address family of the corresponding IP Address field. The values 0x01
+   and 0x02 indicate IPv4 and IPv6, respectively, as in
+   {{ALTERNATIVE-ADDRESS}}. Receipt of any other value MUST be treated as a
+   connection error of type FRAME_ENCODING_ERROR.
 
-IPv4:
+Client IP Address:
 
-: The IPv4 address. Only present if the least significant bit of the frame type
-   is 0.
+: The client's address candidate. This field is 32 bits long for IPv4 and 128
+   bits long for IPv6, as indicated by Client Address Type.
 
-IPv6:
+Client Port:
 
-: The IPv6 address. Only present if the least significant bit of the frame type
-   is 1.
+: The port number of the client's address candidate.
 
-Port:
+Server IP Address:
 
-: The port number.
+: The server's address candidate, selected from the addresses advertised using
+   ALTERNATIVE_ADDRESS frames. This field is 32 bits long for IPv4 and 128 bits
+   long for IPv6, as indicated by Server Address Type.
+
+Server Port:
+
+: The port number of the server's address candidate.
 
 PUNCH_ME_NOW frames are ack-eliciting.
 
 This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_ME_NOW frame as a connection error of type
 PROTOCOL_VIOLATION.
-
-### REMOVE_ADDRESS Frame
-
-~~~
-REMOVE_ADDRESS Frame {
-    Type (i) = 0x3d7e94,
-    Sequence Number (i),
-}
-~~~
-
-The REMOVE_ADDRESS frame contains the following fields:
-
-Sequence Number:
-
-: A variable-length integer encoding the sequence number of the address
-   advertisement to be removed.
-
-REMOVE_ADDRESS frames are ack-eliciting. When lost, they SHOULD be
-retransmitted.
-
-This frame is only sent from the server to the client. Servers MUST treat
-receipt of an REMOVE_ADDRESS frame as a connection error of type
-PROTOCOL_VIOLATION.
-
 
 # Security Considerations
 
