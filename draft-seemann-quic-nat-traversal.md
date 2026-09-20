@@ -132,6 +132,13 @@ SHOULD NOT wait until address candidate discovery has finished; instead, it
 SHOULD update the advertised set as soon as new candidates become available.
 This speeds up NAT traversal and is similar to Trickle ICE ({{?RFC8838}}).
 
+For this extension, each IPV4 or IPV6 entry identifies a local sending base:
+the local address, UDP port, and interface used to send probes. The server MUST
+use separate entries for candidates with different bases, even if their
+advertised IP address and port are identical. The association between an entry
+and its base MUST NOT change for a given Sequence Number. Clients MUST treat
+these entries as distinct candidates.
+
 The server removes a stale address candidate by omitting it from a subsequent
 address-set update, e.g., when the network interface becomes unavailable.
 
@@ -153,13 +160,18 @@ The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
 client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
 respective path immediately after sending the PUNCH_ME_NOW frame.
 
-The server SHOULD start path validation immediately upon receipt of a
-PUNCH_ME_NOW frame. This document introduces the concept of path validation on
-the server side, since {{!RFC9000}} assumes that any QUIC server is able to
-receive packets on a path without creating a NAT binding first. Path validation
-on the server works as described in {{Section 8.2.1 of RFC9000}}, with
-additional rate-limiting (see {{amplification-attack}}) to prevent amplification
-attacks.
+Upon receipt of a PUNCH_ME_NOW frame with a valid server candidate reference
+(see {{punch-me-now-frame}}), the server SHOULD immediately start path
+validation using the referenced entry's base. This document introduces the
+concept of path validation on the server side, since {{!RFC9000}} assumes that
+any QUIC server is able to receive packets on a path without creating a NAT
+binding first. Path validation on the server works as described in
+{{Section 8.2.1 of RFC9000}}, with additional rate-limiting (see
+{{amplification-attack}}) to prevent amplification attacks.
+
+The server MUST retain the selected base for the duration of the attempt,
+independently of later address-set updates. If the base becomes unavailable,
+the server MUST stop the attempt.
 
 Path probing happens in rounds, allowing the peers to limit the bandwidth
 consumed by sending path validation packets. For every round, the client MUST
@@ -213,7 +225,7 @@ To enable the use of this extension in 0-RTT packets, the client MUST remember
 the value of this transport parameter. If 0-RTT data is accepted by the server,
 the server MUST not disable this extension on the resumed connection.
 
-# PUNCH_ME_NOW Frame
+# PUNCH_ME_NOW Frame {#punch-me-now-frame}
 
 ~~~
 PUNCH_ME_NOW Frame {
@@ -222,9 +234,8 @@ PUNCH_ME_NOW Frame {
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
-    Server Address Type (8),
-    Server IP Address (32..128),
-    Server Port (16),
+    Address Sequence Number (i),
+    Entry Index (i),
 }
 ~~~
 
@@ -234,9 +245,9 @@ Round:
 
 : The sequence number of the NAT traversal round.
 
-Client Address Type and Server Address Type:
+Client Address Type:
 
-: The address family of the corresponding IP Address field. The values 0x01 and
+: The address family of the Client IP Address field. The values 0x01 and
    0x02 indicate IPv4 and IPv6, respectively, as in {{ALTERNATIVE-ADDRESS}}.
    Receipt of any other value MUST be treated as a connection error of type
    FRAME_ENCODING_ERROR.
@@ -250,15 +261,22 @@ Client Port:
 
 : The port number of the client's address candidate.
 
-Server IP Address:
+Address Sequence Number:
 
-: The server's address candidate, selected from the addresses advertised using
-   ALTERNATIVE_ADDRESS frames. This field is 32 bits long for IPv4 and 128 bits
-   long for IPv6, as indicated by Server Address Type.
+: The Sequence Number of the ALTERNATIVE_ADDRESS frame on this connection
+   containing the selected server candidate.
 
-Server Port:
+Entry Index:
 
-: The port number of the server's address candidate.
+: The zero-based position of the selected Address Entry in that frame, counting
+   the CURRENT_PATH entry. The selected entry MUST be IPV4 or IPV6.
+
+If the server has not sent an ALTERNATIVE_ADDRESS frame or the Address Sequence
+Number exceeds the highest it has sent, it MUST treat the frame as a connection
+error of type PROTOCOL_VIOLATION. Frames with a lower sequence number MUST be
+ignored without starting probes or updating the round. For the matching
+sequence number, an Entry Index that is out of range or selects CURRENT_PATH
+MUST be treated as a connection error of type PROTOCOL_VIOLATION.
 
 PUNCH_ME_NOW frames are ack-eliciting.
 
