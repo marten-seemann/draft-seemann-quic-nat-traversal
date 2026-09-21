@@ -146,7 +146,7 @@ address-set update, e.g., when the network interface becomes unavailable.
 
 Since address matching is run on the client side, only the server advertises
 address candidates. The client communicates selected address pairs to the server
-using PUNCH_ME_NOW frames.
+using PUNCH_REQUEST frames.
 
 ## Forming Candidate Pairs
 
@@ -156,30 +156,29 @@ describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
 
-# Coordinated Path Probing
+# Coordinated Path Probing {#coordinated-probing}
 
-The client sends candidate pairs to the server using PUNCH_ME_NOW frames. The
-client SHOULD start path validation (see {{Section 8.2 of RFC9000}}) for the
-respective path immediately after sending the PUNCH_ME_NOW frame.
+The client requests an independent path validation attempt for an address pair
+using PUNCH_REQUEST. It SHOULD start validation immediately after sending the
+request; the server SHOULD start immediately upon accepting it. Validation
+follows {{Section 8.2 of RFC9000}}, with additional rate limits
+({{amplification-attack}}). Each endpoint MUST set its own timeout following
+{{Section 8.2.4 of RFC9000}}.
 
-The server SHOULD start path validation immediately upon receipt of a
-PUNCH_ME_NOW frame. This document introduces the concept of path validation on
-the server side, since {{!RFC9000}} assumes that any QUIC server is able to
-receive packets on a path without creating a NAT binding first. Path validation
-on the server works as described in {{Section 8.2.1 of RFC9000}}, with
-additional rate-limiting (see {{amplification-attack}}) to prevent amplification
-attacks.
+The server MUST report rejection, failure, or success using PUNCH_DONE
+({{punch-done-frame}}), stopping its probes for that attempt before sending it.
+All PUNCH_DONE frames for the same Attempt ID MUST carry the same Status.
+PUNCH_DONE does not change the client's validation result or either endpoint's
+obligation to answer PATH_CHALLENGE frames ({{Section 8.2.2 of RFC9000}}).
 
-Path probing happens in rounds, allowing the peers to limit the bandwidth
-consumed by sending path validation packets. For every round, the client MUST
-NOT send more PUNCH_ME_NOW frames than allowed by the server's transport
-parameter. A new round is started when a PUNCH_ME_NOW frame with a higher Round
-value is received. This immediately cancels all path probes in progress.
+The client MUST NOT exceed the advertised concurrency limit. Each Attempt ID
+counts once, from the first request transmission until local probing ends and
+the matching PUNCH_DONE is received. The server counts accepted attempts until
+it first sends PUNCH_DONE. A new request that would exceed the limit MUST be
+treated as a connection error of type PROTOCOL_VIOLATION.
 
-To speed up NAT traversal, the client SHOULD send address pairs as soon as they
-become available. However, for small concurrency limits, it MAY delay sending
-address pairs in order to rank them first and only initiate path validation for
-the highest-priority candidate pairs.
+The client SHOULD request attempts as candidate pairs become available, but MAY
+delay requests to prioritize pairs when the concurrency limit is small.
 
 ## Interaction with active_connection_id_limit
 
@@ -211,23 +210,22 @@ receipt of nat_traversal without alternative_address as a connection error of
 type TRANSPORT_PARAMETER_ERROR.
 
 For the server, the value of this transport parameter is a variable-length
-integer, the concurrency limit. The concurrency limit limits the number of
-concurrent NAT traversal attempts and can be used to limit the bandwidth
-required to perform path validation. Any value larger than 0 is valid. A client
-implementation that understands this transport parameter MUST treat the receipt
-of a value that is not a variable-length integer, or the receipt of the value 0,
-as a connection error of type TRANSPORT_PARAMETER_ERROR.
+integer, the concurrency limit defined in {{coordinated-probing}}. Any value
+larger than 0 is valid. A client implementation that understands this transport
+parameter MUST treat the receipt of a value that is not a variable-length
+integer, or the receipt of the value 0, as a connection error of type
+TRANSPORT_PARAMETER_ERROR.
 
 To enable the use of this extension in 0-RTT packets, the client MUST remember
 the value of this transport parameter. If 0-RTT data is accepted by the server,
 the server MUST not disable this extension on the resumed connection.
 
-# PUNCH_ME_NOW Frame
+# PUNCH_REQUEST Frame
 
 ~~~
-PUNCH_ME_NOW Frame {
+PUNCH_REQUEST Frame {
     Type (i) = 0x3d7e92,
-    Round (i),
+    Attempt ID (i),
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
@@ -237,11 +235,12 @@ PUNCH_ME_NOW Frame {
 }
 ~~~
 
-The PUNCH_ME_NOW frame contains the following fields:
+The PUNCH_REQUEST frame contains the following fields:
 
-Round:
+Attempt ID:
 
-: The sequence number of the NAT traversal round.
+: The client MUST number new attempts consecutively from 0 within each
+   connection.
 
 Client Address Type and Server Address Type:
 
@@ -269,11 +268,44 @@ Server Port:
 
 : The port number of the server's address candidate.
 
-PUNCH_ME_NOW frames are ack-eliciting.
+For a given Attempt ID, address fields MUST NOT change. Servers MUST ignore
+duplicate requests, including for completed attempts, and MUST treat detected
+conflicts as a connection error of type PROTOCOL_VIOLATION.
+
+PUNCH_REQUEST frames are ack-eliciting. If lost, they MUST be retransmitted
+unless the request has been acknowledged or the corresponding PUNCH_DONE has
+been received.
 
 This frame is only sent from the client to the server. Clients MUST treat
-receipt of a PUNCH_ME_NOW frame as a connection error of type
+receipt of a PUNCH_REQUEST frame as a connection error of type
 PROTOCOL_VIOLATION.
+
+# PUNCH_DONE Frame {#punch-done-frame}
+
+~~~
+PUNCH_DONE Frame {
+    Type (i) = 0x3d7e95,
+    Attempt ID (i),
+    Status (i),
+}
+~~~
+
+Attempt ID identifies the PUNCH_REQUEST. Status reports the server's result:
+
+* SUCCEEDED (0x00): The server's path validation succeeded.
+* FAILED (0x01): The server's path validation timed out.
+* REJECTED (0x02): The server did not start the attempt.
+
+Clients MUST ignore duplicates. An unknown Status MUST be treated as a
+connection error of type FRAME_ENCODING_ERROR; an unissued Attempt ID or
+detected conflicting statuses MUST be treated as a connection error of type
+PROTOCOL_VIOLATION.
+
+PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be retransmitted
+on loss until acknowledged.
+
+This frame is only sent from the server to the client. Servers MUST treat
+receipt of a PUNCH_DONE frame as a connection error of type PROTOCOL_VIOLATION.
 
 # Security Considerations
 
