@@ -81,6 +81,11 @@ deemed suitable for the application's needs.
 
 {::boilerplate bcp14-tagged}
 
+Sending base:
+
+: The local sending context used for an address candidate, such as a UDP socket
+  on a particular network interface or a tunnel.
+
 # Background: NAT Traversal with ICE
 
 When an external signaling channel is used, the QUIC connection is established
@@ -131,6 +136,10 @@ alternative addresses and replaces the previously advertised set. The server
 SHOULD NOT wait until address candidate discovery has finished; instead, it
 SHOULD update the advertised set as soon as new candidates become available.
 This speeds up NAT traversal and is similar to Trickle ICE ({{?RFC8838}}).
+
+The server stores the sending bases associated with each advertised address.
+Candidates with different sending bases MUST be advertised as separate
+entries, even if their advertised addresses are identical.
 
 The server removes a stale address candidate by omitting it from a subsequent
 address-set update, e.g., when the network interface becomes unavailable.
