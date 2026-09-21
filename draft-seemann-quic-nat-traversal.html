@@ -16,26 +16,26 @@ viability of an address candidate pair while at the same time creating the NAT
 bindings required for a direct connection, after which QUIC connection migration
 can be used to migrate the connection to a direct path. 
     " name="description">
-<meta content="xml2rfc 3.34.0" name="generator">
+<meta content="xml2rfc 3.34.1" name="generator">
 <meta content="QUIC" name="keyword">
 <meta content="ICE" name="keyword">
 <meta content="NAT traversal" name="keyword">
 <meta content="hole punching" name="keyword">
 <meta content="draft-seemann-quic-nat-traversal-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.34.0
+  xml2rfc 3.34.1
     Python 3.14.7
-    ConfigArgParse 1.7.5
+    ConfigArgParse 1.7.7
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.7
+    platformdirs 4.11.10
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.3
+    wcwidth 0.8.4
 -->
 <link href="draft-seemann-quic-nat-traversal.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1055,7 +1055,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Seemann &amp; Kinnear</td>
-<td class="center">Expires 9 March 2027</td>
+<td class="center">Expires 25 March 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1068,12 +1068,12 @@ svg {
 <dd class="internet-draft">draft-seemann-quic-nat-traversal-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-05" class="published">5 September 2026</time>
+<time datetime="2026-09-21" class="published">21 September 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-03-09">9 March 2027</time></dd>
+<dd class="expires"><time datetime="2027-03-25">25 March 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1127,7 +1127,7 @@ can be used to migrate the connection to a direct path.<a href="#section-abstrac
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 9 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1271,6 +1271,14 @@ deemed suitable for the application's needs.<a href="#section-1-4" class="pilcro
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-2">
+        <dt id="section-2-2.1">Sending base:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.2">
+          <p id="section-2-2.2.1">The local sending context used for an address candidate, such as a UDP socket
+on a particular network interface or a tunnel.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
 </section>
 </div>
 <div id="background-nat-traversal-with-ice">
@@ -1337,11 +1345,14 @@ alternative addresses and replaces the previously advertised set. The server
 <span class="bcp14">SHOULD NOT</span> wait until address candidate discovery has finished; instead, it
 <span class="bcp14">SHOULD</span> update the advertised set as soon as new candidates become available.
 This speeds up NAT traversal and is similar to Trickle ICE (<span>[<a href="#RFC8838" class="cite xref">RFC8838</a>]</span>).<a href="#section-5.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.2-2">The server removes a stale address candidate by omitting it from a subsequent
-address-set update, e.g., when the network interface becomes unavailable.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3">Since address matching is run on the client side, only the server advertises
+<p id="section-5.2-2">The server stores the sending bases associated with each advertised address.
+Candidates with different sending bases <span class="bcp14">MUST</span> be advertised as separate
+entries, even if their advertised addresses are identical.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">The server removes a stale address candidate by omitting it from a subsequent
+address-set update, e.g., when the network interface becomes unavailable.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-4">Since address matching is run on the client side, only the server advertises
 address candidates. The client communicates selected address pairs to the server
-using PUNCH_ME_NOW frames.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+using PUNCH_ME_NOW frames.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="forming-candidate-pairs">
