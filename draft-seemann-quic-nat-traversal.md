@@ -141,12 +141,27 @@ The server stores the sending bases associated with each advertised address.
 Candidates with different sending bases MUST be advertised as separate
 entries, even if their advertised addresses are identical.
 
-The server removes a stale address candidate by omitting it from a subsequent
-address-set update, e.g., when the network interface becomes unavailable.
+The server MAY withdraw an address by omitting all its entries from a subsequent
+address-set update. For addresses with multiple sending bases, see the entry
+retention rules in {{multiple-sending-bases}}.
 
 Since address matching is run on the client side, only the server advertises
 address candidates. The client communicates selected address pairs to the server
 using PUNCH_REQUEST frames.
+
+### Multiple Sending Bases {#multiple-sending-bases}
+
+For each address pair, the client SHOULD request one attempt per advertised
+occurrence of the server address.
+
+Accepted attempts for the same address pair MUST use different available
+advertised bases on this connection. If none remains, the server MUST send
+a PUNCH_DONE frame with Status REJECTED.
+
+Each advertisement of an address MUST retain one entry per base ever advertised
+for it on this connection. Without an increase in the entry count, the client
+cannot distinguish a replaced base from an unchanged one and might not schedule
+another attempt.
 
 ## Forming Candidate Pairs
 
