@@ -184,15 +184,17 @@ Each endpoint MUST send probe packets containing PATH_CHALLENGE frames for an
 attempt from a single sending base to the peer address specified in the
 PUNCH_REQUEST.
 
-The server MUST report rejection, failure, or success using PUNCH_DONE
-({{punch-done-frame}}), stopping its probes for that attempt before sending it.
-All PUNCH_DONE frames for the same Attempt ID MUST carry the same Status.
-PUNCH_DONE does not change the client's validation result or either endpoint's
-obligation to answer PATH_CHALLENGE frames ({{different-base}}).
+Each endpoint MUST report success or timeout using PUNCH_DONE
+({{punch-done-frame}}); the server MUST also report rejection. Before sending it,
+the endpoint MUST permanently stop sending probe packets containing
+PATH_CHALLENGE frames for that attempt.
+
+PUNCH_DONE does not affect the peer's probing or validation result, or either
+endpoint's obligation to answer PATH_CHALLENGE frames ({{different-base}}).
 
 The client MUST NOT exceed the advertised concurrency limit. Each Attempt ID
 counts once, from the first request transmission until local probing ends and
-the matching PUNCH_DONE is received. The server counts accepted attempts until
+the server's PUNCH_DONE is received. The server counts accepted attempts until
 it first sends PUNCH_DONE. A new request that would exceed the limit MUST be
 treated as a connection error of type PROTOCOL_VIOLATION.
 
@@ -305,9 +307,9 @@ For a given Attempt ID, address fields MUST NOT change. Servers MUST ignore
 duplicate requests, including for completed attempts, and MUST treat detected
 conflicts as a connection error of type PROTOCOL_VIOLATION.
 
-PUNCH_REQUEST frames are ack-eliciting. If lost, they MUST be retransmitted
-unless the request has been acknowledged or the corresponding PUNCH_DONE has
-been received.
+PUNCH_REQUEST frames are ack-eliciting and MUST be retransmitted on loss until
+the request is acknowledged or the server's PUNCH_DONE is received, even after
+local probing ends.
 
 This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_REQUEST frame as a connection error of type
@@ -323,22 +325,25 @@ PUNCH_DONE Frame {
 }
 ~~~
 
-Attempt ID identifies the PUNCH_REQUEST. Status reports the server's result:
+Attempt ID identifies the PUNCH_REQUEST. Status reports the sender's result:
 
-* SUCCEEDED (0x00): The server's path validation succeeded.
-* FAILED (0x01): The server's path validation timed out.
+* SUCCEEDED (0x00): The sender's path validation succeeded.
+* FAILED (0x01): The sender's path validation timed out.
 * REJECTED (0x02): The server did not start the attempt.
 
-Clients MUST ignore duplicates. An unknown Status MUST be treated as a
-connection error of type FRAME_ENCODING_ERROR; an unissued Attempt ID or
-detected conflicting statuses MUST be treated as a connection error of type
-PROTOCOL_VIOLATION.
+Each endpoint's Status MUST remain unchanged for a given Attempt ID.
+Endpoints MUST ignore duplicates. Detected conflicting statuses from the peer
+for an Attempt ID, or an unissued Attempt ID received by a client, MUST be
+treated as a connection error of type PROTOCOL_VIOLATION.
+
+An unknown Status, or REJECTED received by a server, MUST be treated as a
+connection error of type FRAME_ENCODING_ERROR.
+
+If PUNCH_DONE arrives before the corresponding PUNCH_REQUEST, the server MUST
+retain the Status and process the request normally when it arrives.
 
 PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be retransmitted
 on loss until acknowledged.
-
-This frame is only sent from the server to the client. Servers MUST treat
-receipt of a PUNCH_DONE frame as a connection error of type PROTOCOL_VIOLATION.
 
 # Security Considerations
 
