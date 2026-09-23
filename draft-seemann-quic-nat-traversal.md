@@ -180,11 +180,15 @@ follows {{Section 8.2 of RFC9000}}, with additional rate limits
 ({{amplification-attack}}). Each endpoint MUST set its own timeout following
 {{Section 8.2.4 of RFC9000}}.
 
+Each endpoint MUST send probe packets containing PATH_CHALLENGE frames for an
+attempt from a single sending base to the peer address specified in the
+PUNCH_REQUEST.
+
 The server MUST report rejection, failure, or success using PUNCH_DONE
 ({{punch-done-frame}}), stopping its probes for that attempt before sending it.
 All PUNCH_DONE frames for the same Attempt ID MUST carry the same Status.
 PUNCH_DONE does not change the client's validation result or either endpoint's
-obligation to answer PATH_CHALLENGE frames ({{Section 8.2.2 of RFC9000}}).
+obligation to answer PATH_CHALLENGE frames ({{different-base}}).
 
 The client MUST NOT exceed the advertised concurrency limit. Each Attempt ID
 counts once, from the first request transmission until local probing ends and
@@ -194,6 +198,20 @@ treated as a connection error of type PROTOCOL_VIOLATION.
 
 The client SHOULD request attempts as candidate pairs become available, but MAY
 delay requests to prioritize pairs when the concurrency limit is small.
+
+## Probes Received on a Different Base {#different-base}
+
+Under certain network configurations, a probe packet can arrive at a different
+base than the one the receiving endpoint selected for its attempt. This can
+happen when overlapping address spaces give candidates with different bases
+the same address ({{Appendix B.2 of RFC8445}}).
+
+Both endpoints follow the path validation rules of {{RFC9000}} in addition to
+the coordinated probing rules above. An endpoint sends a packet containing the
+PATH_RESPONSE from the receiving base to the probe's source address, using a
+connection ID valid for that path; if none is available, it cannot respond.
+A matching PATH_RESPONSE validates the path on which the corresponding probe
+was sent, regardless of where the response arrives.
 
 ## Interaction with active_connection_id_limit
 
