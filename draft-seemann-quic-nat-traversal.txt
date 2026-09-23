@@ -5,8 +5,8 @@
 QUIC                                                          M. Seemann
 Internet-Draft                                                          
 Intended status: Standards Track                              E. Kinnear
-Expires: 25 March 2027                                        Apple Inc.
-                                                       21 September 2026
+Expires: 27 March 2027                                        Apple Inc.
+                                                       23 September 2026
 
 
                       Using QUIC to traverse NATs
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 March 2027.
+   This Internet-Draft will expire on 27 March 2027.
 
 Copyright Notice
 
@@ -74,17 +74,19 @@ Table of Contents
    5.  Candidate Discovery and Exchange
      5.1.  Gathering Address Candidates
      5.2.  Advertising Server Address Candidates
+       5.2.1.  Multiple Sending Bases
      5.3.  Forming Candidate Pairs
    6.  Coordinated Path Probing
      6.1.  Interaction with active_connection_id_limit
      6.2.  Amplification Attack Mitigation
    7.  Extension Negotiation
-   8.  PUNCH_ME_NOW Frame
-   9.  Security Considerations
-   10. IANA Considerations
-   11. References
-     11.1.  Normative References
-     11.2.  Informative References
+   8.  PUNCH_REQUEST Frame
+   9.  PUNCH_DONE Frame
+   10. Security Considerations
+   11. IANA Considerations
+   12. References
+     12.1.  Normative References
+     12.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -197,13 +199,27 @@ Table of Contents
    as separate entries, even if their advertised addresses are
    identical.
 
-   The server removes a stale address candidate by omitting it from a
-   subsequent address-set update, e.g., when the network interface
-   becomes unavailable.
+   The server MAY withdraw an address by omitting all its entries from a
+   subsequent address-set update.  For addresses with multiple sending
+   bases, see the entry retention rules in Section 5.2.1.
 
    Since address matching is run on the client side, only the server
    advertises address candidates.  The client communicates selected
-   address pairs to the server using PUNCH_ME_NOW frames.
+   address pairs to the server using PUNCH_REQUEST frames.
+
+5.2.1.  Multiple Sending Bases
+
+   For each address pair, the client SHOULD request one attempt per
+   advertised occurrence of the server address.
+
+   Accepted attempts for the same address pair MUST use different
+   available advertised bases on this connection.  If none remains, the
+   server MUST send a PUNCH_DONE frame with Status REJECTED.
+
+   Each advertisement of an address MUST retain one entry per base ever
+   advertised for it on this connection.  Without an increase in the
+   entry count, the client cannot distinguish a replaced base from an
+   unchanged one and might not schedule another attempt.
 
 5.3.  Forming Candidate Pairs
 
@@ -216,31 +232,30 @@ Table of Contents
 
 6.  Coordinated Path Probing
 
-   The client sends candidate pairs to the server using PUNCH_ME_NOW
-   frames.  The client SHOULD start path validation (see Section 8.2 of
-   [RFC9000]) for the respective path immediately after sending the
-   PUNCH_ME_NOW frame.
+   The client requests an independent path validation attempt for an
+   address pair using PUNCH_REQUEST.  It SHOULD start validation
+   immediately after sending the request; the server SHOULD start
+   immediately upon accepting it.  Validation follows Section 8.2 of
+   [RFC9000], with additional rate limits (Section 6.2).  Each endpoint
+   MUST set its own timeout following Section 8.2.4 of [RFC9000].
 
-   The server SHOULD start path validation immediately upon receipt of a
-   PUNCH_ME_NOW frame.  This document introduces the concept of path
-   validation on the server side, since [RFC9000] assumes that any QUIC
-   server is able to receive packets on a path without creating a NAT
-   binding first.  Path validation on the server works as described in
-   Section 8.2.1 of [RFC9000], with additional rate-limiting (see
-   Section 6.2) to prevent amplification attacks.
+   The server MUST report rejection, failure, or success using
+   PUNCH_DONE (Section 9), stopping its probes for that attempt before
+   sending it.  All PUNCH_DONE frames for the same Attempt ID MUST carry
+   the same Status.  PUNCH_DONE does not change the client's validation
+   result or either endpoint's obligation to answer PATH_CHALLENGE
+   frames (Section 8.2.2 of [RFC9000]).
 
-   Path probing happens in rounds, allowing the peers to limit the
-   bandwidth consumed by sending path validation packets.  For every
-   round, the client MUST NOT send more PUNCH_ME_NOW frames than allowed
-   by the server's transport parameter.  A new round is started when a
-   PUNCH_ME_NOW frame with a higher Round value is received.  This
-   immediately cancels all path probes in progress.
+   The client MUST NOT exceed the advertised concurrency limit.  Each
+   Attempt ID counts once, from the first request transmission until
+   local probing ends and the matching PUNCH_DONE is received.  The
+   server counts accepted attempts until it first sends PUNCH_DONE.  A
+   new request that would exceed the limit MUST be treated as a
+   connection error of type PROTOCOL_VIOLATION.
 
-   To speed up NAT traversal, the client SHOULD send address pairs as
-   soon as they become available.  However, for small concurrency
-   limits, it MAY delay sending address pairs in order to rank them
-   first and only initiate path validation for the highest-priority
-   candidate pairs.
+   The client SHOULD request attempts as candidate pairs become
+   available, but MAY delay requests to prioritize pairs when the
+   concurrency limit is small.
 
 6.1.  Interaction with active_connection_id_limit
 
@@ -277,24 +292,22 @@ Table of Contents
    TRANSPORT_PARAMETER_ERROR.
 
    For the server, the value of this transport parameter is a variable-
-   length integer, the concurrency limit.  The concurrency limit limits
-   the number of concurrent NAT traversal attempts and can be used to
-   limit the bandwidth required to perform path validation.  Any value
-   larger than 0 is valid.  A client implementation that understands
-   this transport parameter MUST treat the receipt of a value that is
-   not a variable-length integer, or the receipt of the value 0, as a
-   connection error of type TRANSPORT_PARAMETER_ERROR.
+   length integer, the concurrency limit defined in Section 6.  Any
+   value larger than 0 is valid.  A client implementation that
+   understands this transport parameter MUST treat the receipt of a
+   value that is not a variable-length integer, or the receipt of the
+   value 0, as a connection error of type TRANSPORT_PARAMETER_ERROR.
 
    To enable the use of this extension in 0-RTT packets, the client MUST
    remember the value of this transport parameter.  If 0-RTT data is
    accepted by the server, the server MUST not disable this extension on
    the resumed connection.
 
-8.  PUNCH_ME_NOW Frame
+8.  PUNCH_REQUEST Frame
 
-   PUNCH_ME_NOW Frame {
+   PUNCH_REQUEST Frame {
        Type (i) = 0x3d7e92,
-       Round (i),
+       Attempt ID (i),
        Client Address Type (8),
        Client IP Address (32..128),
        Client Port (16),
@@ -303,9 +316,10 @@ Table of Contents
        Server Port (16),
    }
 
-   The PUNCH_ME_NOW frame contains the following fields:
+   The PUNCH_REQUEST frame contains the following fields:
 
-   Round:  The sequence number of the NAT traversal round.
+   Attempt ID:  The client MUST number new attempts consecutively from 0
+      within each connection.
 
    Client Address Type and Server Address Type:  The address family of
       the corresponding IP Address field.  The values 0x01 and 0x02
@@ -326,13 +340,49 @@ Table of Contents
 
    Server Port:  The port number of the server's address candidate.
 
-   PUNCH_ME_NOW frames are ack-eliciting.
-
-   This frame is only sent from the client to the server.  Clients MUST
-   treat receipt of a PUNCH_ME_NOW frame as a connection error of type
+   For a given Attempt ID, address fields MUST NOT change.  Servers MUST
+   ignore duplicate requests, including for completed attempts, and MUST
+   treat detected conflicts as a connection error of type
    PROTOCOL_VIOLATION.
 
-9.  Security Considerations
+   PUNCH_REQUEST frames are ack-eliciting.  If lost, they MUST be
+   retransmitted unless the request has been acknowledged or the
+   corresponding PUNCH_DONE has been received.
+
+   This frame is only sent from the client to the server.  Clients MUST
+   treat receipt of a PUNCH_REQUEST frame as a connection error of type
+   PROTOCOL_VIOLATION.
+
+9.  PUNCH_DONE Frame
+
+   PUNCH_DONE Frame {
+       Type (i) = 0x3d7e95,
+       Attempt ID (i),
+       Status (i),
+   }
+
+   Attempt ID identifies the PUNCH_REQUEST.  Status reports the server's
+   result:
+
+   *  SUCCEEDED (0x00): The server's path validation succeeded.
+
+   *  FAILED (0x01): The server's path validation timed out.
+
+   *  REJECTED (0x02): The server did not start the attempt.
+
+   Clients MUST ignore duplicates.  An unknown Status MUST be treated as
+   a connection error of type FRAME_ENCODING_ERROR; an unissued Attempt
+   ID or detected conflicting statuses MUST be treated as a connection
+   error of type PROTOCOL_VIOLATION.
+
+   PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be
+   retransmitted on loss until acknowledged.
+
+   This frame is only sent from the server to the client.  Servers MUST
+   treat receipt of a PUNCH_DONE frame as a connection error of type
+   PROTOCOL_VIOLATION.
+
+10.  Security Considerations
 
    This document expands QUIC's path validation logic to QUIC servers,
    allowing a QUIC client to request the sending of path validation
@@ -345,14 +395,14 @@ Table of Contents
    possible when using this extension.  The server therefore needs to
    carefully limit the amount of data it sends on unverified paths.
 
-10.  IANA Considerations
+11.  IANA Considerations
 
    TODO: fill out registration request for the transport parameter and
    frame types
 
-11.  References
+12.  References
 
-11.1.  Normative References
+12.1.  Normative References
 
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
@@ -390,7 +440,7 @@ Table of Contents
               DOI 10.17487/RFC9287, August 2022,
               <https://www.rfc-editor.org/rfc/rfc9287>.
 
-11.2.  Informative References
+12.2.  Informative References
 
    [CONNECT-UDP-LISTEN]
               Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
