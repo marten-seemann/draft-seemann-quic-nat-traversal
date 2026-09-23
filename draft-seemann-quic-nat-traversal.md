@@ -173,10 +173,12 @@ the algorithm used, and the client is free to use a different algorithm.
 
 # Coordinated Path Probing {#coordinated-probing}
 
-The client requests an independent path validation attempt for an address pair
-using PUNCH_REQUEST. It SHOULD start validation immediately after sending the
-request; the server SHOULD start immediately upon accepting it. Validation
-follows {{Section 8.2 of RFC9000}}, with additional rate limits
+The server authorizes attempts using PUNCH_GRANT ({{punch-grant-frame}}). Each
+grant permits one independent path validation attempt for an address pair. The
+client uses a grant by sending PUNCH_REQUEST with its Grant ID and the selected
+address pair. It SHOULD start validation immediately after sending the request;
+the server SHOULD start immediately upon accepting it. Validation follows
+{{Section 8.2 of RFC9000}}, with additional rate limits
 ({{amplification-attack}}). Each endpoint MUST set its own timeout following
 {{Section 8.2.4 of RFC9000}}.
 
@@ -192,14 +194,20 @@ PATH_CHALLENGE frames for that attempt.
 PUNCH_DONE does not affect the peer's probing or validation result, or either
 endpoint's obligation to answer PATH_CHALLENGE frames ({{different-base}}).
 
-The client MUST NOT exceed the advertised concurrency limit. Each Attempt ID
-counts once, from the first request transmission until local probing ends and
-the server's PUNCH_DONE is received. The server counts accepted attempts until
-it first sends PUNCH_DONE. A new request that would exceed the limit MUST be
-treated as a connection error of type PROTOCOL_VIOLATION.
+The client SHOULD request attempts as candidate pairs and unused grants become
+available, but MAY delay requests to prioritize pairs.
 
-The client SHOULD request attempts as candidate pairs become available, but MAY
-delay requests to prioritize pairs when the concurrency limit is small.
+## Grant Limits {#grant-limits}
+
+The client's nat_traversal transport parameter ({{negotiate-extension}}) sets
+the initial cumulative grant limit. MAX_PUNCH_GRANTS
+({{max-punch-grants-frame}}) can increase it. The server MUST NOT issue a grant
+whose Grant ID is greater than or equal to the largest limit received. The
+client MUST treat receipt of a grant at or above its largest advertised limit
+as a connection error of type PROTOCOL_VIOLATION.
+
+The server decides when to issue grants within the limit; the client decides
+when to increase it.
 
 ## Probes Received on a Different Base {#different-base}
 
@@ -235,32 +243,65 @@ TODO describe exactly how to mitigate amplification attacks
 Endpoints advertise their support of the extension by sending the nat_traversal
 (0x3d7e9f0bca12fea6) transport parameter ({{Section 7.4 of RFC9000}}).
 
-The client MUST send this transport parameter with an empty value. A server
-implementation that understands this transport parameter MUST treat the receipt
-of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.
+The client's value is a single variable-length integer specifying the initial
+cumulative grant limit ({{grant-limits}}). The server MUST send an empty value.
+An endpoint that understands this transport parameter MUST treat receipt of an
+invalid value as a connection error of type TRANSPORT_PARAMETER_ERROR.
 
 The client MUST also send the alternative_address transport parameter defined in
 {{ALTERNATIVE-ADDRESS}}. A server that understands nat_traversal MUST treat
 receipt of nat_traversal without alternative_address as a connection error of
 type TRANSPORT_PARAMETER_ERROR.
 
-For the server, the value of this transport parameter is a variable-length
-integer, the concurrency limit defined in {{coordinated-probing}}. Any value
-larger than 0 is valid. A client implementation that understands this transport
-parameter MUST treat the receipt of a value that is not a variable-length
-integer, or the receipt of the value 0, as a connection error of type
-TRANSPORT_PARAMETER_ERROR.
+This transport parameter MUST NOT be remembered for use in 0-RTT. The frames
+defined in this document MUST only be sent in 1-RTT packets.
 
-To enable the use of this extension in 0-RTT packets, the client MUST remember
-the value of this transport parameter. If 0-RTT data is accepted by the server,
-the server MUST not disable this extension on the resumed connection.
+# PUNCH_GRANT Frame {#punch-grant-frame}
+
+~~~
+PUNCH_GRANT Frame {
+    Type (i) = 0x3d7e96,
+    Grant ID (i),
+}
+~~~
+
+PUNCH_GRANT authorizes one attempt. The server MUST number new grants
+consecutively from 0 within each connection, subject to the client's grant limit
+({{grant-limits}}).
+
+PUNCH_GRANT is ack-eliciting and sent on a validated path. The Grant ID SHOULD
+be retransmitted on loss until acknowledged.
+
+This frame is only sent from the server to the client. Servers MUST treat
+receipt of a PUNCH_GRANT frame as a connection error of type PROTOCOL_VIOLATION.
+
+# MAX_PUNCH_GRANTS Frame {#max-punch-grants-frame}
+
+~~~
+MAX_PUNCH_GRANTS Frame {
+    Type (i) = 0x3d7e97,
+    Maximum Grants (i),
+}
+~~~
+
+Maximum Grants is the cumulative number of grants the server may issue,
+including grants already used. Servers MUST ignore values that do not increase
+the limit.
+
+MAX_PUNCH_GRANTS is ack-eliciting and sent on a validated path. On loss, the
+client MUST retransmit its current limit unless it has already been
+acknowledged.
+
+This frame is only sent from the client to the server. Clients MUST treat
+receipt of a MAX_PUNCH_GRANTS frame as a connection error of type
+PROTOCOL_VIOLATION.
 
 # PUNCH_REQUEST Frame
 
 ~~~
 PUNCH_REQUEST Frame {
     Type (i) = 0x3d7e92,
-    Attempt ID (i),
+    Grant ID (i),
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
@@ -272,10 +313,9 @@ PUNCH_REQUEST Frame {
 
 The PUNCH_REQUEST frame contains the following fields:
 
-Attempt ID:
+Grant ID:
 
-: The client MUST number new attempts consecutively from 0 within each
-   connection.
+: The grant used for this attempt ({{punch-grant-frame}}).
 
 Client Address Type and Server Address Type:
 
@@ -303,9 +343,12 @@ Server Port:
 
 : The port number of the server's address candidate.
 
-For a given Attempt ID, address fields MUST NOT change. Servers MUST ignore
-duplicate requests, including for completed attempts, and MUST treat detected
-conflicts as a connection error of type PROTOCOL_VIOLATION.
+The client MUST use a received, unused grant for each new attempt. Sending
+PUNCH_REQUEST permanently binds that grant to the address pair, even if the
+request is rejected. Retransmissions MUST use the same Grant ID and addresses.
+Servers MUST ignore duplicate requests, including for completed attempts, and
+MUST treat an unissued Grant ID or detected conflicting addresses as a
+connection error of type PROTOCOL_VIOLATION.
 
 PUNCH_REQUEST frames are ack-eliciting and MUST be retransmitted on loss until
 the request is acknowledged or the server's PUNCH_DONE is received, even after
@@ -320,21 +363,26 @@ PROTOCOL_VIOLATION.
 ~~~
 PUNCH_DONE Frame {
     Type (i) = 0x3d7e95,
-    Attempt ID (i),
+    Grant ID (i),
     Status (i),
 }
 ~~~
 
-Attempt ID identifies the PUNCH_REQUEST. Status reports the sender's result:
+The Grant ID identifies the attempt. Status reports the sender's result:
 
 * SUCCEEDED (0x00): The sender's path validation succeeded.
 * FAILED (0x01): The sender's path validation timed out.
 * REJECTED (0x02): The server did not start the attempt.
 
-Each endpoint's Status MUST remain unchanged for a given Attempt ID.
-Endpoints MUST ignore duplicates. Detected conflicting statuses from the peer
-for an Attempt ID, or an unissued Attempt ID received by a client, MUST be
-treated as a connection error of type PROTOCOL_VIOLATION.
+Each endpoint's Status MUST remain unchanged for a given Grant ID. Endpoints
+MUST treat detected conflicting statuses from the peer for a grant as a
+connection error of type PROTOCOL_VIOLATION.
+
+PUNCH_DONE can only be sent in response to a PUNCH_REQUEST. A client that
+receives a PUNCH_DONE frame with a Grant ID for which it didn't send a
+PUNCH_REQUEST frame MUST close the connection with an error of type
+PROTOCOL_VIOLATION. Due to packet reordering, a server might receive a
+PUNCH_DONE frame before receiving the corresponding PUNCH_REQUEST frame.
 
 An unknown Status, or REJECTED received by a server, MUST be treated as a
 connection error of type FRAME_ENCODING_ERROR.
