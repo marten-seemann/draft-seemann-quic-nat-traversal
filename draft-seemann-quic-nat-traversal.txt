@@ -82,15 +82,16 @@ Table of Contents
      6.3.  Interaction with active_connection_id_limit
      6.4.  Amplification Attack Mitigation
    7.  Extension Negotiation
-   8.  PUNCH_GRANT Frame
-   9.  MAX_PUNCH_GRANTS Frame
-   10. PUNCH_REQUEST Frame
-   11. PUNCH_DONE Frame
-   12. Security Considerations
-   13. IANA Considerations
-   14. References
-     14.1.  Normative References
-     14.2.  Informative References
+   8.  Frames
+     8.1.  PUNCH_GRANT Frame
+     8.2.  MAX_PUNCH_GRANTS Frame
+     8.3.  PUNCH_REQUEST Frame
+     8.4.  PUNCH_DONE Frame
+   9.  Security Considerations
+   10. IANA Considerations
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -236,7 +237,7 @@ Table of Contents
 
 6.  Coordinated Path Probing
 
-   The server authorizes attempts using PUNCH_GRANT (Section 8).  Each
+   The server authorizes attempts using PUNCH_GRANT (Section 8.1).  Each
    grant permits one independent path validation attempt for an address
    pair.  The client uses a grant by sending PUNCH_REQUEST with its
    Grant ID and the selected address pair.  It SHOULD start validation
@@ -250,7 +251,7 @@ Table of Contents
    specified in the PUNCH_REQUEST.
 
    Each endpoint MUST report success or timeout using PUNCH_DONE
-   (Section 11); the server MUST also report rejection.  Before sending
+   (Section 8.4); the server MUST also report rejection.  Before sending
    it, the endpoint MUST permanently stop sending probe packets
    containing PATH_CHALLENGE frames for that attempt.
 
@@ -264,7 +265,7 @@ Table of Contents
 6.1.  Grant Limits
 
    The client's nat_traversal transport parameter (Section 7) sets the
-   initial cumulative grant limit.  MAX_PUNCH_GRANTS (Section 9) can
+   initial cumulative grant limit.  MAX_PUNCH_GRANTS (Section 8.2) can
    increase it.  The server MUST NOT issue a grant whose Grant ID is
    greater than or equal to the largest limit received.  The client MUST
    treat receipt of a grant at or above its largest advertised limit as
@@ -328,7 +329,12 @@ Table of Contents
    The frames defined in this document MUST only be sent in 1-RTT
    packets.
 
-8.  PUNCH_GRANT Frame
+8.  Frames
+
+   This extension defines the PUNCH_GRANT, MAX_PUNCH_GRANTS,
+   PUNCH_REQUEST, and PUNCH_DONE frames.
+
+8.1.  PUNCH_GRANT Frame
 
    PUNCH_GRANT Frame {
        Type (i) = 0x3d7e96,
@@ -346,7 +352,7 @@ Table of Contents
    treat receipt of a PUNCH_GRANT frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-9.  MAX_PUNCH_GRANTS Frame
+8.2.  MAX_PUNCH_GRANTS Frame
 
    MAX_PUNCH_GRANTS Frame {
        Type (i) = 0x3d7e97,
@@ -365,7 +371,7 @@ Table of Contents
    treat receipt of a MAX_PUNCH_GRANTS frame as a connection error of
    type PROTOCOL_VIOLATION.
 
-10.  PUNCH_REQUEST Frame
+8.3.  PUNCH_REQUEST Frame
 
    PUNCH_REQUEST Frame {
        Type (i) = 0x3d7e92,
@@ -380,7 +386,7 @@ Table of Contents
 
    The PUNCH_REQUEST frame contains the following fields:
 
-   Grant ID:  The grant used for this attempt (Section 8).
+   Grant ID:  The grant used for this attempt (Section 8.1).
 
    Client Address Type and Server Address Type:  The address family of
       the corresponding IP Address field.  The values 0x01 and 0x02
@@ -417,7 +423,7 @@ Table of Contents
    treat receipt of a PUNCH_REQUEST frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-11.  PUNCH_DONE Frame
+8.4.  PUNCH_DONE Frame
 
    PUNCH_DONE Frame {
        Type (i) = 0x3d7e95,
@@ -455,7 +461,7 @@ Table of Contents
    PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be
    retransmitted on loss until acknowledged.
 
-12.  Security Considerations
+9.  Security Considerations
 
    This document expands QUIC's path validation logic to QUIC servers,
    allowing a QUIC client to request the sending of path validation
@@ -468,14 +474,14 @@ Table of Contents
    possible when using this extension.  The server therefore needs to
    carefully limit the amount of data it sends on unverified paths.
 
-13.  IANA Considerations
+10.  IANA Considerations
 
    TODO: fill out registration request for the transport parameter and
    frame types
 
-14.  References
+11.  References
 
-14.1.  Normative References
+11.1.  Normative References
 
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
@@ -513,7 +519,7 @@ Table of Contents
               DOI 10.17487/RFC9287, August 2022,
               <https://www.rfc-editor.org/rfc/rfc9287>.
 
-14.2.  Informative References
+11.2.  Informative References
 
    [CONNECT-UDP-LISTEN]
               Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
