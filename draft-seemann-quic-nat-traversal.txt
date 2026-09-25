@@ -77,17 +77,20 @@ Table of Contents
        5.2.1.  Multiple Sending Bases
      5.3.  Forming Candidate Pairs
    6.  Coordinated Path Probing
-     6.1.  Probes Received on a Different Base
-     6.2.  Interaction with active_connection_id_limit
-     6.3.  Amplification Attack Mitigation
+     6.1.  Grant Limits
+     6.2.  Probes Received on a Different Base
+     6.3.  Interaction with active_connection_id_limit
+     6.4.  Amplification Attack Mitigation
    7.  Extension Negotiation
-   8.  PUNCH_REQUEST Frame
-   9.  PUNCH_DONE Frame
-   10. Security Considerations
-   11. IANA Considerations
-   12. References
-     12.1.  Normative References
-     12.2.  Informative References
+   8.  PUNCH_GRANT Frame
+   9.  MAX_PUNCH_GRANTS Frame
+   10. PUNCH_REQUEST Frame
+   11. PUNCH_DONE Frame
+   12. Security Considerations
+   13. IANA Considerations
+   14. References
+     14.1.  Normative References
+     14.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -233,36 +236,44 @@ Table of Contents
 
 6.  Coordinated Path Probing
 
-   The client requests an independent path validation attempt for an
-   address pair using PUNCH_REQUEST.  It SHOULD start validation
+   The server authorizes attempts using PUNCH_GRANT (Section 8).  Each
+   grant permits one independent path validation attempt for an address
+   pair.  The client uses a grant by sending PUNCH_REQUEST with its
+   Grant ID and the selected address pair.  It SHOULD start validation
    immediately after sending the request; the server SHOULD start
    immediately upon accepting it.  Validation follows Section 8.2 of
-   [RFC9000], with additional rate limits (Section 6.3).  Each endpoint
+   [RFC9000], with additional rate limits (Section 6.4).  Each endpoint
    MUST set its own timeout following Section 8.2.4 of [RFC9000].
 
    Each endpoint MUST send probe packets containing PATH_CHALLENGE
    frames for an attempt from a single sending base to the peer address
    specified in the PUNCH_REQUEST.
 
-   The server MUST report rejection, failure, or success using
-   PUNCH_DONE (Section 9), stopping its probes for that attempt before
-   sending it.  All PUNCH_DONE frames for the same Attempt ID MUST carry
-   the same Status.  PUNCH_DONE does not change the client's validation
-   result or either endpoint's obligation to answer PATH_CHALLENGE
-   frames (Section 6.1).
+   Each endpoint MUST report success or timeout using PUNCH_DONE
+   (Section 11); the server MUST also report rejection.  Before sending
+   it, the endpoint MUST permanently stop sending probe packets
+   containing PATH_CHALLENGE frames for that attempt.
 
-   The client MUST NOT exceed the advertised concurrency limit.  Each
-   Attempt ID counts once, from the first request transmission until
-   local probing ends and the matching PUNCH_DONE is received.  The
-   server counts accepted attempts until it first sends PUNCH_DONE.  A
-   new request that would exceed the limit MUST be treated as a
-   connection error of type PROTOCOL_VIOLATION.
+   PUNCH_DONE does not affect the peer's probing or validation result,
+   or either endpoint's obligation to answer PATH_CHALLENGE frames
+   (Section 6.2).
 
-   The client SHOULD request attempts as candidate pairs become
-   available, but MAY delay requests to prioritize pairs when the
-   concurrency limit is small.
+   The client SHOULD request attempts as candidate pairs and unused
+   grants become available, but MAY delay requests to prioritize pairs.
 
-6.1.  Probes Received on a Different Base
+6.1.  Grant Limits
+
+   The client's nat_traversal transport parameter (Section 7) sets the
+   initial cumulative grant limit.  MAX_PUNCH_GRANTS (Section 9) can
+   increase it.  The server MUST NOT issue a grant whose Grant ID is
+   greater than or equal to the largest limit received.  The client MUST
+   treat receipt of a grant at or above its largest advertised limit as
+   a connection error of type PROTOCOL_VIOLATION.
+
+   The server decides when to issue grants within the limit; the client
+   decides when to increase it.
+
+6.2.  Probes Received on a Different Base
 
    Under certain network configurations, a probe packet can arrive at a
    different base than the one the receiving endpoint selected for its
@@ -278,7 +289,7 @@ Table of Contents
    validates the path on which the corresponding probe was sent,
    regardless of where the response arrives.
 
-6.2.  Interaction with active_connection_id_limit
+6.3.  Interaction with active_connection_id_limit
 
    The active_connection_id_limit limits the number of connection IDs
    that are active at any given time.  Both endpoints need to use a
@@ -291,7 +302,7 @@ Table of Contents
    enough to allow for the desired number of concurrent path validation
    attempts.
 
-6.3.  Amplification Attack Mitigation
+6.4.  Amplification Attack Mitigation
 
    TODO describe exactly how to mitigate amplification attacks
 
@@ -301,10 +312,11 @@ Table of Contents
    nat_traversal (0x3d7e9f0bca12fea6) transport parameter (Section 7.4
    of [RFC9000]).
 
-   The client MUST send this transport parameter with an empty value.  A
-   server implementation that understands this transport parameter MUST
-   treat the receipt of a non-empty value as a connection error of type
-   TRANSPORT_PARAMETER_ERROR.
+   The client's value is a single variable-length integer specifying the
+   initial cumulative grant limit (Section 6.1).  The server MUST send
+   an empty value.  An endpoint that understands this transport
+   parameter MUST treat receipt of an invalid value as a connection
+   error of type TRANSPORT_PARAMETER_ERROR.
 
    The client MUST also send the alternative_address transport parameter
    defined in [ALTERNATIVE-ADDRESS].  A server that understands
@@ -312,23 +324,52 @@ Table of Contents
    alternative_address as a connection error of type
    TRANSPORT_PARAMETER_ERROR.
 
-   For the server, the value of this transport parameter is a variable-
-   length integer, the concurrency limit defined in Section 6.  Any
-   value larger than 0 is valid.  A client implementation that
-   understands this transport parameter MUST treat the receipt of a
-   value that is not a variable-length integer, or the receipt of the
-   value 0, as a connection error of type TRANSPORT_PARAMETER_ERROR.
+   This transport parameter MUST NOT be remembered for use in 0-RTT.
+   The frames defined in this document MUST only be sent in 1-RTT
+   packets.
 
-   To enable the use of this extension in 0-RTT packets, the client MUST
-   remember the value of this transport parameter.  If 0-RTT data is
-   accepted by the server, the server MUST not disable this extension on
-   the resumed connection.
+8.  PUNCH_GRANT Frame
 
-8.  PUNCH_REQUEST Frame
+   PUNCH_GRANT Frame {
+       Type (i) = 0x3d7e96,
+       Grant ID (i),
+   }
+
+   PUNCH_GRANT authorizes one attempt.  The server MUST number new
+   grants consecutively from 0 within each connection, subject to the
+   client's grant limit (Section 6.1).
+
+   PUNCH_GRANT is ack-eliciting and sent on a validated path.  The Grant
+   ID SHOULD be retransmitted on loss until acknowledged.
+
+   This frame is only sent from the server to the client.  Servers MUST
+   treat receipt of a PUNCH_GRANT frame as a connection error of type
+   PROTOCOL_VIOLATION.
+
+9.  MAX_PUNCH_GRANTS Frame
+
+   MAX_PUNCH_GRANTS Frame {
+       Type (i) = 0x3d7e97,
+       Maximum Grants (i),
+   }
+
+   Maximum Grants is the cumulative number of grants the server may
+   issue, including grants already used.  Servers MUST ignore values
+   that do not increase the limit.
+
+   MAX_PUNCH_GRANTS is ack-eliciting and sent on a validated path.  On
+   loss, the client MUST retransmit its current limit unless it has
+   already been acknowledged.
+
+   This frame is only sent from the client to the server.  Clients MUST
+   treat receipt of a MAX_PUNCH_GRANTS frame as a connection error of
+   type PROTOCOL_VIOLATION.
+
+10.  PUNCH_REQUEST Frame
 
    PUNCH_REQUEST Frame {
        Type (i) = 0x3d7e92,
-       Attempt ID (i),
+       Grant ID (i),
        Client Address Type (8),
        Client IP Address (32..128),
        Client Port (16),
@@ -339,8 +380,7 @@ Table of Contents
 
    The PUNCH_REQUEST frame contains the following fields:
 
-   Attempt ID:  The client MUST number new attempts consecutively from 0
-      within each connection.
+   Grant ID:  The grant used for this attempt (Section 8).
 
    Client Address Type and Server Address Type:  The address family of
       the corresponding IP Address field.  The values 0x01 and 0x02
@@ -361,49 +401,61 @@ Table of Contents
 
    Server Port:  The port number of the server's address candidate.
 
-   For a given Attempt ID, address fields MUST NOT change.  Servers MUST
-   ignore duplicate requests, including for completed attempts, and MUST
-   treat detected conflicts as a connection error of type
+   The client MUST use a received, unused grant for each new attempt.
+   Sending PUNCH_REQUEST permanently binds that grant to the address
+   pair, even if the request is rejected.  Retransmissions MUST use the
+   same Grant ID and addresses.  Servers MUST ignore duplicate requests,
+   including for completed attempts, and MUST treat an unissued Grant ID
+   or detected conflicting addresses as a connection error of type
    PROTOCOL_VIOLATION.
 
-   PUNCH_REQUEST frames are ack-eliciting.  If lost, they MUST be
-   retransmitted unless the request has been acknowledged or the
-   corresponding PUNCH_DONE has been received.
+   PUNCH_REQUEST frames are ack-eliciting and MUST be retransmitted on
+   loss until the request is acknowledged or the server's PUNCH_DONE is
+   received, even after local probing ends.
 
    This frame is only sent from the client to the server.  Clients MUST
    treat receipt of a PUNCH_REQUEST frame as a connection error of type
    PROTOCOL_VIOLATION.
 
-9.  PUNCH_DONE Frame
+11.  PUNCH_DONE Frame
 
    PUNCH_DONE Frame {
        Type (i) = 0x3d7e95,
-       Attempt ID (i),
+       Grant ID (i),
        Status (i),
    }
 
-   Attempt ID identifies the PUNCH_REQUEST.  Status reports the server's
+   The Grant ID identifies the attempt.  Status reports the sender's
    result:
 
-   *  SUCCEEDED (0x00): The server's path validation succeeded.
+   *  SUCCEEDED (0x00): The sender's path validation succeeded.
 
-   *  FAILED (0x01): The server's path validation timed out.
+   *  FAILED (0x01): The sender's path validation timed out.
 
    *  REJECTED (0x02): The server did not start the attempt.
 
-   Clients MUST ignore duplicates.  An unknown Status MUST be treated as
-   a connection error of type FRAME_ENCODING_ERROR; an unissued Attempt
-   ID or detected conflicting statuses MUST be treated as a connection
-   error of type PROTOCOL_VIOLATION.
+   Each endpoint's Status MUST remain unchanged for a given Grant ID.
+   Endpoints MUST treat detected conflicting statuses from the peer for
+   a grant as a connection error of type PROTOCOL_VIOLATION.
+
+   PUNCH_DONE can only be sent in response to a PUNCH_REQUEST.  A client
+   that receives a PUNCH_DONE frame with a Grant ID for which it didn't
+   send a PUNCH_REQUEST frame MUST close the connection with an error of
+   type PROTOCOL_VIOLATION.  Due to packet reordering, a server might
+   receive a PUNCH_DONE frame before receiving the corresponding
+   PUNCH_REQUEST frame.
+
+   An unknown Status, or REJECTED received by a server, MUST be treated
+   as a connection error of type FRAME_ENCODING_ERROR.
+
+   If PUNCH_DONE arrives before the corresponding PUNCH_REQUEST, the
+   server MUST retain the Status and process the request normally when
+   it arrives.
 
    PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be
    retransmitted on loss until acknowledged.
 
-   This frame is only sent from the server to the client.  Servers MUST
-   treat receipt of a PUNCH_DONE frame as a connection error of type
-   PROTOCOL_VIOLATION.
-
-10.  Security Considerations
+12.  Security Considerations
 
    This document expands QUIC's path validation logic to QUIC servers,
    allowing a QUIC client to request the sending of path validation
@@ -416,14 +468,14 @@ Table of Contents
    possible when using this extension.  The server therefore needs to
    carefully limit the amount of data it sends on unverified paths.
 
-11.  IANA Considerations
+13.  IANA Considerations
 
    TODO: fill out registration request for the transport parameter and
    frame types
 
-12.  References
+14.  References
 
-12.1.  Normative References
+14.1.  Normative References
 
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
@@ -461,7 +513,7 @@ Table of Contents
               DOI 10.17487/RFC9287, August 2022,
               <https://www.rfc-editor.org/rfc/rfc9287>.
 
-12.2.  Informative References
+14.2.  Informative References
 
    [CONNECT-UDP-LISTEN]
               Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",

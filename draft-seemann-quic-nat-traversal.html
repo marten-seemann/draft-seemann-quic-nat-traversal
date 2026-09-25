@@ -1191,13 +1191,16 @@ can be used to migrate the connection to a direct path.<a href="#section-abstrac
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-coordinated-path-probing" class="internal xref">Coordinated Path Probing</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-probes-received-on-a-differ" class="internal xref">Probes Received on a Different Base</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-grant-limits" class="internal xref">Grant Limits</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-interaction-with-active_con" class="internal xref">Interaction with active_connection_id_limit</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-probes-received-on-a-differ" class="internal xref">Probes Received on a Different Base</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-amplification-attack-mitiga" class="internal xref">Amplification Attack Mitigation</a></p>
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-interaction-with-active_con" class="internal xref">Interaction with active_connection_id_limit</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-amplification-attack-mitiga" class="internal xref">Amplification Attack Mitigation</a></p>
 </li>
             </ul>
 </li>
@@ -1205,33 +1208,39 @@ can be used to migrate the connection to a direct path.<a href="#section-abstrac
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-extension-negotiation" class="internal xref">Extension Negotiation</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-punch_request-frame" class="internal xref">PUNCH_REQUEST Frame</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-punch_grant-frame" class="internal xref">PUNCH_GRANT Frame</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-punch_done-frame" class="internal xref">PUNCH_DONE Frame</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-max_punch_grants-frame" class="internal xref">MAX_PUNCH_GRANTS Frame</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-punch_request-frame" class="internal xref">PUNCH_REQUEST Frame</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-punch_done-frame" class="internal xref">PUNCH_DONE Frame</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
-                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
-                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-14" class="auto internal xref">14</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#section-14.1" class="auto internal xref">14.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#section-14.2" class="auto internal xref">14.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1402,64 +1411,77 @@ the algorithm used, and the client is free to use a different algorithm.<a href=
       <h2 id="name-coordinated-path-probing">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-coordinated-path-probing" class="section-name selfRef">Coordinated Path Probing</a>
       </h2>
-<p id="section-6-1">The client requests an independent path validation attempt for an address pair
-using PUNCH_REQUEST. It <span class="bcp14">SHOULD</span> start validation immediately after sending the
-request; the server <span class="bcp14">SHOULD</span> start immediately upon accepting it. Validation
-follows <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with additional rate limits
-(<a href="#amplification-attack" class="auto internal xref">Section 6.3</a>). Each endpoint <span class="bcp14">MUST</span> set its own timeout following
+<p id="section-6-1">The server authorizes attempts using PUNCH_GRANT (<a href="#punch-grant-frame" class="auto internal xref">Section 8</a>). Each
+grant permits one independent path validation attempt for an address pair. The
+client uses a grant by sending PUNCH_REQUEST with its Grant ID and the selected
+address pair. It <span class="bcp14">SHOULD</span> start validation immediately after sending the request;
+the server <span class="bcp14">SHOULD</span> start immediately upon accepting it. Validation follows
+<span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2" class="relref">Section 8.2</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>, with additional rate limits
+(<a href="#amplification-attack" class="auto internal xref">Section 6.4</a>). Each endpoint <span class="bcp14">MUST</span> set its own timeout following
 <span><a href="https://rfc-editor.org/rfc/rfc9000#section-8.2.4" class="relref">Section 8.2.4</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6-2">Each endpoint <span class="bcp14">MUST</span> send probe packets containing PATH_CHALLENGE frames for an
 attempt from a single sending base to the peer address specified in the
 PUNCH_REQUEST.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">The server <span class="bcp14">MUST</span> report rejection, failure, or success using PUNCH_DONE
-(<a href="#punch-done-frame" class="auto internal xref">Section 9</a>), stopping its probes for that attempt before sending it.
-All PUNCH_DONE frames for the same Attempt ID <span class="bcp14">MUST</span> carry the same Status.
-PUNCH_DONE does not change the client's validation result or either endpoint's
-obligation to answer PATH_CHALLENGE frames (<a href="#different-base" class="auto internal xref">Section 6.1</a>).<a href="#section-6-3" class="pilcrow">¶</a></p>
-<p id="section-6-4">The client <span class="bcp14">MUST NOT</span> exceed the advertised concurrency limit. Each Attempt ID
-counts once, from the first request transmission until local probing ends and
-the matching PUNCH_DONE is received. The server counts accepted attempts until
-it first sends PUNCH_DONE. A new request that would exceed the limit <span class="bcp14">MUST</span> be
-treated as a connection error of type PROTOCOL_VIOLATION.<a href="#section-6-4" class="pilcrow">¶</a></p>
-<p id="section-6-5">The client <span class="bcp14">SHOULD</span> request attempts as candidate pairs become available, but <span class="bcp14">MAY</span>
-delay requests to prioritize pairs when the concurrency limit is small.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<div id="different-base">
+<p id="section-6-3">Each endpoint <span class="bcp14">MUST</span> report success or timeout using PUNCH_DONE
+(<a href="#punch-done-frame" class="auto internal xref">Section 11</a>); the server <span class="bcp14">MUST</span> also report rejection. Before sending it,
+the endpoint <span class="bcp14">MUST</span> permanently stop sending probe packets containing
+PATH_CHALLENGE frames for that attempt.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">PUNCH_DONE does not affect the peer's probing or validation result, or either
+endpoint's obligation to answer PATH_CHALLENGE frames (<a href="#different-base" class="auto internal xref">Section 6.2</a>).<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">The client <span class="bcp14">SHOULD</span> request attempts as candidate pairs and unused grants become
+available, but <span class="bcp14">MAY</span> delay requests to prioritize pairs.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<div id="grant-limits">
 <section id="section-6.1">
-        <h3 id="name-probes-received-on-a-differ">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-probes-received-on-a-differ" class="section-name selfRef">Probes Received on a Different Base</a>
+        <h3 id="name-grant-limits">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-grant-limits" class="section-name selfRef">Grant Limits</a>
         </h3>
-<p id="section-6.1-1">Under certain network configurations, a probe packet can arrive at a different
+<p id="section-6.1-1">The client's nat_traversal transport parameter (<a href="#negotiate-extension" class="auto internal xref">Section 7</a>) sets
+the initial cumulative grant limit. MAX_PUNCH_GRANTS
+(<a href="#max-punch-grants-frame" class="auto internal xref">Section 9</a>) can increase it. The server <span class="bcp14">MUST NOT</span> issue a grant
+whose Grant ID is greater than or equal to the largest limit received. The
+client <span class="bcp14">MUST</span> treat receipt of a grant at or above its largest advertised limit
+as a connection error of type PROTOCOL_VIOLATION.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">The server decides when to issue grants within the limit; the client decides
+when to increase it.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="different-base">
+<section id="section-6.2">
+        <h3 id="name-probes-received-on-a-differ">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-probes-received-on-a-differ" class="section-name selfRef">Probes Received on a Different Base</a>
+        </h3>
+<p id="section-6.2-1">Under certain network configurations, a probe packet can arrive at a different
 base than the one the receiving endpoint selected for its attempt. This can
 happen when overlapping address spaces give candidates with different bases
-the same address (<span><a href="https://rfc-editor.org/rfc/rfc8445#appendix-B.2" class="relref">Appendix B.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">Both endpoints follow the path validation rules of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> in addition to
+the same address (<span><a href="https://rfc-editor.org/rfc/rfc8445#appendix-B.2" class="relref">Appendix B.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">Both endpoints follow the path validation rules of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> in addition to
 the coordinated probing rules above. An endpoint sends a packet containing the
 PATH_RESPONSE from the receiving base to the probe's source address, using a
 connection ID valid for that path; if none is available, it cannot respond.
 A matching PATH_RESPONSE validates the path on which the corresponding probe
-was sent, regardless of where the response arrives.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+was sent, regardless of where the response arrives.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="interaction-with-activeconnectionidlimit">
-<section id="section-6.2">
+<section id="section-6.3">
         <h3 id="name-interaction-with-active_con">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-interaction-with-active_con" class="section-name selfRef">Interaction with active_connection_id_limit</a>
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-interaction-with-active_con" class="section-name selfRef">Interaction with active_connection_id_limit</a>
         </h3>
-<p id="section-6.2-1">The active_connection_id_limit limits the number of connection IDs that are
+<p id="section-6.3-1">The active_connection_id_limit limits the number of connection IDs that are
 active at any given time. Both endpoints need to use a previously unused
 connection ID when validating a new path in order to avoid linkability.
 Therefore, the active_connection_id_limit effectively places a limit on the
-number of concurrent path validations.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">Endpoints <span class="bcp14">SHOULD</span> set an active_connection_id_limit that is high enough to allow
-for the desired number of concurrent path validation attempts.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+number of concurrent path validations.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">Endpoints <span class="bcp14">SHOULD</span> set an active_connection_id_limit that is high enough to allow
+for the desired number of concurrent path validation attempts.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="amplification-attack">
-<section id="section-6.3">
+<section id="section-6.4">
         <h3 id="name-amplification-attack-mitiga">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-amplification-attack-mitiga" class="section-name selfRef">Amplification Attack Mitigation</a>
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-amplification-attack-mitiga" class="section-name selfRef">Amplification Attack Mitigation</a>
         </h3>
-<p id="section-6.3-1">TODO describe exactly how to mitigate amplification attacks<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-1">TODO describe exactly how to mitigate amplification attacks<a href="#section-6.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1471,34 +1493,74 @@ for the desired number of concurrent path validation attempts.<a href="#section-
       </h2>
 <p id="section-7-1">Endpoints advertise their support of the extension by sending the nat_traversal
 (0x3d7e9f0bca12fea6) transport parameter (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-7.4" class="relref">Section 7.4</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>).<a href="#section-7-1" class="pilcrow">¶</a></p>
-<p id="section-7-2">The client <span class="bcp14">MUST</span> send this transport parameter with an empty value. A server
-implementation that understands this transport parameter <span class="bcp14">MUST</span> treat the receipt
-of a non-empty value as a connection error of type TRANSPORT_PARAMETER_ERROR.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<p id="section-7-2">The client's value is a single variable-length integer specifying the initial
+cumulative grant limit (<a href="#grant-limits" class="auto internal xref">Section 6.1</a>). The server <span class="bcp14">MUST</span> send an empty value.
+An endpoint that understands this transport parameter <span class="bcp14">MUST</span> treat receipt of an
+invalid value as a connection error of type TRANSPORT_PARAMETER_ERROR.<a href="#section-7-2" class="pilcrow">¶</a></p>
 <p id="section-7-3">The client <span class="bcp14">MUST</span> also send the alternative_address transport parameter defined in
 <span>[<a href="#ALTERNATIVE-ADDRESS" class="cite xref">ALTERNATIVE-ADDRESS</a>]</span>. A server that understands nat_traversal <span class="bcp14">MUST</span> treat
 receipt of nat_traversal without alternative_address as a connection error of
 type TRANSPORT_PARAMETER_ERROR.<a href="#section-7-3" class="pilcrow">¶</a></p>
-<p id="section-7-4">For the server, the value of this transport parameter is a variable-length
-integer, the concurrency limit defined in <a href="#coordinated-probing" class="auto internal xref">Section 6</a>. Any value
-larger than 0 is valid. A client implementation that understands this transport
-parameter <span class="bcp14">MUST</span> treat the receipt of a value that is not a variable-length
-integer, or the receipt of the value 0, as a connection error of type
-TRANSPORT_PARAMETER_ERROR.<a href="#section-7-4" class="pilcrow">¶</a></p>
-<p id="section-7-5">To enable the use of this extension in 0-RTT packets, the client <span class="bcp14">MUST</span> remember
-the value of this transport parameter. If 0-RTT data is accepted by the server,
-the server <span class="bcp14">MUST</span> not disable this extension on the resumed connection.<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-4">This transport parameter <span class="bcp14">MUST NOT</span> be remembered for use in 0-RTT. The frames
+defined in this document <span class="bcp14">MUST</span> only be sent in 1-RTT packets.<a href="#section-7-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="punchrequest-frame">
+<div id="punch-grant-frame">
 <section id="section-8">
-      <h2 id="name-punch_request-frame">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-punch_request-frame" class="section-name selfRef">PUNCH_REQUEST Frame</a>
+      <h2 id="name-punch_grant-frame">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-punch_grant-frame" class="section-name selfRef">PUNCH_GRANT Frame</a>
       </h2>
 <div class="alignLeft art-text artwork" id="section-8-1">
 <pre>
+PUNCH_GRANT Frame {
+    Type (i) = 0x3d7e96,
+    Grant ID (i),
+}
+</pre><a href="#section-8-1" class="pilcrow">¶</a>
+</div>
+<p id="section-8-2">PUNCH_GRANT authorizes one attempt. The server <span class="bcp14">MUST</span> number new grants
+consecutively from 0 within each connection, subject to the client's grant limit
+(<a href="#grant-limits" class="auto internal xref">Section 6.1</a>).<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">PUNCH_GRANT is ack-eliciting and sent on a validated path. The Grant ID <span class="bcp14">SHOULD</span>
+be retransmitted on loss until acknowledged.<a href="#section-8-3" class="pilcrow">¶</a></p>
+<p id="section-8-4">This frame is only sent from the server to the client. Servers <span class="bcp14">MUST</span> treat
+receipt of a PUNCH_GRANT frame as a connection error of type PROTOCOL_VIOLATION.<a href="#section-8-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="max-punch-grants-frame">
+<section id="section-9">
+      <h2 id="name-max_punch_grants-frame">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-max_punch_grants-frame" class="section-name selfRef">MAX_PUNCH_GRANTS Frame</a>
+      </h2>
+<div class="alignLeft art-text artwork" id="section-9-1">
+<pre>
+MAX_PUNCH_GRANTS Frame {
+    Type (i) = 0x3d7e97,
+    Maximum Grants (i),
+}
+</pre><a href="#section-9-1" class="pilcrow">¶</a>
+</div>
+<p id="section-9-2">Maximum Grants is the cumulative number of grants the server may issue,
+including grants already used. Servers <span class="bcp14">MUST</span> ignore values that do not increase
+the limit.<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-9-3">MAX_PUNCH_GRANTS is ack-eliciting and sent on a validated path. On loss, the
+client <span class="bcp14">MUST</span> retransmit its current limit unless it has already been
+acknowledged.<a href="#section-9-3" class="pilcrow">¶</a></p>
+<p id="section-9-4">This frame is only sent from the client to the server. Clients <span class="bcp14">MUST</span> treat
+receipt of a MAX_PUNCH_GRANTS frame as a connection error of type
+PROTOCOL_VIOLATION.<a href="#section-9-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="punchrequest-frame">
+<section id="section-10">
+      <h2 id="name-punch_request-frame">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-punch_request-frame" class="section-name selfRef">PUNCH_REQUEST Frame</a>
+      </h2>
+<div class="alignLeft art-text artwork" id="section-10-1">
+<pre>
 PUNCH_REQUEST Frame {
     Type (i) = 0x3d7e92,
-    Attempt ID (i),
+    Grant ID (i),
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
@@ -1506,101 +1568,109 @@ PUNCH_REQUEST Frame {
     Server IP Address (32..128),
     Server Port (16),
 }
-</pre><a href="#section-8-1" class="pilcrow">¶</a>
+</pre><a href="#section-10-1" class="pilcrow">¶</a>
 </div>
-<p id="section-8-2">The PUNCH_REQUEST frame contains the following fields:<a href="#section-8-2" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-8-3">
-        <dt id="section-8-3.1">Attempt ID:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.2">
-          <p id="section-8-3.2.1">The client <span class="bcp14">MUST</span> number new attempts consecutively from 0 within each
- connection.<a href="#section-8-3.2.1" class="pilcrow">¶</a></p>
+<p id="section-10-2">The PUNCH_REQUEST frame contains the following fields:<a href="#section-10-2" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10-3">
+        <dt id="section-10-3.1">Grant ID:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.2">
+          <p id="section-10-3.2.1">The grant used for this attempt (<a href="#punch-grant-frame" class="auto internal xref">Section 8</a>).<a href="#section-10-3.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-8-3.3">Client Address Type and Server Address Type:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.4">
-          <p id="section-8-3.4.1">The address family of the corresponding IP Address field. The values 0x01 and
+<dt id="section-10-3.3">Client Address Type and Server Address Type:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.4">
+          <p id="section-10-3.4.1">The address family of the corresponding IP Address field. The values 0x01 and
  0x02 indicate IPv4 and IPv6, respectively, as in <span>[<a href="#ALTERNATIVE-ADDRESS" class="cite xref">ALTERNATIVE-ADDRESS</a>]</span>.
  Receipt of any other value <span class="bcp14">MUST</span> be treated as a connection error of type
- FRAME_ENCODING_ERROR.<a href="#section-8-3.4.1" class="pilcrow">¶</a></p>
+ FRAME_ENCODING_ERROR.<a href="#section-10-3.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-8-3.5">Client IP Address:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.6">
-          <p id="section-8-3.6.1">The client's address candidate. This field is 32 bits long for IPv4 and 128
- bits long for IPv6, as indicated by Client Address Type.<a href="#section-8-3.6.1" class="pilcrow">¶</a></p>
+<dt id="section-10-3.5">Client IP Address:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.6">
+          <p id="section-10-3.6.1">The client's address candidate. This field is 32 bits long for IPv4 and 128
+ bits long for IPv6, as indicated by Client Address Type.<a href="#section-10-3.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-8-3.7">Client Port:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.8">
-          <p id="section-8-3.8.1">The port number of the client's address candidate.<a href="#section-8-3.8.1" class="pilcrow">¶</a></p>
+<dt id="section-10-3.7">Client Port:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.8">
+          <p id="section-10-3.8.1">The port number of the client's address candidate.<a href="#section-10-3.8.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-8-3.9">Server IP Address:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.10">
-          <p id="section-8-3.10.1">The server's address candidate, selected from the addresses advertised using
+<dt id="section-10-3.9">Server IP Address:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.10">
+          <p id="section-10-3.10.1">The server's address candidate, selected from the addresses advertised using
  ALTERNATIVE_ADDRESS frames. This field is 32 bits long for IPv4 and 128 bits
- long for IPv6, as indicated by Server Address Type.<a href="#section-8-3.10.1" class="pilcrow">¶</a></p>
+ long for IPv6, as indicated by Server Address Type.<a href="#section-10-3.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-8-3.11">Server Port:</dt>
-        <dd style="margin-left: 1.5em" id="section-8-3.12">
-          <p id="section-8-3.12.1">The port number of the server's address candidate.<a href="#section-8-3.12.1" class="pilcrow">¶</a></p>
+<dt id="section-10-3.11">Server Port:</dt>
+        <dd style="margin-left: 1.5em" id="section-10-3.12">
+          <p id="section-10-3.12.1">The port number of the server's address candidate.<a href="#section-10-3.12.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-8-4">For a given Attempt ID, address fields <span class="bcp14">MUST NOT</span> change. Servers <span class="bcp14">MUST</span> ignore
-duplicate requests, including for completed attempts, and <span class="bcp14">MUST</span> treat detected
-conflicts as a connection error of type PROTOCOL_VIOLATION.<a href="#section-8-4" class="pilcrow">¶</a></p>
-<p id="section-8-5">PUNCH_REQUEST frames are ack-eliciting. If lost, they <span class="bcp14">MUST</span> be retransmitted
-unless the request has been acknowledged or the corresponding PUNCH_DONE has
-been received.<a href="#section-8-5" class="pilcrow">¶</a></p>
-<p id="section-8-6">This frame is only sent from the client to the server. Clients <span class="bcp14">MUST</span> treat
+<p id="section-10-4">The client <span class="bcp14">MUST</span> use a received, unused grant for each new attempt. Sending
+PUNCH_REQUEST permanently binds that grant to the address pair, even if the
+request is rejected. Retransmissions <span class="bcp14">MUST</span> use the same Grant ID and addresses.
+Servers <span class="bcp14">MUST</span> ignore duplicate requests, including for completed attempts, and
+<span class="bcp14">MUST</span> treat an unissued Grant ID or detected conflicting addresses as a
+connection error of type PROTOCOL_VIOLATION.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<p id="section-10-5">PUNCH_REQUEST frames are ack-eliciting and <span class="bcp14">MUST</span> be retransmitted on loss until
+the request is acknowledged or the server's PUNCH_DONE is received, even after
+local probing ends.<a href="#section-10-5" class="pilcrow">¶</a></p>
+<p id="section-10-6">This frame is only sent from the client to the server. Clients <span class="bcp14">MUST</span> treat
 receipt of a PUNCH_REQUEST frame as a connection error of type
-PROTOCOL_VIOLATION.<a href="#section-8-6" class="pilcrow">¶</a></p>
+PROTOCOL_VIOLATION.<a href="#section-10-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="punch-done-frame">
-<section id="section-9">
+<section id="section-11">
       <h2 id="name-punch_done-frame">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-punch_done-frame" class="section-name selfRef">PUNCH_DONE Frame</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-punch_done-frame" class="section-name selfRef">PUNCH_DONE Frame</a>
       </h2>
-<div class="alignLeft art-text artwork" id="section-9-1">
+<div class="alignLeft art-text artwork" id="section-11-1">
 <pre>
 PUNCH_DONE Frame {
     Type (i) = 0x3d7e95,
-    Attempt ID (i),
+    Grant ID (i),
     Status (i),
 }
-</pre><a href="#section-9-1" class="pilcrow">¶</a>
+</pre><a href="#section-11-1" class="pilcrow">¶</a>
 </div>
-<p id="section-9-2">Attempt ID identifies the PUNCH_REQUEST. Status reports the server's result:<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-11-2">The Grant ID identifies the attempt. Status reports the sender's result:<a href="#section-11-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-9-3.1">
-          <p id="section-9-3.1.1">SUCCEEDED (0x00): The server's path validation succeeded.<a href="#section-9-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-11-3.1">
+          <p id="section-11-3.1.1">SUCCEEDED (0x00): The sender's path validation succeeded.<a href="#section-11-3.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-9-3.2">
-          <p id="section-9-3.2.1">FAILED (0x01): The server's path validation timed out.<a href="#section-9-3.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-11-3.2">
+          <p id="section-11-3.2.1">FAILED (0x01): The sender's path validation timed out.<a href="#section-11-3.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-9-3.3">
-          <p id="section-9-3.3.1">REJECTED (0x02): The server did not start the attempt.<a href="#section-9-3.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-11-3.3">
+          <p id="section-11-3.3.1">REJECTED (0x02): The server did not start the attempt.<a href="#section-11-3.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-9-4">Clients <span class="bcp14">MUST</span> ignore duplicates. An unknown Status <span class="bcp14">MUST</span> be treated as a
-connection error of type FRAME_ENCODING_ERROR; an unissued Attempt ID or
-detected conflicting statuses <span class="bcp14">MUST</span> be treated as a connection error of type
-PROTOCOL_VIOLATION.<a href="#section-9-4" class="pilcrow">¶</a></p>
-<p id="section-9-5">PUNCH_DONE is ack-eliciting, sent on a validated path, and <span class="bcp14">MUST</span> be retransmitted
-on loss until acknowledged.<a href="#section-9-5" class="pilcrow">¶</a></p>
-<p id="section-9-6">This frame is only sent from the server to the client. Servers <span class="bcp14">MUST</span> treat
-receipt of a PUNCH_DONE frame as a connection error of type PROTOCOL_VIOLATION.<a href="#section-9-6" class="pilcrow">¶</a></p>
+<p id="section-11-4">Each endpoint's Status <span class="bcp14">MUST</span> remain unchanged for a given Grant ID. Endpoints
+<span class="bcp14">MUST</span> treat detected conflicting statuses from the peer for a grant as a
+connection error of type PROTOCOL_VIOLATION.<a href="#section-11-4" class="pilcrow">¶</a></p>
+<p id="section-11-5">PUNCH_DONE can only be sent in response to a PUNCH_REQUEST. A client that
+receives a PUNCH_DONE frame with a Grant ID for which it didn't send a
+PUNCH_REQUEST frame <span class="bcp14">MUST</span> close the connection with an error of type
+PROTOCOL_VIOLATION. Due to packet reordering, a server might receive a
+PUNCH_DONE frame before receiving the corresponding PUNCH_REQUEST frame.<a href="#section-11-5" class="pilcrow">¶</a></p>
+<p id="section-11-6">An unknown Status, or REJECTED received by a server, <span class="bcp14">MUST</span> be treated as a
+connection error of type FRAME_ENCODING_ERROR.<a href="#section-11-6" class="pilcrow">¶</a></p>
+<p id="section-11-7">If PUNCH_DONE arrives before the corresponding PUNCH_REQUEST, the server <span class="bcp14">MUST</span>
+retain the Status and process the request normally when it arrives.<a href="#section-11-7" class="pilcrow">¶</a></p>
+<p id="section-11-8">PUNCH_DONE is ack-eliciting, sent on a validated path, and <span class="bcp14">MUST</span> be retransmitted
+on loss until acknowledged.<a href="#section-11-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-10">
+<section id="section-12">
       <h2 id="name-security-considerations">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-10-1">This document expands QUIC's path validation logic to QUIC servers, allowing a
+<p id="section-12-1">This document expands QUIC's path validation logic to QUIC servers, allowing a
 QUIC client to request the sending of path validation packets on unverified
 paths. A malicious client can direct traffic to a target IP. This attack is
 similar to the IP address spoofing attack that address validation during
@@ -1608,26 +1678,26 @@ connection establishment (see <span><a href="https://rfc-editor.org/rfc/rfc9000#
 prevent. In practice, however, IP address spoofing is often additionally
 mitigated by ingress and egress filtering at the IP layer. This mitigation is
 not possible when using this extension. The server therefore needs to carefully
-limit the amount of data it sends on unverified paths.<a href="#section-10-1" class="pilcrow">¶</a></p>
+limit the amount of data it sends on unverified paths.<a href="#section-12-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-11">
+<section id="section-13">
       <h2 id="name-iana-considerations">
-<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-11-1">TODO: fill out registration request for the transport parameter and frame types<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-13-1">TODO: fill out registration request for the transport parameter and frame types<a href="#section-13-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-12">
+<section id="section-14">
       <h2 id="name-references">
-<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-14" class="section-number selfRef">14. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-12.1">
+<section id="section-14.1">
         <h3 id="name-normative-references">
-<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="ALTERNATIVE-ADDRESS">[ALTERNATIVE-ADDRESS]</dt>
@@ -1662,9 +1732,9 @@ limit the amount of data it sends on unverified paths.<a href="#section-10-1" cl
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-12.2">
+<section id="section-14.2">
         <h3 id="name-informative-references">
-<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="CONNECT-UDP-LISTEN">[CONNECT-UDP-LISTEN]</dt>
