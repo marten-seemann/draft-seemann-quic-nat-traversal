@@ -5,8 +5,8 @@
 QUIC                                                          M. Seemann
 Internet-Draft                                                          
 Intended status: Standards Track                              E. Kinnear
-Expires: 27 March 2027                                        Apple Inc.
-                                                       23 September 2026
+Expires: 29 March 2027                                        Apple Inc.
+                                                       25 September 2026
 
 
                       Using QUIC to traverse NATs
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 March 2027.
+   This Internet-Draft will expire on 29 March 2027.
 
 Copyright Notice
 
@@ -77,8 +77,9 @@ Table of Contents
        5.2.1.  Multiple Sending Bases
      5.3.  Forming Candidate Pairs
    6.  Coordinated Path Probing
-     6.1.  Interaction with active_connection_id_limit
-     6.2.  Amplification Attack Mitigation
+     6.1.  Probes Received on a Different Base
+     6.2.  Interaction with active_connection_id_limit
+     6.3.  Amplification Attack Mitigation
    7.  Extension Negotiation
    8.  PUNCH_REQUEST Frame
    9.  PUNCH_DONE Frame
@@ -236,15 +237,19 @@ Table of Contents
    address pair using PUNCH_REQUEST.  It SHOULD start validation
    immediately after sending the request; the server SHOULD start
    immediately upon accepting it.  Validation follows Section 8.2 of
-   [RFC9000], with additional rate limits (Section 6.2).  Each endpoint
+   [RFC9000], with additional rate limits (Section 6.3).  Each endpoint
    MUST set its own timeout following Section 8.2.4 of [RFC9000].
+
+   Each endpoint MUST send probe packets containing PATH_CHALLENGE
+   frames for an attempt from a single sending base to the peer address
+   specified in the PUNCH_REQUEST.
 
    The server MUST report rejection, failure, or success using
    PUNCH_DONE (Section 9), stopping its probes for that attempt before
    sending it.  All PUNCH_DONE frames for the same Attempt ID MUST carry
    the same Status.  PUNCH_DONE does not change the client's validation
    result or either endpoint's obligation to answer PATH_CHALLENGE
-   frames (Section 8.2.2 of [RFC9000]).
+   frames (Section 6.1).
 
    The client MUST NOT exceed the advertised concurrency limit.  Each
    Attempt ID counts once, from the first request transmission until
@@ -257,7 +262,23 @@ Table of Contents
    available, but MAY delay requests to prioritize pairs when the
    concurrency limit is small.
 
-6.1.  Interaction with active_connection_id_limit
+6.1.  Probes Received on a Different Base
+
+   Under certain network configurations, a probe packet can arrive at a
+   different base than the one the receiving endpoint selected for its
+   attempt.  This can happen when overlapping address spaces give
+   candidates with different bases the same address (Appendix B.2 of
+   [RFC8445]).
+
+   Both endpoints follow the path validation rules of [RFC9000] in
+   addition to the coordinated probing rules above.  An endpoint sends a
+   packet containing the PATH_RESPONSE from the receiving base to the
+   probe's source address, using a connection ID valid for that path; if
+   none is available, it cannot respond.  A matching PATH_RESPONSE
+   validates the path on which the corresponding probe was sent,
+   regardless of where the response arrives.
+
+6.2.  Interaction with active_connection_id_limit
 
    The active_connection_id_limit limits the number of connection IDs
    that are active at any given time.  Both endpoints need to use a
@@ -270,7 +291,7 @@ Table of Contents
    enough to allow for the desired number of concurrent path validation
    attempts.
 
-6.2.  Amplification Attack Mitigation
+6.3.  Amplification Attack Mitigation
 
    TODO describe exactly how to mitigate amplification attacks
 
@@ -407,9 +428,9 @@ Table of Contents
    [ALTERNATIVE-ADDRESS]
               Munizaga, M. and M. Seemann, "QUIC Alternative Server
               Address Frames", Work in Progress, Internet-Draft, draft-
-              munizaga-quic-alternative-server-address-01, 21 July 2026,
-              <https://datatracker.ietf.org/doc/html/draft-munizaga-
-              quic-alternative-server-address-01>.
+              munizaga-quic-alternative-server-address-02, 25 September
+              2026, <https://datatracker.ietf.org/doc/html/draft-
+              munizaga-quic-alternative-server-address-02>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
