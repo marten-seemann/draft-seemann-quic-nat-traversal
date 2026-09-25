@@ -256,7 +256,12 @@ type TRANSPORT_PARAMETER_ERROR.
 This transport parameter MUST NOT be remembered for use in 0-RTT. The frames
 defined in this document MUST only be sent in 1-RTT packets.
 
-# PUNCH_GRANT Frame {#punch-grant-frame}
+# Frames
+
+This extension defines the PUNCH_GRANT, MAX_PUNCH_GRANTS, PUNCH_REQUEST, and
+PUNCH_DONE frames.
+
+## PUNCH_GRANT Frame {#punch-grant-frame}
 
 ~~~
 PUNCH_GRANT Frame {
@@ -275,7 +280,7 @@ be retransmitted on loss until acknowledged.
 This frame is only sent from the server to the client. Servers MUST treat
 receipt of a PUNCH_GRANT frame as a connection error of type PROTOCOL_VIOLATION.
 
-# MAX_PUNCH_GRANTS Frame {#max-punch-grants-frame}
+## MAX_PUNCH_GRANTS Frame {#max-punch-grants-frame}
 
 ~~~
 MAX_PUNCH_GRANTS Frame {
@@ -296,7 +301,7 @@ This frame is only sent from the client to the server. Clients MUST treat
 receipt of a MAX_PUNCH_GRANTS frame as a connection error of type
 PROTOCOL_VIOLATION.
 
-# PUNCH_REQUEST Frame
+## PUNCH_REQUEST Frame
 
 ~~~
 PUNCH_REQUEST Frame {
@@ -358,7 +363,7 @@ This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_REQUEST frame as a connection error of type
 PROTOCOL_VIOLATION.
 
-# PUNCH_DONE Frame {#punch-done-frame}
+## PUNCH_DONE Frame {#punch-done-frame}
 
 ~~~
 PUNCH_DONE Frame {
