@@ -1194,10 +1194,10 @@ can be used to migrate the connection to a direct path.<a href="#section-abstrac
                 <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-grant-limits" class="internal xref">Grant Limits</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-probes-received-on-a-differ" class="internal xref">Probes Received on a Different Base</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-punching-connection-ids" class="internal xref">Punching Connection IDs</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-punching-connection-ids" class="internal xref">Punching Connection IDs</a></p>
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-probes-received-on-a-differ" class="internal xref">Probes Received on a Different Base</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
                 <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-amplification-attack-mitiga" class="internal xref">Amplification Attack Mitigation</a></p>
@@ -1449,45 +1449,47 @@ as a connection error of type PROTOCOL_VIOLATION.<a href="#section-6.1-1" class=
 when to increase it.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="different-base">
+<div id="punching-cids">
 <section id="section-6.2">
-        <h3 id="name-probes-received-on-a-differ">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-probes-received-on-a-differ" class="section-name selfRef">Probes Received on a Different Base</a>
+        <h3 id="name-punching-connection-ids">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-punching-connection-ids" class="section-name selfRef">Punching Connection IDs</a>
         </h3>
-<p id="section-6.2-1">Under certain network configurations, a probe packet can arrive at a different
+<p id="section-6.2-1">This document introduces punching connection IDs, a new type of connection ID
+for coordinated path probing. They have the same wire format in packet headers
+as ordinary connection IDs and <span class="bcp14">MUST</span> satisfy the unlinkability requirements in
+<span><a href="https://rfc-editor.org/rfc/rfc9000#section-5.1" class="relref">Section 5.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">Each endpoint issues two punching connection IDs per grant, using PUNCH_GRANT or
+PUNCH_REQUEST, respectively. The IDs <span class="bcp14">MUST</span> be distinct from all others issued by
+that endpoint on the connection.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">In most circumstances, only one of the two connection IDs needed, but there are
+certain network setups where both need to be used (<a href="#different-base" class="auto internal xref">Section 6.3</a>).<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-4">The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> and the
+active_connection_id_limit transport parameter do not apply to punching
+connection IDs. When QUIC multipath <span>[<a href="#MULTIPATH" class="cite xref">MULTIPATH</a>]</span> is negotiated, punching
+connection IDs are not tied to any path.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
+<p id="section-6.2-5">Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an attempt <span class="bcp14">MUST</span>
+use one of the peer's punching connection IDs for that grant. Non-probing
+packets <span class="bcp14">MUST NOT</span> use these IDs. If a peer receives a non-probing packet that
+used a a punching connection ID, it <span class="bcp14">MUST</span> close the connection with an error of
+type PROTOCOL_VIOLATION.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-6">An endpoint retires a grant's punching connection IDs after both sending and
+receiving PUNCH_DONE (<a href="#punch-done-frame" class="auto internal xref">Section 8.4</a>) for that attempt.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="different-base">
+<section id="section-6.3">
+        <h3 id="name-probes-received-on-a-differ">
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-probes-received-on-a-differ" class="section-name selfRef">Probes Received on a Different Base</a>
+        </h3>
+<p id="section-6.3-1">Under certain network configurations, a probe packet can arrive at a different
 base than the one the receiving endpoint selected for its attempt. This can
 happen when overlapping address spaces give candidates with different bases
-the same address (<span><a href="https://rfc-editor.org/rfc/rfc8445#appendix-B.2" class="relref">Appendix B.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">Both endpoints follow the path validation rules of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> in addition to
+the same address (<span><a href="https://rfc-editor.org/rfc/rfc8445#appendix-B.2" class="relref">Appendix B.2</a> of [<a href="#RFC8445" class="cite xref">RFC8445</a>]</span>).<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">Both endpoints follow the path validation rules of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> in addition to
 the coordinated probing rules above. An endpoint sends a packet containing the
 PATH_RESPONSE from the receiving base to the probe's source address. A matching
 PATH_RESPONSE validates the path on which the corresponding probe was sent,
-regardless of where the response arrives.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="punching-cids">
-<section id="section-6.3">
-        <h3 id="name-punching-connection-ids">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-punching-connection-ids" class="section-name selfRef">Punching Connection IDs</a>
-        </h3>
-<p id="section-6.3-1">This document introduces punching connection IDs, a new type of connection ID
-for coordinated path probing. They have the same wire format in packet headers
-as ordinary connection IDs and <span class="bcp14">MUST</span> satisfy the unlinkability requirements in
-<span><a href="https://rfc-editor.org/rfc/rfc9000#section-5.1" class="relref">Section 5.1</a> of [<a href="#RFC9000" class="cite xref">RFC9000</a>]</span>.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">Each endpoint issues two punching connection IDs per grant, using PUNCH_GRANT or
-PUNCH_REQUEST. The IDs <span class="bcp14">MUST</span> remain unchanged and be distinct from all others
-issued by that endpoint on the connection; violations are a PROTOCOL_VIOLATION.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">In most circumstances, only one of the two connection IDs needed, but there are
-certain network setups where both need to be used (<a href="#different-base" class="auto internal xref">Section 6.2</a>).<a href="#section-6.3-3" class="pilcrow">¶</a></p>
-<p id="section-6.3-4">The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> and
-active_connection_id_limit do not apply. Their lifecycle is independent of
-multipath path management.<a href="#section-6.3-4" class="pilcrow">¶</a></p>
-<p id="section-6.3-5">Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an attempt <span class="bcp14">MUST</span>
-use one of the peer's IDs for that grant. Non-probing packets <span class="bcp14">MUST NOT</span> use these
-IDs. If a peer receives a non-probing packet that used a a punching connection
-ID, it <span class="bcp14">MUST</span> close the connection with an error of type PROTOCOL_VIOLATION.<a href="#section-6.3-5" class="pilcrow">¶</a></p>
-<p id="section-6.3-6">An endpoint retires a grant's punching connection IDs after both sending and
-receiving PUNCH_DONE (<a href="#punch-done-frame" class="auto internal xref">Section 8.4</a>).<a href="#section-6.3-6" class="pilcrow">¶</a></p>
+regardless of where the response arrives.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="amplification-attack">
@@ -1544,7 +1546,7 @@ PUNCH_GRANT Frame {
 </pre><a href="#section-8.1-1" class="pilcrow">¶</a>
 </div>
 <p id="section-8.1-2">PUNCH_GRANT authorizes one attempt and supplies the two server-issued punching
-connection IDs (<a href="#punching-cids" class="auto internal xref">Section 6.3</a>). The server <span class="bcp14">MUST</span> number new grants
+connection IDs (<a href="#punching-cids" class="auto internal xref">Section 6.2</a>). The server <span class="bcp14">MUST</span> number new grants
 consecutively from 0 within each connection, subject to the client's grant
 limit (<a href="#grant-limits" class="auto internal xref">Section 6.1</a>).<a href="#section-8.1-2" class="pilcrow">¶</a></p>
 <p id="section-8.1-3">Both Connection ID Length fields specify a length in bytes from 1 to 20;
@@ -1610,7 +1612,7 @@ PUNCH_REQUEST Frame {
 <dt id="section-8.3-3.3">Connection ID Length and Connection ID:</dt>
           <dd style="margin-left: 1.5em" id="section-8.3-3.4">
             <p id="section-8.3-3.4.1">The length in bytes and value of a client-issued punching connection ID
-(<a href="#punching-cids" class="auto internal xref">Section 6.3</a>). Lengths outside 1 to 20 <span class="bcp14">MUST</span> be treated as
+(<a href="#punching-cids" class="auto internal xref">Section 6.2</a>). Lengths outside 1 to 20 <span class="bcp14">MUST</span> be treated as
 FRAME_ENCODING_ERROR.<a href="#section-8.3-3.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>

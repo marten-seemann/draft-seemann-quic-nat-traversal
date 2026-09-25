@@ -78,8 +78,8 @@ Table of Contents
      5.3.  Forming Candidate Pairs
    6.  Coordinated Path Probing
      6.1.  Grant Limits
-     6.2.  Probes Received on a Different Base
-     6.3.  Punching Connection IDs
+     6.2.  Punching Connection IDs
+     6.3.  Probes Received on a Different Base
      6.4.  Amplification Attack Mitigation
    7.  Extension Negotiation
    8.  Frames
@@ -274,7 +274,38 @@ Table of Contents
    The server decides when to issue grants within the limit; the client
    decides when to increase it.
 
-6.2.  Probes Received on a Different Base
+6.2.  Punching Connection IDs
+
+   This document introduces punching connection IDs, a new type of
+   connection ID for coordinated path probing.  They have the same wire
+   format in packet headers as ordinary connection IDs and MUST satisfy
+   the unlinkability requirements in Section 5.1 of [RFC9000].
+
+   Each endpoint issues two punching connection IDs per grant, using
+   PUNCH_GRANT or PUNCH_REQUEST, respectively.  The IDs MUST be distinct
+   from all others issued by that endpoint on the connection.
+
+   In most circumstances, only one of the two connection IDs needed, but
+   there are certain network setups where both need to be used
+   (Section 6.3).
+
+   The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of
+   [RFC9000] and the active_connection_id_limit transport parameter do
+   not apply to punching connection IDs.  When QUIC multipath
+   [MULTIPATH] is negotiated, punching connection IDs are not tied to
+   any path.
+
+   Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an
+   attempt MUST use one of the peer's punching connection IDs for that
+   grant.  Non-probing packets MUST NOT use these IDs.  If a peer
+   receives a non-probing packet that used a a punching connection ID,
+   it MUST close the connection with an error of type
+   PROTOCOL_VIOLATION.
+
+   An endpoint retires a grant's punching connection IDs after both
+   sending and receiving PUNCH_DONE (Section 8.4) for that attempt.
+
+6.3.  Probes Received on a Different Base
 
    Under certain network configurations, a probe packet can arrive at a
    different base than the one the receiving endpoint selected for its
@@ -288,35 +319,6 @@ Table of Contents
    probe's source address.  A matching PATH_RESPONSE validates the path
    on which the corresponding probe was sent, regardless of where the
    response arrives.
-
-6.3.  Punching Connection IDs
-
-   This document introduces punching connection IDs, a new type of
-   connection ID for coordinated path probing.  They have the same wire
-   format in packet headers as ordinary connection IDs and MUST satisfy
-   the unlinkability requirements in Section 5.1 of [RFC9000].
-
-   Each endpoint issues two punching connection IDs per grant, using
-   PUNCH_GRANT or PUNCH_REQUEST.  The IDs MUST remain unchanged and be
-   distinct from all others issued by that endpoint on the connection;
-   violations are a PROTOCOL_VIOLATION.
-
-   In most circumstances, only one of the two connection IDs needed, but
-   there are certain network setups where both need to be used
-   (Section 6.2).
-
-   The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of
-   [RFC9000] and active_connection_id_limit do not apply.  Their
-   lifecycle is independent of multipath path management.
-
-   Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an
-   attempt MUST use one of the peer's IDs for that grant.  Non-probing
-   packets MUST NOT use these IDs.  If a peer receives a non-probing
-   packet that used a a punching connection ID, it MUST close the
-   connection with an error of type PROTOCOL_VIOLATION.
-
-   An endpoint retires a grant's punching connection IDs after both
-   sending and receiving PUNCH_DONE (Section 8.4).
 
 6.4.  Amplification Attack Mitigation
 
@@ -361,7 +363,7 @@ Table of Contents
    }
 
    PUNCH_GRANT authorizes one attempt and supplies the two server-issued
-   punching connection IDs (Section 6.3).  The server MUST number new
+   punching connection IDs (Section 6.2).  The server MUST number new
    grants consecutively from 0 within each connection, subject to the
    client's grant limit (Section 6.1).
 
@@ -414,7 +416,7 @@ Table of Contents
    Grant ID:  The grant used for this attempt (Section 8.1).
 
    Connection ID Length and Connection ID:  The length in bytes and
-      value of a client-issued punching connection ID (Section 6.3).
+      value of a client-issued punching connection ID (Section 6.2).
       Lengths outside 1 to 20 MUST be treated as FRAME_ENCODING_ERROR.
 
    Client Address Type and Server Address Type:  The address family of
