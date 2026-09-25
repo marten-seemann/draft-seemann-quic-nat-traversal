@@ -38,44 +38,37 @@ informative:
 
 --- abstract
 
-QUIC is well-suited to various NAT traversal techniques. As it operates over UDP
-and because the QUIC header was designed to be demultiplexed from other
-protocols, STUN can be used on the same UDP socket, enabling ICE to be used with
-QUIC. Furthermore, QUIC’s path validation mechanism can be used to test the
-viability of an address candidate pair while at the same time creating the NAT
-bindings required for a direct connection, after which QUIC connection migration
-can be used to migrate the connection to a direct path.
+This document specifies a QUIC extension for traversing Network Address
+Translators (NATs). Endpoints use an existing proxied QUIC connection to
+coordinate path validation attempts that create the NAT bindings needed for a
+direct path and test its connectivity. Application data can be exchanged over
+the proxied path while NAT traversal is in progress. Once a suitable direct
+path has been validated, the connection can migrate to it.
 
 --- middle
 
 # Introduction
 
-This document describes two ways to use QUIC ({{!RFC9000}}) to traverse NATs:
+This document specifies an extension to QUIC ({{!RFC9000}}) that enables
+endpoints behind NATs to establish a direct path for an existing connection. The
+extension uses QUIC's path validation mechanism to create NAT bindings and test
+connectivity, and connection migration to move the connection to a suitable
+direct path.
 
-1. Using ICE ({{!RFC8445}}) with an external signaling channel to select a pair
-   of UDP addresses. Once candidate nomination is completed, a new QUIC
-   connection between the two endpoints can be established.
-2. Using a (proxied) QUIC connection as the signaling channel. QUIC's path
-   validation logic is used to test connectivity of possible paths.
+The endpoints first establish a QUIC connection over a proxied path. This
+connection carries both application data and the signaling needed to coordinate
+NAT traversal. The server advertises its address candidates, and the client
+pairs them with its own candidates and requests coordinated path validation
+attempts. Both endpoints send path validation packets toward the selected peer
+addresses to create the necessary NAT bindings.
 
-The first option documents how NAT traversal can be achieved using unmodified
-QUIC and ICE stacks. The only requirement is the ability to send and receive
-non-QUIC (STUN ({{!RFC5389}})) packets on the UDP socket that a QUIC server is
-listening on. However, it necessitates running a separate signaling channel for
-the communication between the two ICE agents.
+Application data can be exchanged over the proxied path while these attempts are
+in progress. If a suitable direct path is validated, the connection can migrate
+to it. Otherwise, the endpoints can continue using the proxied path.
 
-The second option doesn't use ICE at all, although it makes use of some of the
-concepts, in particular the address matching logic described in {{!RFC8445}}. It
-is assumed that the nodes are connected via a proxied QUIC connection, for
-example using {{CONNECT-UDP-LISTEN}}. Using the QUIC extension defined in this
-document, the nodes coordinate QUIC path validation attempts that create the
-necessary NAT bindings to achieve traversal of the NAT. This mechanism makes
-extensive use of the path validation mechanism described in {{!RFC9000}}. In
-addition, the QUIC server needs the capability to initiate path validation,
-whereas {{!RFC9000}} assumes that it is initiated by the client. Starting with a
-proxied QUIC connection allows the nodes to start exchanging application data
-right away and switch to the direct connection once it has been established and
-deemed suitable for the application's needs.
+The extension borrows address candidate pairing concepts from Interactive
+Connectivity Establishment (ICE; {{!RFC8445}}), but does not use the ICE
+protocol.
 
 # Conventions and Definitions
 
