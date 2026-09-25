@@ -33,8 +33,6 @@ normative:
 
 informative:
    MULTIPATH: I-D.ietf-quic-multipath
-   CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
-
 
 --- abstract
 
