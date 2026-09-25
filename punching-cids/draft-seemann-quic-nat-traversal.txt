@@ -285,8 +285,8 @@ Table of Contents
    PUNCH_GRANT or PUNCH_REQUEST, respectively.  The IDs MUST be distinct
    from all others issued by that endpoint on the connection.
 
-   In most circumstances, only one of the two connection IDs needed, but
-   there are certain network setups where both need to be used
+   In most circumstances, only one of the two connection IDs is needed,
+   but there are certain network setups where both need to be used
    (Section 6.3).
 
    The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of
@@ -298,9 +298,8 @@ Table of Contents
    Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an
    attempt MUST use one of the peer's punching connection IDs for that
    grant.  Non-probing packets MUST NOT use these IDs.  If a peer
-   receives a non-probing packet that used a a punching connection ID,
-   it MUST close the connection with an error of type
-   PROTOCOL_VIOLATION.
+   receives a non-probing packet that used a punching connection ID, it
+   MUST close the connection with an error of type PROTOCOL_VIOLATION.
 
    An endpoint retires a grant's punching connection IDs after both
    sending and receiving PUNCH_DONE (Section 8.4) for that attempt.

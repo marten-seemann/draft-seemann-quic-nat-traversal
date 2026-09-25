@@ -1461,8 +1461,8 @@ as ordinary connection IDs and <span class="bcp14">MUST</span> satisfy the unlin
 <p id="section-6.2-2">Each endpoint issues two punching connection IDs per grant, using PUNCH_GRANT or
 PUNCH_REQUEST, respectively. The IDs <span class="bcp14">MUST</span> be distinct from all others issued by
 that endpoint on the connection.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
-<p id="section-6.2-3">In most circumstances, only one of the two connection IDs needed, but there are
-certain network setups where both need to be used (<a href="#different-base" class="auto internal xref">Section 6.3</a>).<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">In most circumstances, only one of the two connection IDs is needed, but there
+are certain network setups where both need to be used (<a href="#different-base" class="auto internal xref">Section 6.3</a>).<a href="#section-6.2-3" class="pilcrow">¶</a></p>
 <p id="section-6.2-4">The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> and the
 active_connection_id_limit transport parameter do not apply to punching
 connection IDs. When QUIC multipath <span>[<a href="#MULTIPATH" class="cite xref">MULTIPATH</a>]</span> is negotiated, punching
@@ -1470,7 +1470,7 @@ connection IDs are not tied to any path.<a href="#section-6.2-4" class="pilcrow"
 <p id="section-6.2-5">Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an attempt <span class="bcp14">MUST</span>
 use one of the peer's punching connection IDs for that grant. Non-probing
 packets <span class="bcp14">MUST NOT</span> use these IDs. If a peer receives a non-probing packet that
-used a a punching connection ID, it <span class="bcp14">MUST</span> close the connection with an error of
+used a punching connection ID, it <span class="bcp14">MUST</span> close the connection with an error of
 type PROTOCOL_VIOLATION.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
 <p id="section-6.2-6">An endpoint retires a grant's punching connection IDs after both sending and
 receiving PUNCH_DONE (<a href="#punch-done-frame" class="auto internal xref">Section 8.4</a>) for that attempt.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
