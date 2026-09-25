@@ -176,9 +176,9 @@ the algorithm used, and the client is free to use a different algorithm.
 The server authorizes attempts using PUNCH_GRANT ({{punch-grant-frame}}). Each
 grant permits one independent path validation attempt for an address pair. The
 client uses a grant by sending PUNCH_REQUEST with its Grant ID and the selected
-address pair. It SHOULD start validation immediately after sending the request;
-the server SHOULD start immediately upon accepting it. Validation follows
-{{Section 8.2 of RFC9000}}, with additional rate limits
+address pair on an established path. It SHOULD start validation immediately
+after sending this request; the server SHOULD start immediately upon accepting
+it. Validation follows {{Section 8.2 of RFC9000}}, with additional rate limits
 ({{amplification-attack}}). Each endpoint MUST set its own timeout following
 {{Section 8.2.4 of RFC9000}}.
 
@@ -191,8 +191,7 @@ Each endpoint MUST report success or timeout using PUNCH_DONE
 the endpoint MUST permanently stop sending probe packets containing
 PATH_CHALLENGE frames for that attempt.
 
-PUNCH_DONE does not affect the peer's probing or validation result, or either
-endpoint's obligation to answer PATH_CHALLENGE frames ({{different-base}}).
+PUNCH_DONE does not stop the peer's probing or change its validation result.
 
 The client SHOULD request attempts as candidate pairs and unused grants become
 available, but MAY delay requests to prioritize pairs.
@@ -209,6 +208,34 @@ as a connection error of type PROTOCOL_VIOLATION.
 The server decides when to issue grants within the limit; the client decides
 when to increase it.
 
+## Punching Connection IDs {#punching-cids}
+
+This document introduces punching connection IDs, a new type of connection ID
+for coordinated path probing. They have the same wire format in packet headers
+as ordinary connection IDs and MUST satisfy the unlinkability requirements in
+{{Section 5.1 of RFC9000}}.
+
+Each endpoint issues two punching connection IDs per grant, using PUNCH_GRANT or
+PUNCH_REQUEST, respectively. The IDs MUST be distinct from all others issued by
+that endpoint on the connection.
+
+In most circumstances, only one of the two connection IDs is needed, but there
+are certain network setups where both need to be used ({{different-base}}).
+
+The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of {{RFC9000}} and the
+active_connection_id_limit transport parameter do not apply to punching
+connection IDs. When QUIC multipath {{MULTIPATH}} is negotiated, punching
+connection IDs are not tied to any path.
+
+Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an attempt MUST
+use one of the peer's punching connection IDs for that grant. Non-probing
+packets MUST NOT use these IDs. If a peer receives a non-probing packet that
+used a punching connection ID, it MUST close the connection with an error of
+type PROTOCOL_VIOLATION.
+
+An endpoint retires a grant's punching connection IDs after both sending and
+receiving PUNCH_DONE ({{punch-done-frame}}) for that attempt.
+
 ## Probes Received on a Different Base {#different-base}
 
 Under certain network configurations, a probe packet can arrive at a different
@@ -218,21 +245,9 @@ the same address ({{Appendix B.2 of RFC8445}}).
 
 Both endpoints follow the path validation rules of {{RFC9000}} in addition to
 the coordinated probing rules above. An endpoint sends a packet containing the
-PATH_RESPONSE from the receiving base to the probe's source address, using a
-connection ID valid for that path; if none is available, it cannot respond.
-A matching PATH_RESPONSE validates the path on which the corresponding probe
-was sent, regardless of where the response arrives.
-
-## Interaction with active_connection_id_limit
-
-The active_connection_id_limit limits the number of connection IDs that are
-active at any given time. Both endpoints need to use a previously unused
-connection ID when validating a new path in order to avoid linkability.
-Therefore, the active_connection_id_limit effectively places a limit on the
-number of concurrent path validations.
-
-Endpoints SHOULD set an active_connection_id_limit that is high enough to allow
-for the desired number of concurrent path validation attempts.
+PATH_RESPONSE from the receiving base to the probe's source address. A matching
+PATH_RESPONSE validates the path on which the corresponding probe was sent,
+regardless of where the response arrives.
 
 ## Amplification Attack Mitigation {#amplification-attack}
 
@@ -267,12 +282,20 @@ PUNCH_DONE frames.
 PUNCH_GRANT Frame {
     Type (i) = 0x3d7e96,
     Grant ID (i),
+    Connection ID 1 Length (8),
+    Connection ID 1 (8..160),
+    Connection ID 2 Length (8),
+    Connection ID 2 (8..160),
 }
 ~~~
 
-PUNCH_GRANT authorizes one attempt. The server MUST number new grants
-consecutively from 0 within each connection, subject to the client's grant limit
-({{grant-limits}}).
+PUNCH_GRANT authorizes one attempt and supplies the two server-issued punching
+connection IDs ({{punching-cids}}). The server MUST number new grants
+consecutively from 0 within each connection, subject to the client's grant
+limit ({{grant-limits}}).
+
+Both Connection ID Length fields specify a length in bytes from 1 to 20;
+other values MUST be treated as FRAME_ENCODING_ERROR.
 
 PUNCH_GRANT is ack-eliciting and sent on a validated path. The Grant ID SHOULD
 be retransmitted on loss until acknowledged.
@@ -307,6 +330,8 @@ PROTOCOL_VIOLATION.
 PUNCH_REQUEST Frame {
     Type (i) = 0x3d7e92,
     Grant ID (i),
+    Connection ID Length (8),
+    Connection ID (8..160),
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
@@ -321,6 +346,12 @@ The PUNCH_REQUEST frame contains the following fields:
 Grant ID:
 
 : The grant used for this attempt ({{punch-grant-frame}}).
+
+Connection ID Length and Connection ID:
+
+: The length in bytes and value of a client-issued punching connection ID
+  ({{punching-cids}}). Lengths outside 1 to 20 MUST be treated as
+  FRAME_ENCODING_ERROR.
 
 Client Address Type and Server Address Type:
 
@@ -350,14 +381,24 @@ Server Port:
 
 The client MUST use a received, unused grant for each new attempt. Sending
 PUNCH_REQUEST permanently binds that grant to the address pair, even if the
-request is rejected. Retransmissions MUST use the same Grant ID and addresses.
-Servers MUST ignore duplicate requests, including for completed attempts, and
-MUST treat an unissued Grant ID or detected conflicting addresses as a
-connection error of type PROTOCOL_VIOLATION.
+request is rejected. The client MUST send PUNCH_REQUEST:
 
-PUNCH_REQUEST frames are ack-eliciting and MUST be retransmitted on loss until
-the request is acknowledged or the server's PUNCH_DONE is received, even after
-local probing ends.
+* On an established path, using an ordinary destination connection ID and
+  carrying one of its punching connection IDs. Only this copy starts the
+  server's validation.
+* In every probe packet containing PATH_CHALLENGE for the attempt, carrying
+  its other punching connection ID.
+
+The server MUST process both forms in either arrival order, ignoring duplicates
+of each form, and process the direct copy before answering its PATH_CHALLENGE.
+Both forms MUST use the same Grant ID and addresses; retransmissions MUST repeat
+each form's connection ID. Unissued Grant IDs, mismatched destination connection
+IDs, and detected conflicting values MUST be treated as PROTOCOL_VIOLATION.
+
+PUNCH_REQUEST is a probing frame ({{Section 9.1 of RFC9000}}) and is
+ack-eliciting. The established-path copy MUST be retransmitted on loss until it
+is acknowledged or the server's PUNCH_DONE is received, even after local probing
+ends. Direct copies MUST NOT be retransmitted independently.
 
 This frame is only sent from the client to the server. Clients MUST treat
 receipt of a PUNCH_REQUEST frame as a connection error of type
@@ -388,15 +429,17 @@ receives a PUNCH_DONE frame with a Grant ID for which it didn't send a
 PUNCH_REQUEST frame MUST close the connection with an error of type
 PROTOCOL_VIOLATION. Due to packet reordering, a server might receive a
 PUNCH_DONE frame before receiving the corresponding PUNCH_REQUEST frame.
+Servers MUST treat an unissued Grant ID as a connection error of type
+PROTOCOL_VIOLATION.
 
 An unknown Status, or REJECTED received by a server, MUST be treated as a
 connection error of type FRAME_ENCODING_ERROR.
 
-If PUNCH_DONE arrives before the corresponding PUNCH_REQUEST, the server MUST
-retain the Status and process the request normally when it arrives.
+If PUNCH_DONE arrives before the request sent on the established path, the
+server MUST retain the Status and process that request normally when it arrives.
 
-PUNCH_DONE is ack-eliciting, sent on a validated path, and MUST be retransmitted
-on loss until acknowledged.
+PUNCH_DONE is a non-probing, ack-eliciting frame sent on a validated path. It
+MUST be retransmitted on loss until acknowledged.
 
 # Security Considerations
 
