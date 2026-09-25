@@ -498,13 +498,6 @@ Table of Contents
 
 14.2.  Informative References
 
-   [CONNECT-UDP-LISTEN]
-              Schinazi, D. and A. Singh, "Proxying Bound UDP in HTTP",
-              Work in Progress, Internet-Draft, draft-ietf-masque-
-              connect-udp-listen-16, 24 August 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              connect-udp-listen-16>.
-
    [MULTIPATH]
               Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
               C., and M. Kühlewind, "Managing multiple paths for a QUIC
