@@ -96,20 +96,20 @@ client.
 
 # NAT Traversal Extension Overview
 
-QUIC's path validation mechanism can be used to establish the required NAT
-mappings that allow for a direct connection. Once the NAT mappings are
-established, QUIC's connection migration can be used to migrate the connection
-to a direct path. During the path validation phase, multiple different paths
-might be established in parallel. When using QUIC Multipath {{MULTIPATH}}, these
-paths may be used at the same time; however, the mechanism described in this
-document does not require the use of QUIC multipath.
+This extension uses QUIC's path validation mechanism to establish the NAT
+mappings needed for direct paths. Multiple paths can be validated in parallel.
+Without multipath, the connection can migrate to one validated path; with QUIC
+Multipath {{MULTIPATH}}, it can use several concurrently.
 
-Although ICE is not directly used, the logic run on the client makes use of
-ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of RFC8445}}).
-Implementations are free to implement different algorithms as they see fit.
-
-This mode needs to be negotiated during the handshake; see
-{{negotiate-extension}}.
+Whereas ICE defines detailed rules for how both peers form and prioritize
+candidate pairs and schedule connectivity checks ({{Sections 6 and 14 of
+RFC8445}}), this extension takes a different approach: only the server
+advertises address candidates. The client forms candidate pairs, selects which
+pairs to try, and determines the order and timing of attempts. It sends the
+selected address pair to the server when requesting each attempt. The server
+controls concurrency by issuing grants and can reject individual requests
+({{coordinated-probing}}). Because candidate pairing and attempt scheduling run
+entirely on the client, the endpoints do not need to agree on these algorithms.
 
 # Candidate Discovery and Exchange
 
@@ -157,7 +157,7 @@ another attempt.
 ## Forming Candidate Pairs
 
 The client matches the address candidates sent by the server with its own
-address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
+address candidates, forming candidate pairs. {{Section 6.1.2.2 of RFC8445}}
 describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
