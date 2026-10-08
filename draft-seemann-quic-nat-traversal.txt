@@ -5,8 +5,8 @@
 QUIC                                                          M. Seemann
 Internet-Draft                                                          
 Intended status: Standards Track                              E. Kinnear
-Expires: 4 April 2027                                         Apple Inc.
-                                                          1 October 2026
+Expires: 11 April 2027                                        Apple Inc.
+                                                          8 October 2026
 
 
                       Using QUIC to traverse NATs
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 April 2027.
+   This Internet-Draft will expire on 11 April 2027.
 
 Copyright Notice
 
@@ -78,6 +78,7 @@ Table of Contents
    6.  Coordinated Path Probing
      6.1.  Grant Limits
      6.2.  Punching Connection IDs
+       6.2.1.  Use with Multipath
      6.3.  Probes Received on a Different Base
      6.4.  Amplification Attack Mitigation
    7.  Extension Negotiation
@@ -279,9 +280,7 @@ Table of Contents
 
    The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of
    [RFC9000] and the active_connection_id_limit transport parameter do
-   not apply to punching connection IDs.  When QUIC multipath
-   [MULTIPATH] is negotiated, punching connection IDs are not tied to
-   any path.
+   not apply to punching connection IDs.
 
    Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an
    attempt MUST use one of the peer's punching connection IDs for that
@@ -291,6 +290,17 @@ Table of Contents
 
    An endpoint retires a grant's punching connection IDs after both
    sending and receiving PUNCH_DONE (Section 8.4) for that attempt.
+
+6.2.1.  Use with Multipath
+
+   When QUIC multipath [MULTIPATH] is negotiated, packets using punching
+   connection IDs MUST use the reserved Path ID 0xffffffff for nonce
+   calculation and acknowledgments.  All grants share its packet number
+   space, which MUST persist for the connection's lifetime without
+   resetting packet numbers.  This ID is excluded from ordinary path
+   allocation, path limits, and path management.  PATH_ACK frames for
+   this ID MUST be sent on a validated path using an ordinary
+   destination connection ID.
 
 6.3.  Probes Received on a Different Base
 
@@ -522,6 +532,14 @@ Table of Contents
               2026, <https://datatracker.ietf.org/doc/html/draft-
               munizaga-quic-alternative-server-address-02>.
 
+   [MULTIPATH]
+              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
+              C., and M. Kühlewind, "Managing multiple paths for a QUIC
+              connection", Work in Progress, Internet-Draft, draft-ietf-
+              quic-multipath-21, 17 March 2026,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              multipath-21>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -547,14 +565,6 @@ Table of Contents
               <https://www.rfc-editor.org/rfc/rfc9287>.
 
 11.2.  Informative References
-
-   [MULTIPATH]
-              Liu, Y., Ma, Y., De Coninck, Q., Bonaventure, O., Huitema,
-              C., and M. Kühlewind, "Managing multiple paths for a QUIC
-              connection", Work in Progress, Internet-Draft, draft-ietf-
-              quic-multipath-21, 17 March 2026,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
-              multipath-21>.
 
    [RFC8838]  Ivov, E., Uberti, J., and P. Saint-Andre, "Trickle ICE:
               Incremental Provisioning of Candidates for the Interactive
