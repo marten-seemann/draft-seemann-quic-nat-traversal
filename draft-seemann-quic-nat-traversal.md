@@ -30,8 +30,6 @@ author:
 
 normative:
    ALTERNATIVE-ADDRESS: I-D.munizaga-quic-alternative-server-address
-
-informative:
    MULTIPATH: I-D.ietf-quic-multipath
 
 --- abstract
@@ -215,8 +213,7 @@ are certain network setups where both need to be used ({{different-base}}).
 
 The NEW_CONNECTION_ID and RETIRE_CONNECTION_ID mechanisms of {{RFC9000}} and the
 active_connection_id_limit transport parameter do not apply to punching
-connection IDs. When QUIC multipath {{MULTIPATH}} is negotiated, punching
-connection IDs are not tied to any path.
+connection IDs.
 
 Packets containing PATH_CHALLENGE or PATH_RESPONSE frames for an attempt MUST
 use one of the peer's punching connection IDs for that grant. Non-probing
@@ -226,6 +223,16 @@ type PROTOCOL_VIOLATION.
 
 An endpoint retires a grant's punching connection IDs after both sending and
 receiving PUNCH_DONE ({{punch-done-frame}}) for that attempt.
+
+### Use with Multipath {#punching-multipath}
+
+When QUIC multipath {{MULTIPATH}} is negotiated, packets using punching
+connection IDs MUST use the reserved Path ID 0xffffffff for nonce calculation
+and acknowledgments. All grants share its packet number space, which MUST
+persist for the connection's lifetime without resetting packet numbers. This
+ID is excluded from ordinary path allocation, path limits, and path management.
+PATH_ACK frames for this ID MUST be sent on a validated path using an ordinary
+destination connection ID.
 
 ## Probes Received on a Different Base {#different-base}
 
