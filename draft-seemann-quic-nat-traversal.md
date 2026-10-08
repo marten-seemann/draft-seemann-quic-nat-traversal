@@ -130,27 +130,21 @@ The server stores the sending bases associated with each advertised address.
 Candidates with different sending bases MUST be advertised as separate
 entries, even if their advertised addresses are identical.
 
-The server MAY withdraw an address by omitting all its entries from a subsequent
-address-set update. For addresses with multiple sending bases, see the entry
-retention rules in {{multiple-sending-bases}}.
-
-Since address matching is run on the client side, only the server advertises
-address candidates. The client communicates selected address pairs to the server
-using PUNCH_REQUEST frames.
-
-### Multiple Sending Bases {#multiple-sending-bases}
-
-For each address pair, the client SHOULD request one attempt per advertised
-occurrence of the server address.
-
-Accepted attempts for the same address pair MUST use different available
-advertised bases on this connection. If none remains, the server MUST send
-a PUNCH_DONE frame with Status REJECTED.
-
 Each advertisement of an address MUST retain one entry per base ever advertised
 for it on this connection. Without an increase in the entry count, the client
 cannot distinguish a replaced base from an unchanged one and might not schedule
 another attempt.
+
+Across advertisements, entries for the same address MUST retain their relative
+order and associated sending bases. Entries for new bases MUST follow the
+existing entries for that address.
+
+The server MAY withdraw an address by omitting all its entries from a subsequent
+address-set update.
+
+Since address matching is run on the client side, only the server advertises
+address candidates. The client communicates selected address pairs to the server
+using PUNCH_REQUEST frames.
 
 ## Forming Candidate Pairs
 
@@ -159,6 +153,12 @@ address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
 describes an algorithm for pairing address candidates. Since the pairing
 algorithm is only run on the client side, the endpoints do not need to agree on
 the algorithm used, and the client is free to use a different algorithm.
+
+The client MUST treat local candidates with different sending bases and
+distinct server entries as separate candidates, even if their addresses are
+identical. It SHOULD request one attempt per compatible pair. Across
+advertisements, the client identifies a server candidate by its address and
+position among entries for that address.
 
 # Coordinated Path Probing {#coordinated-probing}
 
@@ -333,9 +333,8 @@ PUNCH_REQUEST Frame {
     Client Address Type (8),
     Client IP Address (32..128),
     Client Port (16),
-    Server Address Type (8),
-    Server IP Address (32..128),
-    Server Port (16),
+    Advertisement Sequence Number (i),
+    Entry Index (i),
 }
 ~~~
 
@@ -351,9 +350,9 @@ Connection ID Length and Connection ID:
   ({{punching-cids}}). Lengths outside 1 to 20 MUST be treated as
   FRAME_ENCODING_ERROR.
 
-Client Address Type and Server Address Type:
+Client Address Type:
 
-: The address family of the corresponding IP Address field. The values 0x01 and
+: The address family of the Client IP Address field. The values 0x01 and
    0x02 indicate IPv4 and IPv6, respectively, as in {{ALTERNATIVE-ADDRESS}}.
    Receipt of any other value MUST be treated as a connection error of type
    FRAME_ENCODING_ERROR.
@@ -367,19 +366,18 @@ Client Port:
 
 : The port number of the client's address candidate.
 
-Server IP Address:
+Advertisement Sequence Number:
 
-: The server's address candidate, selected from the addresses advertised using
-   ALTERNATIVE_ADDRESS frames. This field is 32 bits long for IPv4 and 128 bits
-   long for IPv6, as indicated by Server Address Type.
+: The Sequence Number of the referenced ALTERNATIVE_ADDRESS frame.
 
-Server Port:
+Entry Index:
 
-: The port number of the server's address candidate.
+: The zero-based index of the selected IPv4 or IPv6 entry in that frame,
+  counting all entries, including CURRENT_PATH.
 
 The client MUST use a received, unused grant for each new attempt. Sending
-PUNCH_REQUEST permanently binds that grant to the address pair, even if the
-request is rejected. The client MUST send PUNCH_REQUEST:
+PUNCH_REQUEST permanently binds that grant to the client address and server
+entry reference, even if rejected. The client MUST send PUNCH_REQUEST:
 
 * On an established path, using an ordinary destination connection ID and
   carrying one of its punching connection IDs. Only this copy starts the
@@ -389,9 +387,19 @@ request is rejected. The client MUST send PUNCH_REQUEST:
 
 The server MUST process both forms in either arrival order, ignoring duplicates
 of each form, and process the direct copy before answering its PATH_CHALLENGE.
-Both forms MUST use the same Grant ID and addresses; retransmissions MUST repeat
-each form's connection ID. Unissued Grant IDs, mismatched destination connection
-IDs, and detected conflicting values MUST be treated as PROTOCOL_VIOLATION.
+Both forms MUST use the same Grant ID, client address, Advertisement Sequence
+Number, and Entry Index; retransmissions MUST repeat each form's connection ID.
+Unissued Grant IDs, mismatched destination connection IDs, and detected
+conflicting values MUST be treated as PROTOCOL_VIOLATION.
+
+For the first established-path copy, the server MUST send PUNCH_DONE with
+Status STALE_ADVERTISEMENT if the referenced advertisement is older than its
+latest, without starting validation. Otherwise, an unsent advertisement or
+an index that does not select an IPv4 or IPv6 entry MUST be treated as
+PROTOCOL_VIOLATION.
+
+For accepted attempts, the server MUST use the selected entry's sending base.
+Later advertisements MUST NOT change the selected address or base.
 
 PUNCH_REQUEST is a probing frame ({{Section 9.1 of RFC9000}}) and is
 ack-eliciting. The established-path copy MUST be retransmitted on loss until it
@@ -416,7 +424,12 @@ The Grant ID identifies the attempt. Status reports the sender's result:
 
 * SUCCEEDED (0x00): The sender's path validation succeeded.
 * FAILED (0x01): The sender's path validation timed out.
-* REJECTED (0x02): The server did not start the attempt.
+* REJECTED (0x02): The server declined to start the attempt. The client SHOULD
+  NOT retry the same candidate pair.
+* STALE_ADVERTISEMENT (0x03): The referenced advertisement was superseded.
+
+After STALE_ADVERTISEMENT, the client MUST use a newer advertisement for any
+retry.
 
 Each endpoint's Status MUST remain unchanged for a given Grant ID. Endpoints
 MUST treat detected conflicting statuses from the peer for a grant as a
@@ -430,8 +443,8 @@ PUNCH_DONE frame before receiving the corresponding PUNCH_REQUEST frame.
 Servers MUST treat an unissued Grant ID as a connection error of type
 PROTOCOL_VIOLATION.
 
-An unknown Status, or REJECTED received by a server, MUST be treated as a
-connection error of type FRAME_ENCODING_ERROR.
+An unknown Status, or REJECTED or STALE_ADVERTISEMENT received by a server, MUST
+be treated as a connection error of type FRAME_ENCODING_ERROR.
 
 If PUNCH_DONE arrives before the request sent on the established path, the
 server MUST retain the Status and process that request normally when it arrives.
