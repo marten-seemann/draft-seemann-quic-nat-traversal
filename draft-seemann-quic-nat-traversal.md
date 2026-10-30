@@ -204,9 +204,9 @@ for coordinated path probing. They have the same wire format in packet headers
 as ordinary connection IDs and MUST satisfy the unlinkability requirements in
 {{Section 5.1 of RFC9000}}.
 
-Each endpoint issues two punching connection IDs per grant, using PUNCH_GRANT or
-PUNCH_REQUEST, respectively. The IDs MUST be distinct from all others issued by
-that endpoint on the connection.
+The server and client each issue two punching connection IDs per grant, using
+PUNCH_GRANT and PUNCH_REQUEST, respectively. The IDs MUST be distinct from all
+others issued by that endpoint on the connection.
 
 In most circumstances, only one of the two connection IDs is needed, but there
 are certain network setups where both need to be used ({{different-base}}).
