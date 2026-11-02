@@ -32,6 +32,11 @@ normative:
    ALTERNATIVE-ADDRESS: I-D.munizaga-quic-alternative-server-address
    MULTIPATH: I-D.ietf-quic-multipath
 
+informative:
+   CONNECT-UDP-LISTEN: I-D.ietf-masque-connect-udp-listen
+   UDP-RENDEZVOUS: I-D.seemann-masque-connect-udp-rendezvous
+   TURN: RFC8656
+
 --- abstract
 
 This document specifies a QUIC extension for traversing Network Address
@@ -51,12 +56,12 @@ extension uses QUIC's path validation mechanism to create NAT bindings and test
 connectivity, and connection migration to move the connection to a suitable
 direct path.
 
-The endpoints first establish a QUIC connection over a proxied path. This
-connection carries both application data and the signaling needed to coordinate
-NAT traversal. The server advertises its address candidates, and the client
-pairs them with its own candidates and requests coordinated path validation
-attempts. Both endpoints send path validation packets toward the selected peer
-addresses to create the necessary NAT bindings.
+The endpoints first establish a QUIC connection over a proxied path ({{setup}}).
+This connection carries both application data and the signaling needed to
+coordinate NAT traversal. The server advertises its address candidates, and the
+client pairs them with its own candidates and requests coordinated path
+validation attempts. Both endpoints send path validation packets toward the
+selected peer addresses to create the necessary NAT bindings.
 
 Application data can be exchanged over the proxied path while these attempts are
 in progress. If a suitable direct path is validated, the connection can migrate
@@ -92,26 +97,55 @@ checks should have created the necessary NAT bindings for the client's first
 flight to reach the server and for the server's first flight to reach the
 client.
 
-# NAT Traversal Extension Overview
+# NAT Traversal Extension Overview {#setup}
 
-QUIC's path validation mechanism can be used to establish the required NAT
-mappings that allow for a direct connection. Once the NAT mappings are
-established, QUIC's connection migration can be used to migrate the connection
-to a direct path. During the path validation phase, multiple different paths
-might be established in parallel. When using QUIC Multipath {{MULTIPATH}}, these
-paths may be used at the same time; however, the mechanism described in this
-document does not require the use of QUIC multipath.
+The extension described in this document assumes that the endpoints first
+establish a QUIC connection over a proxied path. One or both endpoints can be
+behind a NAT. The terms client and server refer to their roles in this QUIC
+connection: the client initiates the handshake, and the server responds.
 
-Although ICE is not directly used, the logic run on the client makes use of
-ICE's candidate pairing logic (see especially {{Section 6.1.2.2 of RFC8445}}).
-Implementations are free to implement different algorithms as they see fit.
+The proxied path runs through a relay, which forwards UDP payloads between the
+endpoints without terminating the QUIC connection. Each endpoint's connection to
+the relay (for example, an HTTP connection to a proxy) is separate from the
+end-to-end QUIC connection. {{setup-topology}} shows a setup with both endpoints
+behind NATs. The dotted line shows the direct path that the endpoints attempt to
+establish.
 
-This mode needs to be negotiated during the handshake; see
-{{negotiate-extension}}.
+~~~
+                         Proxied path
+                          +-------+
+                          | Relay |
+                          +-------+
+                         /         \
+                        /           \
++-------------+   +-----+           +-----+   +-------------+
+| QUIC client |---| NAT |...........| NAT |---| QUIC server |
++-------------+   +-----+           +-----+   +-------------+
+                   Potential direct path
+~~~
+{: #setup-topology title="Proxied and direct paths between QUIC endpoints"}
+
+Establishing the proxied path is out of scope for this document. This can be
+done in multiple ways, for example using Traversal Using Relays around NAT
+(TURN; {{TURN}}), CONNECT-UDP Bind ({{CONNECT-UDP-LISTEN}}), or UDP
+Rendezvous over HTTP ({{UDP-RENDEZVOUS}}). Peer discovery and address candidate
+gathering ({{gathering-candidates}}) are also out of scope.
+
+The protocol is asymmetric by design. Only the server advertises its address
+candidates over the connection. The client pairs them with its own candidates
+and decides which pairs to try and when. The server authorizes attempts and
+probes the requested pairs. This allows the client to change its pairing and
+scheduling algorithms without updating the server.
+
+Both endpoints send QUIC path validation packets to create the NAT bindings
+needed for a direct path and test its connectivity. Once a suitable direct path
+has been validated, the connection can migrate to it. Multiple paths can be
+validated in parallel. When using QUIC Multipath {{MULTIPATH}}, these paths may
+be used at the same time; however, this extension does not require multipath.
 
 # Candidate Discovery and Exchange
 
-## Gathering Address Candidates
+## Gathering Address Candidates {#gathering-candidates}
 
 The gathering of address candidates is out of scope for this document. Endpoints
 MAY use the logic described in {{Sections 5.1.1 and 5.2 of RFC8445}}, or they
@@ -142,17 +176,12 @@ existing entries for that address.
 The server MAY withdraw an address by omitting all its entries from a subsequent
 address-set update.
 
-Since address matching is run on the client side, only the server advertises
-address candidates. The client communicates selected address pairs to the server
-using PUNCH_REQUEST frames.
-
 ## Forming Candidate Pairs
 
 The client matches the address candidates sent by the server with its own
-address candidates, forming candidate pairs. {{Section 5.1 of RFC8445}}
-describes an algorithm for pairing address candidates. Since the pairing
-algorithm is only run on the client side, the endpoints do not need to agree on
-the algorithm used, and the client is free to use a different algorithm.
+address candidates, forming candidate pairs. {{Section 6.1.2.2 of RFC8445}}
+describes an algorithm for pairing address candidates. The client is free to use
+a different algorithm.
 
 The client MUST treat local candidates with different sending bases and
 distinct server entries as separate candidates, even if their addresses are
